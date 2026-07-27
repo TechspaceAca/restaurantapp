@@ -12,6 +12,7 @@ import AdminDashboard from './pages/admin/Dashboard';
 import MenuManager from './pages/admin/MenuManager';
 import TableSetup from './pages/admin/TableSetup';
 import StaffList from './pages/admin/StaffList';
+import Settings from './pages/admin/Settings';
 import TablesView from './pages/staff/TablesView';
 import TakeOrder from './pages/staff/TakeOrder';
 import BillingPage from './pages/staff/Billing';
@@ -70,6 +71,7 @@ export default function App() {
           <Route path="menu" element={<MenuManager />} />
           <Route path="tables" element={<TableSetup />} />
           <Route path="staff" element={<StaffList />} />
+          <Route path="settings" element={<Settings />} />
         </Route>
 
         {/* Staff/POS Routes */}

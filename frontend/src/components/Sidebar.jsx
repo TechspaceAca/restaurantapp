@@ -9,6 +9,8 @@ const adminNav = [
   { path: '/admin/menu', label: 'Menu Catalog', icon: '🍽️' },
   { path: '/admin/tables', label: 'Tables & QR', icon: '🪑' },
   { path: '/admin/staff', label: 'Staff Users', icon: '👥' },
+  { section: 'Configuration' },
+  { path: '/admin/settings', label: 'Settings', icon: '⚙️' },
 ];
 
 const staffNav = [

@@ -6,6 +6,7 @@ const pageTitles = {
   '/admin/menu': 'Menu Catalog',
   '/admin/tables': 'Tables & QR Codes',
   '/admin/staff': 'Staff Management',
+  '/admin/settings': 'Settings & Configuration',
 };
 
 export default function AdminLayout() {
