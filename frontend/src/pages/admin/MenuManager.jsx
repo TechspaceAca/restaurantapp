@@ -232,10 +232,24 @@ export default function MenuManager() {
         {/* Items Panel */}
         <div>
           <div style={{ display: 'flex', gap: 10, marginBottom: 16 }}>
-            <div className="search-box" style={{ flex: 1 }}>
-              <span className="search-icon">🔍</span>
-              <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search items..." />
-            </div>
+            <form onSubmit={e => e.preventDefault()} style={{ display: 'flex', gap: 8, flex: 1 }}>
+              <div className="search-box" style={{ flex: 1 }}>
+                <span className="search-icon">🔍</span>
+                <input
+                  value={search}
+                  onChange={e => setSearch(e.target.value)}
+                  placeholder="Search dishes by name..."
+                />
+                {search && (
+                  <button type="button" onClick={() => setSearch('')} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: 16 }}>
+                    ×
+                  </button>
+                )}
+              </div>
+              <button type="submit" className="btn btn-secondary" style={{ padding: '0 16px', gap: 6 }}>
+                🔍 Search
+              </button>
+            </form>
           </div>
 
           {loading ? (

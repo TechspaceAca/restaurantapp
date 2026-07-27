@@ -45,6 +45,7 @@ export const billingApi = {
   getBill: (id) => api.get(`/billing/${id}/`),
   getOrderBill: (orderId) => api.get(`/billing/order/${orderId}/`),
   generateBill: (data) => api.post('/billing/generate/', data),
+  getWhatsAppText: (billId) => api.get(`/billing/${billId}/whatsapp/`),
 };
 
 export const kitchenApi = {

@@ -8,4 +8,5 @@ urlpatterns = [
     path('<int:pk>/', views.BillDetailView.as_view(), name='bill-detail'),
     path('generate/', views.GenerateBillView.as_view(), name='bill-generate'),
     path('order/<int:order_id>/', views.OrderBillView.as_view(), name='order-bill'),
+    path('<int:pk>/whatsapp/', views.BillWhatsAppTextView.as_view(), name='bill-whatsapp'),
 ]

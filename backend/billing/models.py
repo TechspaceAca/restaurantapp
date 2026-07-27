@@ -15,7 +15,8 @@ def generate_bill_number():
 class Bill(models.Model):
     PAYMENT_METHOD_CHOICES = [
         ('cash', 'Cash'),
-        ('card', 'Card'),
+        ('gpay', 'Google Pay (GPay)'),
+        ('card', 'Credit / Debit Card'),
         ('upi', 'UPI / QR'),
         ('split', 'Split Payment'),
         ('complimentary', 'Complimentary'),
@@ -26,6 +27,7 @@ class Bill(models.Model):
     )
     bill_number = models.CharField(max_length=30, unique=True, default=generate_bill_number)
     subtotal = models.DecimalField(max_digits=10, decimal_places=2)
+    include_gst = models.BooleanField(default=True)
     tax_percent = models.DecimalField(max_digits=5, decimal_places=2, default=5.00)
     tax_amount = models.DecimalField(max_digits=10, decimal_places=2)
     discount_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
@@ -49,6 +51,10 @@ class Bill(models.Model):
     def save(self, *args, **kwargs):
         if not self.subtotal:
             self.subtotal = self.order.subtotal
-        self.tax_amount = (self.subtotal * self.tax_percent) / 100
+        if not self.include_gst:
+            self.tax_amount = 0
+            self.tax_percent = 0
+        else:
+            self.tax_amount = (self.subtotal * self.tax_percent) / 100
         self.total = self.subtotal + self.tax_amount - self.discount_amount
         super().save(*args, **kwargs)

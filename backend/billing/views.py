@@ -40,7 +40,7 @@ class GenerateBillView(APIView):
 
         data = serializer.validated_data
         try:
-            order = Order.objects.get(id=data['order_id'])
+            order = Order.objects.prefetch_related('items__menu_item').get(id=data['order_id'])
         except Order.DoesNotExist:
             return Response({'error': 'Order not found'}, status=404)
 
@@ -50,17 +50,21 @@ class GenerateBillView(APIView):
         if hasattr(order, 'bill'):
             return Response({'error': 'Bill already generated', 'bill_id': order.bill.id}, status=400)
 
-        # Create the bill
+        # Compute totals
         subtotal = order.subtotal
-        tax_amount = (subtotal * data['tax_percent']) / 100
-        total = subtotal + tax_amount - data['discount_amount']
+        include_gst = data.get('include_gst', True)
+        tax_percent = data['tax_percent'] if include_gst else 0
+        tax_amount = (subtotal * tax_percent) / 100 if include_gst else 0
+        discount = data['discount_amount']
+        total = subtotal + tax_amount - discount
 
         bill = Bill.objects.create(
             order=order,
             subtotal=subtotal,
-            tax_percent=data['tax_percent'],
+            include_gst=include_gst,
+            tax_percent=tax_percent,
             tax_amount=tax_amount,
-            discount_amount=data['discount_amount'],
+            discount_amount=discount,
             discount_reason=data['discount_reason'],
             total=total,
             payment_method=data['payment_method'],
@@ -83,7 +87,53 @@ class GenerateBillView(APIView):
                 order.table.status = 'available'
                 order.table.save()
 
-        return Response(BillSerializer(bill).data, status=201)
+        # Build WhatsApp receipt text
+        whatsapp_text = _build_whatsapp_receipt(bill, order)
+
+        response_data = BillSerializer(bill).data
+        response_data['whatsapp_text'] = whatsapp_text
+        return Response(response_data, status=201)
+
+
+def _build_whatsapp_receipt(bill, order):
+    """Build a WhatsApp-friendly receipt message for the customer."""
+    lines = []
+    lines.append("🌴 *T Clock POS — Receipt*")
+    lines.append("━━━━━━━━━━━━━━━━━━━━")
+
+    if order.table:
+        lines.append(f"🪑 Table: *{order.table.name or order.table.number}*")
+    lines.append(f"🧾 Bill No: *{bill.bill_number}*")
+    lines.append(f"📅 Date: {bill.created_at.strftime('%d %b %Y, %I:%M %p')}")
+    lines.append("")
+    lines.append("*Order Items:*")
+    lines.append("─────────────────────")
+
+    for item in order.items.all():
+        item_total = item.quantity * item.unit_price
+        lines.append(f"  {item.quantity}× {item.menu_item.name}  ₹{int(item_total)}")
+        if item.notes:
+            lines.append(f"     _{item.notes}_")
+
+    lines.append("─────────────────────")
+    lines.append(f"Subtotal:   ₹{int(bill.subtotal)}")
+    if bill.include_gst and bill.tax_amount > 0:
+        lines.append(f"GST ({bill.tax_percent}%):  ₹{int(bill.tax_amount)}")
+    else:
+        lines.append("GST: Excluded (No GST charged)")
+
+    if bill.discount_amount > 0:
+        reason = f" ({bill.discount_reason})" if bill.discount_reason else ""
+        lines.append(f"Discount{reason}: -₹{int(bill.discount_amount)}")
+
+    lines.append("━━━━━━━━━━━━━━━━━━━━")
+    lines.append(f"*TOTAL:  ₹{int(bill.total)}*")
+    lines.append(f"💳 Payment: {bill.get_payment_method_display()}")
+    lines.append("━━━━━━━━━━━━━━━━━━━━")
+    lines.append("Thank you for visiting! 😊")
+    lines.append("Visit us again at T Clock Resto Cafe 🌴")
+
+    return "\n".join(lines)
 
 
 class OrderBillView(APIView):
@@ -96,3 +146,22 @@ class OrderBillView(APIView):
             return Response(BillSerializer(bill).data)
         except Bill.DoesNotExist:
             return Response({'bill': None})
+
+
+class BillWhatsAppTextView(APIView):
+    """GET /api/billing/<bill_id>/whatsapp/ — get WhatsApp receipt text for a generated bill."""
+    permission_classes = [IsStaffOrAdmin]
+
+    def get(self, request, pk):
+        try:
+            bill = Bill.objects.prefetch_related('order__items__menu_item').get(pk=pk)
+        except Bill.DoesNotExist:
+            return Response({'error': 'Bill not found'}, status=404)
+
+        text = _build_whatsapp_receipt(bill, bill.order)
+        return Response({
+            'bill_number': bill.bill_number,
+            'whatsapp_text': text,
+            'customer_phone': bill.order.customer_phone or '',
+            'total': str(bill.total),
+        })

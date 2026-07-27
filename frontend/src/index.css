@@ -774,3 +774,83 @@ input, select, textarea { font-family: inherit; outline: none; }
   .grid-2 { grid-template-columns: 1fr; }
   .page-content { padding: 16px; }
 }
+
+/* ── Thermal Billing Receipt (from demo) ─────────────────────────── */
+.receipt-paper {
+  background: #FFFFFF;
+  color: #000000;
+  width: 320px;
+  padding: 20px 16px;
+  border-radius: var(--radius-sm);
+  font-family: 'Courier New', Courier, monospace;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.45);
+  margin: 0 auto;
+}
+
+.receipt-paper *  { color: #000000 !important; }
+
+.receipt-header {
+  text-align: center;
+  border-bottom: 1px dashed #000;
+  padding-bottom: 10px;
+  margin-bottom: 10px;
+}
+
+.receipt-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  margin-bottom: 4px;
+}
+
+.receipt-divider {
+  border-bottom: 1px dashed #000;
+  margin: 8px 0;
+}
+
+.receipt-total {
+  font-size: 15px;
+  font-weight: 800;
+  border-top: 2px solid #000;
+  border-bottom: 2px solid #000;
+  padding: 5px 0;
+  margin-top: 6px;
+}
+
+/* ── Bill row utilities (used in modal) ─────────────────────────── */
+.bill-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px 0;
+  font-size: 13px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.bill-total-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0 4px;
+  font-weight: 800;
+  font-size: 16px;
+  color: var(--primary);
+  border-top: 1px solid var(--surface-border);
+  margin-top: 4px;
+}
+
+/* ── Tabs ─────────────────────────────────────────────────────────── */
+.tab-btn {
+  padding: 7px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 13px; font-weight: 600;
+  cursor: pointer; border: 1px solid var(--surface-border);
+  background: var(--bg-card2); color: var(--text-muted);
+  transition: all var(--transition);
+}
+.tab-btn:hover { background: var(--bg-hover); color: var(--text); }
+.tab-btn.active {
+  background: var(--primary); color: #fff;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-glow);
+}
+

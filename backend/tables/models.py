@@ -22,7 +22,7 @@ class DiningTable(models.Model):
     name = models.CharField(max_length=50)
     capacity = models.IntegerField(default=4)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='available')
-    section = models.CharField(max_length=20, choices=SECTION_CHOICES, default='indoor')
+    section = models.CharField(max_length=50, default='indoor')
     qr_token = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)

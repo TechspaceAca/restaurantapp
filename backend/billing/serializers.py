@@ -12,7 +12,7 @@ class BillSerializer(serializers.ModelSerializer):
         model = Bill
         fields = [
             'id', 'bill_number', 'order', 'order_details',
-            'subtotal', 'tax_percent', 'tax_amount',
+            'subtotal', 'include_gst', 'tax_percent', 'tax_amount',
             'discount_amount', 'discount_reason', 'total',
             'payment_method', 'is_paid', 'paid_at',
             'created_by', 'created_at', 'notes',
@@ -22,6 +22,7 @@ class BillSerializer(serializers.ModelSerializer):
 
 class GenerateBillSerializer(serializers.Serializer):
     order_id = serializers.IntegerField()
+    include_gst = serializers.BooleanField(default=True)
     tax_percent = serializers.DecimalField(max_digits=5, decimal_places=2, default=5.00)
     discount_amount = serializers.DecimalField(max_digits=10, decimal_places=2, default=0)
     discount_reason = serializers.CharField(max_length=200, allow_blank=True, default='')

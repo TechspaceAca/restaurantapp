@@ -9,6 +9,8 @@ const ORDER_TYPES = [
   { key: 'dine_in',  label: 'Dine In',  icon: '🪑' },
   { key: 'takeaway', label: 'Takeaway', icon: '🥡' },
   { key: 'delivery', label: 'Delivery', icon: '🛵' },
+  { key: 'swiggy',   label: 'Swiggy',   icon: '🟠' },
+  { key: 'zomato',   label: 'Zomato',   icon: '🔴' },
 ];
 
 /* ── Single menu-item card ───────────────────────────────────── */
@@ -364,19 +366,24 @@ export default function TakeOrder() {
         )}
 
         {/* Search */}
-        <div className="search-box" style={{ marginBottom: 14 }}>
-          <span className="search-icon">🔍</span>
-          <input
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            placeholder="Search all menu items..."
-          />
-          {search && (
-            <button onClick={() => setSearch('')} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: 16 }}>
-              ×
-            </button>
-          )}
-        </div>
+        <form onSubmit={e => e.preventDefault()} style={{ display: 'flex', gap: 8, marginBottom: 14 }}>
+          <div className="search-box" style={{ flex: 1, marginBottom: 0 }}>
+            <span className="search-icon">🔍</span>
+            <input
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              placeholder="Search dishes or items by name..."
+            />
+            {search && (
+              <button type="button" onClick={() => setSearch('')} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: 16 }}>
+                ×
+              </button>
+            )}
+          </div>
+          <button type="submit" className="btn btn-primary" style={{ padding: '0 18px', gap: 6 }}>
+            🔍 Search
+          </button>
+        </form>
 
         {/* Category tabs (hidden when searching) */}
         {!isSearching && (
