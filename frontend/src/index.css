@@ -327,6 +327,7 @@ input, select, textarea { font-family: inherit; outline: none; }
 .badge-info    { background: var(--info-light);    color: #1e40af; }
 .badge-primary { background: var(--primary-light); color: #9a3412; }
 .badge-muted   { background: var(--bg-card2); color: var(--text-muted); }
+.badge-purple  { background: rgba(168,85,247,0.15); color: #a855f7; }
 
 /* ── Tables ─────────────────────────────────────────────────────── */
 .data-table { width: 100%; border-collapse: collapse; }
@@ -474,8 +475,9 @@ input, select, textarea { font-family: inherit; outline: none; }
 @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
 @keyframes slideInLeft { from { transform: translateX(-100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 
-.fade-in { animation: fadeIn 0.3s ease; }
+.fade-in  { animation: fadeIn  0.3s ease; }
 .slide-up { animation: slideUp 0.3s ease; }
+.pulse    { animation: pulse  2s ease-in-out infinite; }
 
 /* ── Login Page ──────────────────────────────────────────────────── */
 .login-page {

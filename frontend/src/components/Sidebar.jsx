@@ -26,7 +26,7 @@ const kitchenNav = [
   { path: '/kitchen', label: 'KDS Screen', icon: '👨‍🍳' },
 ];
 
-function Sidebar({ navItems }) {
+function Sidebar({ navItems, billRequestedCount = 0 }) {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, logout } = useStore();
@@ -65,7 +65,22 @@ function Sidebar({ navItems }) {
             >
               <span className="nav-icon">{item.icon}</span>
               {item.label}
-              {item.badge && <span className="nav-badge">{item.badge}</span>}
+              {/* Bill-requested notification dot on Billing nav item */}
+              {item.path === '/pos/billing' && billRequestedCount > 0 && (
+                <span style={{
+                  marginLeft: 'auto',
+                  background: '#a855f7',
+                  color: '#fff',
+                  borderRadius: '9999px',
+                  fontSize: 10,
+                  fontWeight: 800,
+                  padding: '1px 6px',
+                  animation: 'pulse 1.5s ease-in-out infinite',
+                }}>
+                  {billRequestedCount}
+                </span>
+              )}
+              {item.badge && item.path !== '/pos/billing' && <span className="nav-badge">{item.badge}</span>}
             </button>
           );
         })}

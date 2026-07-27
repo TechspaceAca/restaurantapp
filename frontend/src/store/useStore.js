@@ -16,7 +16,7 @@ const useStore = create((set, get) => ({
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
     localStorage.removeItem('user');
-    set({ user: null, token: null, cart: [], selectedTable: null });
+    set({ user: null, token: null, cart: [], selectedTable: null, activeOrder: null, addItemsMode: false });
   },
 
   // ── Cart ─────────────────────────────────────────────────────────
@@ -24,8 +24,30 @@ const useStore = create((set, get) => ({
   selectedTable: null,
   orderType: 'dine_in',
 
+  // ── Active Order (for occupied tables — add-items mode) ──────────
+  activeOrder: null,       // the existing order object when table is occupied
+  addItemsMode: false,     // true = adding items to existing order; false = new order
+
   setSelectedTable: (table) => set({ selectedTable: table }),
   setOrderType: (type) => set({ orderType: type }),
+  setActiveOrder: (order) => set({ activeOrder: order }),
+  setAddItemsMode: (mode) => set({ addItemsMode: mode }),
+
+  // Enter "add items" flow
+  enterAddItemsMode: (table, order) => set({
+    selectedTable: table,
+    activeOrder: order,
+    addItemsMode: true,
+    cart: [],
+  }),
+
+  // Enter "new order" flow
+  enterNewOrderMode: (table) => set({
+    selectedTable: table,
+    activeOrder: null,
+    addItemsMode: false,
+    cart: [],
+  }),
 
   addToCart: (item) => {
     const cart = get().cart;

@@ -1,46 +1,101 @@
-import { Outlet, useLocation } from 'react-router-dom';
+import { Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 import Sidebar, { staffNav } from '../components/Sidebar';
 import useStore from '../store/useStore';
+import { orderApi } from '../api';
 
 const pageTitles = {
-  '/pos': 'Dining Tables',
-  '/pos/order': 'Take Order',
-  '/pos/billing': 'Billing',
-  '/pos/history': 'Order History',
+  '/pos':          '🪑 Dining Tables',
+  '/pos/order':    '📝 Take Order',
+  '/pos/billing':  '🧾 Billing',
+  '/pos/history':  '📋 Order History',
 };
 
 export default function StaffLayout() {
-  const location = useLocation();
-  const { selectedTable, getCartCount } = useStore();
-  const title = pageTitles[location.pathname] || 'POS';
+  const location  = useLocation();
+  const navigate  = useNavigate();
+  const { selectedTable, addItemsMode, activeOrder, getCartCount } = useStore();
+  const [billRequestedCount, setBillRequestedCount] = useState(0);
+
+  const title     = pageTitles[location.pathname] || 'POS';
   const cartCount = getCartCount();
+
+  /* Poll for bill-requested tables every 20s */
+  useEffect(() => {
+    const fetchBillRequested = async () => {
+      try {
+        const res = await orderApi.getOrders({});
+        const count = res.data.filter(o =>
+          o.bill_requested || o.table_status === 'bill_requested'
+        ).length;
+        setBillRequestedCount(count);
+      } catch { /* silent */ }
+    };
+    fetchBillRequested();
+    const interval = setInterval(fetchBillRequested, 20000);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <div className="app-layout">
-      <Sidebar navItems={staffNav} />
+      <Sidebar navItems={staffNav} billRequestedCount={billRequestedCount} />
       <div className="main-content">
         <header className="main-header">
+          {/* Left: page title + context */}
           <div>
             <div style={{ fontSize: 16, fontWeight: 800, color: 'var(--text)' }}>{title}</div>
-            {selectedTable && (
-              <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>
-                📍 {selectedTable.name} — {selectedTable.section}
-              </div>
-            )}
+            <div style={{ fontSize: 11, color: 'var(--text-muted)', display: 'flex', gap: 8, marginTop: 2, flexWrap: 'wrap' }}>
+              {selectedTable && (
+                <span>📍 {selectedTable.name}
+                  {selectedTable.section ? ` · ${selectedTable.section}` : ''}
+                </span>
+              )}
+              {addItemsMode && activeOrder && (
+                <span style={{ color: 'var(--primary)', fontWeight: 600 }}>
+                  ➕ Adding to Order #{activeOrder.id}
+                </span>
+              )}
+            </div>
           </div>
+
+          {/* Right: badges */}
           <div style={{ marginLeft: 'auto', display: 'flex', gap: 10, alignItems: 'center' }}>
-            {cartCount > 0 && (
-              <div style={{
-                padding: '5px 12px', borderRadius: 'var(--radius-full)',
-                background: 'rgba(249,115,22,0.12)', border: '1px solid rgba(249,115,22,0.25)',
-                fontSize: 12, fontWeight: 700, color: 'var(--primary)',
-              }}>
-                🛒 {cartCount} items in cart
-              </div>
+            {/* Bill requested notification */}
+            {billRequestedCount > 0 && (
+              <button
+                onClick={() => navigate('/pos/billing')}
+                style={{
+                  padding: '5px 12px', borderRadius: 'var(--radius-full)',
+                  background: 'rgba(168,85,247,0.12)', border: '1px solid rgba(168,85,247,0.3)',
+                  fontSize: 12, fontWeight: 700, color: '#a855f7',
+                  cursor: 'pointer', animation: 'pulse 2s infinite',
+                  display: 'flex', alignItems: 'center', gap: 5,
+                }}
+                title="Go to billing"
+              >
+                🔔 {billRequestedCount} Bill Request{billRequestedCount > 1 ? 's' : ''}
+              </button>
             )}
+
+            {/* Cart badge */}
+            {cartCount > 0 && (
+              <button
+                onClick={() => navigate('/pos/order')}
+                style={{
+                  padding: '5px 12px', borderRadius: 'var(--radius-full)',
+                  background: 'rgba(249,115,22,0.12)', border: '1px solid rgba(249,115,22,0.25)',
+                  fontSize: 12, fontWeight: 700, color: 'var(--primary)',
+                  cursor: 'pointer',
+                }}
+              >
+                🛒 {cartCount} item{cartCount > 1 ? 's' : ''} in cart
+              </button>
+            )}
+
+            {/* Role badge */}
             <div style={{
               padding: '5px 12px', borderRadius: 'var(--radius-full)',
-              background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.2)',
+              background: 'rgba(34,197,94,0.10)', border: '1px solid rgba(34,197,94,0.20)',
               fontSize: 12, fontWeight: 700, color: 'var(--success)',
             }}>
               🟢 Staff POS
