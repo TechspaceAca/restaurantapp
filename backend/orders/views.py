@@ -87,8 +87,8 @@ class UpdateOrderStatusView(APIView):
 
 
 class AddItemsToOrderView(APIView):
-    """POST /api/orders/<id>/add-items/ — add more items to existing order."""
-    permission_classes = [IsAnyStaff]
+    """POST /api/orders/<id>/add-items/ — add more items to existing order (staff or customer QR)."""
+    permission_classes = [AllowAny]
 
     def post(self, request, pk):
         try:
