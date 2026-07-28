@@ -333,6 +333,8 @@ function SettlePanel({ order, onBilled, onFormChange, currentForm }) {
     discount_amount: 0,
     discount_reason: '',
     payment_method: 'gpay',
+    customer_phone: order.customer_phone || '',
+    customer_name: order.customer_name || '',
     notes: '',
   });
   const [billing, setBilling] = useState(false);
@@ -364,6 +366,7 @@ function SettlePanel({ order, onBilled, onFormChange, currentForm }) {
       setBillResult(res.data);
       toast.success('🧾 Bill generated! Table is now free.');
       onBilled();
+      return res.data;
     } catch (e) {
       const errData = e.response?.data;
       let msg = 'Failed to generate bill';
@@ -379,8 +382,17 @@ function SettlePanel({ order, onBilled, onFormChange, currentForm }) {
         msg = Array.isArray(val) ? `${firstKey}: ${val[0]}` : `${firstKey}: ${val}`;
       }
       toast.error(msg);
+      return null;
     } finally {
       setBilling(false);
+    }
+  };
+
+  const handleGenerateAndPrintAndSend = async () => {
+    const generatedBill = await handleGenerateBill();
+    if (generatedBill) {
+      handlePrint();
+      setWaModal(true);
     }
   };
 
@@ -405,6 +417,8 @@ function SettlePanel({ order, onBilled, onFormChange, currentForm }) {
       <p>GSTIN: ${RESTAURANT_INFO.gstin}</p>
       <div class="dashed"></div>
       <div class="row"><span>Date:</span><span>${now.toLocaleDateString('en-IN')} ${now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}</span></div>
+      <div class="row"><span>Customer:</span><span>${form.customer_name || order.customer_name || 'Guest'}</span></div>
+      ${form.customer_phone ? `<div class="row"><span>Phone:</span><span>${form.customer_phone}</span></div>` : ''}
       <div class="row"><span>Type/Table:</span><span>${order.order_type === 'swiggy' ? 'Swiggy' : order.order_type === 'zomato' ? 'Zomato' : (order.table_name || 'Takeaway')}</span></div>
       <div class="row"><span>Order #:</span><span>${order.id}</span></div>
       ${billResult ? `<div class="row"><span>Bill No:</span><span>${billResult.bill_number}</span></div>` : ''}
@@ -453,7 +467,7 @@ function SettlePanel({ order, onBilled, onFormChange, currentForm }) {
               style={{ justifyContent: 'center', background: '#25D366', borderColor: '#25D366', color: '#fff', fontWeight: 700 }}
               onClick={() => setWaModal(true)}
             >
-              📱 Send Bill on WhatsApp
+              📱 Send Bill on WhatsApp / SMS
             </button>
             <button className="btn btn-secondary" style={{ justifyContent: 'center' }} onClick={handlePrint}>
               🖨️ Print Receipt
@@ -463,6 +477,36 @@ function SettlePanel({ order, onBilled, onFormChange, currentForm }) {
       ) : (
         /* Pre-bill: payment form */
         <>
+          {/* Customer Phone No & Name Input */}
+          <div style={{ background: 'var(--bg-card2)', borderRadius: 'var(--radius-sm)', padding: 12, marginBottom: 14 }}>
+            <div style={{ fontSize: 12, fontWeight: 800, marginBottom: 8, color: 'var(--primary)', display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span>📱</span> Customer Phone & Receipt Info
+            </div>
+            <div className="grid-2" style={{ gap: 8 }}>
+              <div>
+                <label className="form-label" style={{ fontSize: 11 }}>Phone Number</label>
+                <input
+                  className="form-input"
+                  type="tel"
+                  maxLength={10}
+                  placeholder="e.g. 9876543210"
+                  value={form.customer_phone}
+                  onChange={e => setForm(f => ({ ...f, customer_phone: e.target.value }))}
+                />
+              </div>
+              <div>
+                <label className="form-label" style={{ fontSize: 11 }}>Customer Name</label>
+                <input
+                  className="form-input"
+                  type="text"
+                  placeholder="e.g. Rahul"
+                  value={form.customer_name}
+                  onChange={e => setForm(f => ({ ...f, customer_name: e.target.value }))}
+                />
+              </div>
+            </div>
+          </div>
+
           {/* GST Configuration Toggle */}
           <div style={{ marginBottom: 14 }}>
             <label className="form-label" style={{ fontWeight: 700 }}>GST Configuration Option</label>
@@ -565,16 +609,30 @@ function SettlePanel({ order, onBilled, onFormChange, currentForm }) {
           </div>
 
           {/* Actions */}
-          <div style={{ display: 'flex', gap: 8 }}>
-            <button className="btn btn-secondary" onClick={handlePrint}>🖨️ Preview</button>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             <button
-              className="btn btn-primary flex-1"
-              style={{ justifyContent: 'center' }}
-              onClick={handleGenerateBill}
+              className="btn btn-primary"
+              style={{
+                width: '100%', justifyContent: 'center', padding: '12px 14px',
+                fontWeight: 800, fontSize: 13, background: 'linear-gradient(135deg, #f97316, #ea580c)',
+                boxShadow: '0 4px 14px rgba(249,115,22,0.35)',
+              }}
+              onClick={handleGenerateAndPrintAndSend}
               disabled={billing}
             >
-              {billing ? <><div className="spinner spinner-sm" /> Generating…</> : `✅ Generate ₹${total.toFixed(0)} Bill`}
+              {billing ? <><div className="spinner spinner-sm" /> Generating…</> : `🖨️ Print & Send ₹${total.toFixed(0)} Bill to Customer Phone`}
             </button>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button className="btn btn-secondary flex-1" style={{ justifyContent: 'center' }} onClick={handlePrint}>🖨️ Print Only</button>
+              <button
+                className="btn btn-success flex-1"
+                style={{ justifyContent: 'center' }}
+                onClick={handleGenerateBill}
+                disabled={billing}
+              >
+                ✅ Settle Only
+              </button>
+            </div>
           </div>
         </>
       )}
