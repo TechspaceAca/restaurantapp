@@ -399,8 +399,25 @@ function SettlePanel({ order, onBilled, onFormChange, currentForm }) {
   const handleGenerateAndPrintAndSend = async () => {
     const generatedBill = await handleGenerateBill();
     if (generatedBill) {
-      handlePrint();
+      // 1. Immediately open WhatsApp Web/App with pre-filled bill text
+      let phone = form.customer_phone || order.customer_phone || '8547189033';
+      let num = phone.replace(/\D/g, '');
+      if (num.startsWith('0')) num = '91' + num.slice(1);
+      if (!num.startsWith('91') && num.length === 10) num = '91' + num;
+
+      const waText = generatedBill.whatsapp_text;
+      if (waText) {
+        const waUrl = `https://api.whatsapp.com/send?phone=${num}&text=${encodeURIComponent(waText)}`;
+        window.open(waUrl, '_blank');
+        toast.success(`Opening WhatsApp for +${num}! 📱`);
+      }
+
       setWaModal(true);
+
+      // 2. Launch thermal receipt print window after short delay so print dialog doesn't freeze browser JS
+      setTimeout(() => {
+        handlePrint();
+      }, 300);
     }
   };
 
