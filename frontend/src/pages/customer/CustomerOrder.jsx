@@ -12,109 +12,309 @@ const FOOD_STATUS_CONFIG = {
   billed:     { icon: '🧾', label: 'Completed',          color: '#10b981', bg: 'rgba(16,185,129,0.12)' },
 };
 
-function CustomerItemCard({ item, cart, onAdd, onRemove }) {
+const QUICK_COOKING_REQUESTS = [
+  '🌶️ Not Spicy',
+  '🌶️ Mild / Less Spicy',
+  '🔥 Extra Spicy',
+  '🍯 More Sweet',
+  '🧅 No Onion / Garlic',
+  '🧈 Extra Butter / Ghee',
+];
+
+/* ── Zomato/Swiggy Style Customisation Modal ───────────────── */
+function CustomiseItemModal({ item, onClose, onConfirm, initialPortion = 'Full', initialQty = 1, initialNotes = '' }) {
   const fullPrice = Number(item.price);
   const halfPrice = item.half_price ? Number(item.half_price) : Math.round(fullPrice * 0.6);
   const quarterPrice = item.quarter_price ? Number(item.quarter_price) : Math.round(fullPrice * 0.35);
 
   const portions = [
-    { key: 'Full', label: `Full ₹${fullPrice}`, price: fullPrice },
-    { key: 'Half', label: `Half ₹${halfPrice}`, price: halfPrice },
-    { key: 'Quarter', label: `Quarter ₹${quarterPrice}`, price: quarterPrice },
+    { key: 'Full', label: `${item.name} (Full)`, price: fullPrice },
+    { key: 'Half', label: `${item.name} (Half)`, price: halfPrice },
+    { key: 'Quarter', label: `${item.name} (Quarter)`, price: quarterPrice },
   ];
 
-  const [selectedPortion, setSelectedPortion] = useState('Full');
+  const [selectedPortion, setSelectedPortion] = useState(initialPortion);
+  const [qty, setQty] = useState(initialQty);
+  const [notes, setNotes] = useState(initialNotes);
+
   const activePortion = portions.find(p => p.key === selectedPortion) || portions[0];
+  const totalPrice = activePortion.price * qty;
 
-  const cartItemId = `${item.id}-${selectedPortion}`;
-  const cartItem = cart.find(c => c.id === cartItemId);
-  const qty = cartItem ? cartItem.qty : 0;
+  const handleQuickPill = (pillText) => {
+    if (notes.includes(pillText)) {
+      setNotes(prev => prev.replace(pillText, '').replace(/,\s*,/g, ',').trim());
+    } else {
+      setNotes(prev => prev ? `${prev}, ${pillText}` : pillText);
+    }
+  };
 
-  const handleAdd = () => {
-    onAdd({
-      id: cartItemId,
-      menu_item_id: item.id,
-      name: `${item.name} (${selectedPortion})`,
-      base_name: item.name,
+  const handleSubmit = () => {
+    onConfirm({
+      item,
       portion: selectedPortion,
       price: activePortion.price,
-      is_veg: item.is_veg,
-      image: item.image,
+      qty,
+      notes: notes.trim(),
     });
+    onClose();
   };
+
+  return (
+    <div className="modal-overlay" onClick={onClose} style={{ zIndex: 3000, background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(6px)' }}>
+      <div
+        className="modal"
+        style={{
+          maxWidth: 440, width: '92%', borderRadius: '24px', padding: 0, overflow: 'hidden',
+          background: 'var(--bg-card)', border: '1px solid var(--surface-border)',
+          boxShadow: '0 20px 50px rgba(0,0,0,0.6)', animation: 'slideUp 0.3s ease-out',
+        }}
+        onClick={e => e.stopPropagation()}
+      >
+        {/* Modal Close Icon Header */}
+        <div style={{ position: 'relative', padding: '16px 20px 12px', borderBottom: '1px solid var(--surface-border)', textAlign: 'center' }}>
+          <button
+            onClick={onClose}
+            style={{
+              position: 'absolute', top: 14, right: 16, width: 32, height: 32,
+              borderRadius: '50%', background: 'var(--bg-card2)', border: '1px solid var(--surface-border)',
+              color: 'var(--text)', fontSize: 16, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}
+          >
+            ✕
+          </button>
+          
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, textAlign: 'left' }}>
+            {item.image ? (
+              <img src={item.image} style={{ width: 50, height: 50, borderRadius: 10, objectFit: 'cover' }} alt={item.name} />
+            ) : (
+              <div style={{ width: 50, height: 50, borderRadius: 10, background: 'var(--bg-card2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24 }}>
+                {item.is_veg ? '🥗' : '🍗'}
+              </div>
+            )}
+            <div>
+              <div style={{ fontSize: 11, fontWeight: 700, color: item.is_veg ? '#22c55e' : '#ef4444', display: 'flex', alignItems: 'center', gap: 4 }}>
+                {item.is_veg ? <div className="veg-dot" /> : <div className="nonveg-dot" />}
+                {item.is_veg ? 'Veg' : 'Non-Veg'}
+              </div>
+              <div style={{ fontSize: 16, fontWeight: 800, color: 'var(--text)', marginTop: 2 }}>{item.name}</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Modal Content Scroll Body */}
+        <div style={{ padding: 20, maxHeight: '65vh', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 20 }}>
+          
+          {/* Section 1: Size Option */}
+          <div style={{
+            background: 'var(--bg-card2)', border: '1px solid var(--surface-border)',
+            borderRadius: 16, padding: 16,
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+              <div style={{ fontWeight: 800, fontSize: 15, color: 'var(--text)' }}>Size</div>
+              <span style={{ fontSize: 11, color: 'var(--primary)', fontWeight: 700, background: 'rgba(249,115,22,0.12)', padding: '2px 8px', borderRadius: 12 }}>
+                Required · Select 1 option
+              </span>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {portions.map(p => {
+                const isSelected = selectedPortion === p.key;
+                return (
+                  <div
+                    key={p.key}
+                    onClick={() => setSelectedPortion(p.key)}
+                    style={{
+                      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                      padding: '12px 14px', borderRadius: 12, cursor: 'pointer',
+                      border: `1.5px solid ${isSelected ? 'var(--primary)' : 'var(--surface-border)'}`,
+                      background: isSelected ? 'rgba(249,115,22,0.1)' : 'var(--bg-card)',
+                      transition: 'all 0.15s ease',
+                    }}
+                  >
+                    <span style={{ fontSize: 13.5, fontWeight: isSelected ? 700 : 500, color: isSelected ? 'var(--text)' : 'var(--text-muted)' }}>
+                      {p.label}
+                    </span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                      <span style={{ fontSize: 14, fontWeight: 800, color: 'var(--primary)' }}>₹{p.price}</span>
+                      <div style={{
+                        width: 18, height: 18, borderRadius: '50%',
+                        border: `2px solid ${isSelected ? 'var(--primary)' : 'var(--text-dim)'}`,
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      }}>
+                        {isSelected && <div style={{ width: 9, height: 9, borderRadius: '50%', background: 'var(--primary)' }} />}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Section 2: Cooking Request Input */}
+          <div style={{
+            background: 'var(--bg-card2)', border: '1px solid var(--surface-border)',
+            borderRadius: 16, padding: 16,
+          }}>
+            <div style={{ fontWeight: 800, fontSize: 14, color: 'var(--text)', marginBottom: 2 }}>
+              Add a cooking request (optional)
+            </div>
+            <div style={{ fontSize: 11, color: 'var(--text-muted)', lineHeight: 1.35, marginBottom: 12 }}>
+              The restaurant will try its best to fulfill your requests (e.g. less spicy, more sweet).
+            </div>
+
+            <div style={{ position: 'relative', marginBottom: 12 }}>
+              <textarea
+                className="form-input"
+                rows={3}
+                maxLength={100}
+                value={notes}
+                onChange={e => setNotes(e.target.value)}
+                placeholder="e.g. Don't make it too spicy, extra sweet..."
+                style={{ width: '100%', fontSize: 12.5, borderRadius: 12, padding: '10px 12px', background: 'var(--bg-card)', resize: 'none' }}
+              />
+              <div style={{ position: 'absolute', bottom: 8, right: 10, fontSize: 10, color: 'var(--text-dim)' }}>
+                {notes.length}/100
+              </div>
+            </div>
+
+            {/* Quick Cooking Suggestion Pills */}
+            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+              {QUICK_COOKING_REQUESTS.map(pill => {
+                const isSelected = notes.includes(pill);
+                return (
+                  <button
+                    key={pill}
+                    type="button"
+                    onClick={() => handleQuickPill(pill)}
+                    style={{
+                      padding: '4px 10px', borderRadius: 99, fontSize: 11, fontWeight: 600,
+                      border: `1px solid ${isSelected ? 'var(--primary)' : 'var(--surface-border)'}`,
+                      background: isSelected ? 'rgba(249,115,22,0.18)' : 'var(--bg-card)',
+                      color: isSelected ? 'var(--primary)' : 'var(--text-muted)',
+                      cursor: 'pointer', transition: 'all 0.15s ease',
+                    }}
+                  >
+                    {pill}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
+        {/* Modal Footer Action Bar */}
+        <div style={{
+          padding: '14px 20px', borderTop: '1px solid var(--surface-border)',
+          display: 'flex', alignItems: 'center', gap: 14, background: 'var(--bg-card)',
+        }}>
+          {/* Quantity Counter */}
+          <div className="qty-control" style={{ background: 'var(--bg-card2)', padding: '4px 8px', borderRadius: 12, border: '1px solid var(--surface-border)' }}>
+            <button className="qty-btn" onClick={() => setQty(q => Math.max(1, q - 1))}>−</button>
+            <span className="qty-num" style={{ width: 24, textAlign: 'center', fontWeight: 800 }}>{qty}</span>
+            <button className="qty-btn" onClick={() => setQty(q => q + 1)}>+</button>
+          </div>
+
+          {/* Add Item Button */}
+          <button
+            className="btn btn-primary"
+            onClick={handleSubmit}
+            style={{
+              flex: 1, justifyContent: 'center', padding: '13px 20px',
+              borderRadius: 14, fontSize: 15, fontWeight: 900,
+              background: 'linear-gradient(135deg, #e11d48, #be123c)', borderColor: '#be123c',
+              boxShadow: '0 4px 16px rgba(225,29,72,0.3)',
+            }}
+          >
+            Add item ₹{totalPrice}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── Zomato / Swiggy Style Menu Item Card ──────────────────── */
+function CustomerItemCard({ item, cart, onOpenCustomise }) {
+  const fullPrice = Number(item.price);
+  
+  // Total quantity across all portions of this menu item in cart
+  const cartItems = cart.filter(c => c.menu_item_id === item.id);
+  const totalQty = cartItems.reduce((s, c) => s + c.qty, 0);
 
   return (
     <div style={{
       background: 'var(--bg-card)',
-      border: `1.5px solid ${qty > 0 ? 'var(--primary)' : 'var(--surface-border)'}`,
-      borderRadius: 'var(--radius-lg)', padding: 14,
-      display: 'flex', gap: 12, alignItems: 'flex-start',
-      transition: 'all 0.2s ease',
+      border: `1.5px solid ${totalQty > 0 ? 'var(--primary)' : 'var(--surface-border)'}`,
+      borderRadius: 'var(--radius-lg)', padding: '16px 14px',
+      display: 'flex', justifyContent: 'space-between', gap: 14, alignItems: 'center',
+      transition: 'all 0.2s ease', position: 'relative',
     }}>
-      {item.image ? (
-        <img src={item.image} style={{ width: 68, height: 68, borderRadius: 10, objectFit: 'cover', flexShrink: 0 }} alt={item.name} />
-      ) : (
-        <div style={{ width: 68, height: 68, borderRadius: 10, background: 'var(--bg-card2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 30, flexShrink: 0 }}>
-          {item.is_veg ? '🥗' : '🍗'}
-        </div>
-      )}
-
-      <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 3 }}>
+      {/* Right Dish Details */}
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
           {item.is_veg ? <div className="veg-dot" /> : <div className="nonveg-dot" />}
-          <div style={{ fontWeight: 700, fontSize: 14, color: 'var(--text)' }}>{item.name}</div>
+          {item.is_featured && (
+            <span style={{ fontSize: 10, padding: '2px 8px', background: 'rgba(34,197,94,0.15)', color: '#22c55e', borderRadius: 99, fontWeight: 700 }}>
+              🔥 Highly reordered
+            </span>
+          )}
         </div>
 
-        <div style={{ fontSize: 16, fontWeight: 800, color: 'var(--primary)', marginBottom: 4 }}>
-          ₹{activePortion.price}
-        </div>
+        <div style={{ fontWeight: 800, fontSize: 15, color: 'var(--text)', marginBottom: 2 }}>{item.name}</div>
+        <div style={{ fontSize: 16, fontWeight: 900, color: 'var(--text)', marginBottom: 4 }}>₹{fullPrice}</div>
 
         {item.description && (
-          <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 8, lineHeight: 1.3 }}>
+          <div style={{ fontSize: 11.5, color: 'var(--text-muted)', lineHeight: 1.35 }}>
             {item.description}
           </div>
         )}
+      </div>
 
-        {/* Portion Selector Pills */}
-        <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginBottom: 10 }}>
-          {portions.map(p => {
-            const isSel = selectedPortion === p.key;
-            return (
-              <button
-                key={p.key}
-                type="button"
-                onClick={() => setSelectedPortion(p.key)}
-                style={{
-                  padding: '3px 8px', borderRadius: 12, fontSize: 11,
-                  fontWeight: isSel ? 700 : 500,
-                  border: isSel ? '1.5px solid var(--primary)' : '1px solid var(--border)',
-                  background: isSel ? 'rgba(249,115,22,0.14)' : 'var(--bg-card2)',
-                  color: isSel ? 'var(--primary)' : 'var(--text-muted)',
-                  cursor: 'pointer', transition: 'all 0.15s ease',
-                }}
-              >
-                {p.label}
-              </button>
-            );
-          })}
+      {/* Left Image & Overlay ADD+ Button */}
+      <div style={{ position: 'relative', flexShrink: 0, width: 106, textAlign: 'center' }}>
+        {item.image ? (
+          <img src={item.image} style={{ width: 106, height: 96, borderRadius: 14, objectFit: 'cover' }} alt={item.name} />
+        ) : (
+          <div style={{ width: 106, height: 96, borderRadius: 14, background: 'var(--bg-card2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 36 }}>
+            {item.is_veg ? '🥗' : '🍗'}
+          </div>
+        )}
+
+        {/* Overlay ADD + / Qty Button */}
+        <div style={{ position: 'absolute', bottom: -12, left: '50%', transform: 'translateX(-50%)', width: '85%' }}>
+          {totalQty > 0 ? (
+            <div
+              onClick={() => onOpenCustomise(item)}
+              style={{
+                background: '#be123c', color: '#fff', padding: '5px 10px', borderRadius: 10,
+                fontWeight: 900, fontSize: 13, border: '2px solid #fff',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.4)', cursor: 'pointer',
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              }}
+            >
+              <span>-</span>
+              <span>{totalQty}</span>
+              <span>+</span>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={() => onOpenCustomise(item)}
+              style={{
+                width: '100%', background: '#fff', color: '#be123c', padding: '5px 12px', borderRadius: 10,
+                fontWeight: 900, fontSize: 13, border: '1.5px solid #be123c',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.2)', cursor: 'pointer',
+                transition: 'all 0.15s ease',
+              }}
+            >
+              ADD +
+            </button>
+          )}
         </div>
 
-        {/* Add / Qty Control */}
-        {qty > 0 ? (
-          <div className="qty-control" style={{ width: '100%', justifyContent: 'space-between' }}>
-            <button className="qty-btn" onClick={() => onRemove(cartItemId)}>−</button>
-            <span className="qty-num" style={{ fontSize: 12 }}>{qty} in cart</span>
-            <button className="qty-btn" onClick={handleAdd}>+</button>
-          </div>
-        ) : (
-          <button
-            className="btn btn-secondary btn-sm"
-            onClick={handleAdd}
-            style={{ width: '100%', justifyContent: 'center', borderColor: 'var(--primary)', color: 'var(--primary)', fontWeight: 700 }}
-          >
-            + Add ({selectedPortion})
-          </button>
-        )}
+        <div style={{ fontSize: 9.5, color: 'var(--text-muted)', marginTop: 14, fontWeight: 600 }}>
+          customisable
+        </div>
       </div>
     </div>
   );
@@ -133,6 +333,9 @@ export default function CustomerOrder() {
   const [placing, setPlacing] = useState(false);
   const [error, setError] = useState(null);
 
+  // Customise modal state
+  const [customiseItem, setCustomiseItem] = useState(null);
+
   const pollRef = useRef(null);
 
   const fetchActiveOrder = useCallback(async (tableId) => {
@@ -149,12 +352,10 @@ export default function CustomerOrder() {
       const tableData = tableRes.data;
       setTable(tableData);
 
-      // Load Categories
       const catRes = await menuApi.getCategories();
       setCategories(catRes.data);
       if (catRes.data.length > 0) setSelectedCat(catRes.data[0].id);
 
-      // Load active running order for this table
       await fetchActiveOrder(tableData.id);
     } catch {
       setError('This QR code is invalid or table not found.');
@@ -167,7 +368,6 @@ export default function CustomerOrder() {
     init();
   }, [init]);
 
-  /* Poll active order every 5 seconds for live status updates */
   useEffect(() => {
     if (table?.id) {
       pollRef.current = setInterval(() => fetchActiveOrder(table.id), 5000);
@@ -175,7 +375,6 @@ export default function CustomerOrder() {
     }
   }, [table, fetchActiveOrder]);
 
-  /* Load items for selected category */
   useEffect(() => {
     if (selectedCat) {
       menuApi.getItems({ category: selectedCat, available: 'true' })
@@ -184,24 +383,26 @@ export default function CustomerOrder() {
     }
   }, [selectedCat]);
 
-  const addToCart = (itemObj) => {
-    setCart(prev => {
-      const existing = prev.find(c => c.id === itemObj.id);
-      if (existing) {
-        return prev.map(c => c.id === itemObj.id ? { ...c, qty: c.qty + 1 } : c);
-      }
-      return [...prev, { ...itemObj, qty: 1 }];
-    });
-  };
-
-  const removeFromCart = (cartItemId) => {
+  const handleConfirmCustomisation = ({ item, portion, price, qty, notes }) => {
+    const cartItemId = `${item.id}-${portion}-${notes}`;
     setCart(prev => {
       const existing = prev.find(c => c.id === cartItemId);
-      if (existing?.qty > 1) {
-        return prev.map(c => c.id === cartItemId ? { ...c, qty: c.qty - 1 } : c);
+      if (existing) {
+        return prev.map(c => c.id === cartItemId ? { ...c, qty: c.qty + qty, notes } : c);
       }
-      return prev.filter(c => c.id !== cartItemId);
+      return [...prev, {
+        id: cartItemId,
+        menu_item_id: item.id,
+        name: `${item.name} (${portion})`,
+        portion,
+        price,
+        qty,
+        notes,
+        is_veg: item.is_veg,
+        image: item.image,
+      }];
     });
+    toast.success(`🥰 Added ${qty}x ${item.name} (${portion}) to your cart!`);
   };
 
   const total = cart.reduce((s, i) => s + i.price * i.qty, 0);
@@ -212,25 +413,25 @@ export default function CustomerOrder() {
     setPlacing(true);
     try {
       if (activeOrder && activeOrder.id) {
-        // Add items to existing running table order
         await orderApi.addItems(activeOrder.id, cart.map(i => ({
-          menu_item: i.menu_item_id || i.id,
+          menu_item: i.menu_item_id,
           quantity: i.qty,
           unit_price: i.price,
           portion: i.portion || 'Full',
+          notes: i.notes || '',
         })));
         toast.success('🎉 Additional items added to your order!');
       } else {
-        // Create new table order
         await orderApi.createOrder({
           table: table.id,
           order_type: 'dine_in',
           customer_name: customerName || 'Guest',
           items: cart.map(i => ({
-            menu_item: i.menu_item_id || i.id,
+            menu_item: i.menu_item_id,
             quantity: i.qty,
             unit_price: i.price,
             portion: i.portion || 'Full',
+            notes: i.notes || '',
           })),
         });
         toast.success('🎉 Your order has been placed!');
@@ -238,7 +439,7 @@ export default function CustomerOrder() {
       setCart([]);
       fetchActiveOrder(table.id);
     } catch (e) {
-      toast.error(e.response?.data?.detail || e.response?.data?.error || 'Failed to place order. Please ask staff.');
+      toast.error(e.response?.data?.detail || e.response?.data?.error || 'Failed to place order.');
     } finally {
       setPlacing(false);
     }
@@ -246,7 +447,7 @@ export default function CustomerOrder() {
 
   if (loading) return (
     <div style={{ minHeight: '100vh', background: 'var(--bg)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 16 }}>
-      <div className="spinner" /><p style={{ color: 'var(--text-muted)' }}>Loading T Clock menu...</p>
+      <div className="spinner" /><p style={{ color: 'var(--text-muted)' }}>Loading menu...</p>
     </div>
   );
 
@@ -278,13 +479,13 @@ export default function CustomerOrder() {
             </div>
           </div>
           <div style={{ color: '#fff', fontSize: 22, fontWeight: 900, marginTop: 4 }}>{table?.name}</div>
-          <div style={{ color: 'rgba(255,255,255,0.75)', fontSize: 12 }}>Scan & Order — Real-time kitchen tracking</div>
+          <div style={{ color: 'rgba(255,255,255,0.75)', fontSize: 12 }}>Scan & Order — Customise & track food live!</div>
         </div>
       </div>
 
       <div style={{ padding: '0 16px', marginTop: -16, position: 'relative', zIndex: 1 }}>
 
-        {/* ── LIVE FOOD STATUS TRACKER CARD (When active order exists) ── */}
+        {/* Live Food Tracker */}
         {activeOrder && activeOrder.id && (
           <div style={{
             background: 'var(--bg-card)', border: `2px solid ${orderStatusConfig.color}`,
@@ -293,8 +494,8 @@ export default function CustomerOrder() {
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
               <div>
-                <div style={{ fontSize: 11, color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-                  Live Active Order #{activeOrder.id}
+                <div style={{ fontSize: 11, color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase' }}>
+                  Active Order #{activeOrder.id}
                 </div>
                 <div style={{ fontSize: 16, fontWeight: 900, color: 'var(--text)', marginTop: 2 }}>
                   {table?.name} Status
@@ -304,16 +505,14 @@ export default function CustomerOrder() {
                 padding: '5px 12px', borderRadius: 99,
                 background: orderStatusConfig.bg, color: orderStatusConfig.color,
                 fontWeight: 800, fontSize: 12, display: 'flex', alignItems: 'center', gap: 6,
-                border: `1px solid ${orderStatusConfig.color}44`,
               }}>
                 <span>{orderStatusConfig.icon}</span>
                 <span>{orderStatusConfig.label}</span>
               </div>
             </div>
 
-            {/* Progress Bar */}
             {activeItems.length > 0 && (
-              <div style={{ marginBottom: 14 }}>
+              <div style={{ marginBottom: 12 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: 'var(--text-muted)', marginBottom: 4 }}>
                   <span>Food Cooking Progress</span>
                   <span>{readyItemsCount} of {activeItems.length} items ready</span>
@@ -328,8 +527,7 @@ export default function CustomerOrder() {
               </div>
             )}
 
-            {/* Ordered Item Status List */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 12 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               {activeItems.map((item, idx) => {
                 const itemReady = item.status === 'ready' || item.status === 'served';
                 const itemPrep  = item.status === 'preparing';
@@ -342,7 +540,10 @@ export default function CustomerOrder() {
                   }}>
                     <div style={{ fontSize: 13, display: 'flex', alignItems: 'center', gap: 8 }}>
                       <span style={{ fontWeight: 800, color: 'var(--primary)' }}>{item.quantity}×</span>
-                      <span style={{ fontWeight: 600 }}>{item.menu_item_name} {item.portion ? `(${item.portion})` : ''}</span>
+                      <div>
+                        <span style={{ fontWeight: 600 }}>{item.menu_item_name} {item.portion ? `(${item.portion})` : ''}</span>
+                        {item.notes && <div style={{ fontSize: 10, color: 'var(--warning)' }}>📝 {item.notes}</div>}
+                      </div>
                     </div>
                     <span style={{
                       fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 99,
@@ -355,37 +556,16 @@ export default function CustomerOrder() {
                 );
               })}
             </div>
-
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 8, borderTop: '1px dashed var(--border)' }}>
-              <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>Auto-updating live from kitchen...</span>
-              <span style={{ fontSize: 15, fontWeight: 900, color: 'var(--primary)' }}>Subtotal: ₹{activeOrder.subtotal}</span>
-            </div>
           </div>
         )}
 
-        {/* Customer Name Input (if new order) */}
-        {!activeOrder && (
-          <div style={{ background: 'var(--bg-card)', border: '1px solid var(--surface-border)', borderRadius: 'var(--radius-lg)', padding: 14, marginBottom: 14 }}>
-            <label className="form-label" style={{ fontSize: 12 }}>Your Name (Optional)</label>
-            <input
-              className="form-input"
-              value={customerName}
-              onChange={e => setCustomerName(e.target.value)}
-              placeholder="e.g. Rahul"
-              style={{ background: 'var(--bg-card2)' }}
-            />
-          </div>
-        )}
-
-        {/* Add More Items Header */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-          <div style={{ fontWeight: 800, fontSize: 15, color: 'var(--text)' }}>
-            {activeOrder ? '➕ Add More Dishes to Table' : '📖 Restaurant Menu'}
-          </div>
+        {/* Menu Catalog Title */}
+        <div style={{ fontWeight: 900, fontSize: 18, color: 'var(--text)', marginBottom: 12 }}>
+          Menu Catalog
         </div>
 
         {/* Category Tabs */}
-        <div className="category-tabs" style={{ marginBottom: 14 }}>
+        <div className="category-tabs" style={{ marginBottom: 16 }}>
           {categories.map(cat => (
             <button key={cat.id} className={`cat-tab ${selectedCat === cat.id ? 'active' : ''}`} onClick={() => setSelectedCat(cat.id)}>
               {cat.icon} {cat.name}
@@ -394,42 +574,55 @@ export default function CustomerOrder() {
         </div>
 
         {/* Menu Items List */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           {items.map(item => (
             <CustomerItemCard
               key={item.id}
               item={item}
               cart={cart}
-              onAdd={addToCart}
-              onRemove={removeFromCart}
+              onOpenCustomise={setCustomiseItem}
             />
           ))}
         </div>
       </div>
 
-      {/* Sticky Bottom Order Bar */}
+      {/* Zomato/Swiggy Customization Modal */}
+      {customiseItem && (
+        <CustomiseItemModal
+          item={customiseItem}
+          onClose={() => setCustomiseItem(null)}
+          onConfirm={handleConfirmCustomisation}
+        />
+      )}
+
+      {/* Sticky Bottom Order & Checkout Bar */}
       {cartCount > 0 && (
         <div style={{
           position: 'fixed', bottom: 0, left: 0, right: 0,
           padding: '14px 16px', background: 'var(--bg-sidebar)',
           borderTop: '1px solid var(--surface-border)',
           display: 'flex', gap: 12, alignItems: 'center',
-          zIndex: 100, boxShadow: '0 -4px 20px rgba(0,0,0,0.4)',
+          zIndex: 100, boxShadow: '0 -4px 20px rgba(0,0,0,0.5)',
         }}>
-          <div style={{
-            flex: 1, background: 'var(--bg-card)', border: '1px solid var(--surface-border)',
-            borderRadius: 'var(--radius)', padding: '8px 12px',
-          }}>
-            <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>{cartCount} new item{cartCount > 1 ? 's' : ''}</div>
-            <div style={{ fontWeight: 900, fontSize: 16, color: 'var(--primary)' }}>₹{total.toFixed(0)}</div>
-          </div>
           <button
-            className="btn btn-primary"
-            style={{ justifyContent: 'center', padding: '12px 20px', flex: 1.5, fontSize: 15, fontWeight: 800 }}
+            className="btn"
+            style={{
+              width: '100%', justifyContent: 'space-between', padding: '14px 20px',
+              borderRadius: 16, fontSize: 15, fontWeight: 900, color: '#fff',
+              background: 'linear-gradient(135deg, #e11d48, #be123c)', borderColor: '#be123c',
+              boxShadow: '0 4px 18px rgba(225,29,72,0.4)',
+            }}
             onClick={handlePlaceOrder}
             disabled={placing}
           >
-            {placing ? <><div className="spinner spinner-sm" /> Processing...</> : activeOrder ? '➕ Add to Table Order' : '🍽️ Place Order'}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span style={{ fontSize: 18 }}>🛍️</span>
+              <div style={{ textAlign: 'left' }}>
+                <div>{cartCount} item{cartCount > 1 ? 's' : ''} added</div>
+                <div style={{ fontSize: 12, opacity: 0.85, fontWeight: 600 }}>Total ₹{total.toFixed(0)}</div>
+              </div>
+            </div>
+            <span>{placing ? 'Placing…' : 'Continue & Checkout →'}</span>
           </button>
         </div>
       )}
