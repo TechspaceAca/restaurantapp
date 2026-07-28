@@ -898,16 +898,23 @@ export default function BillingPage() {
                 {/* Quick status action if not served yet */}
                 {['pending', 'confirmed', 'preparing', 'ready'].includes(selectedOrder.status) ? (
                   <div style={{ marginTop: 16 }}>
-                    <div className="card" style={{ background: 'rgba(249,115,22,0.06)', borderColor: 'rgba(249,115,22,0.2)' }}>
-                      <div style={{ fontSize: 13, marginBottom: 4, fontWeight: 800, color: 'var(--warning)' }}>
-                        👨‍🍳 Order in Kitchen ({STATUS_LABELS[selectedOrder.status]})
+                    <div className="card" style={{
+                      background: 'rgba(245,158,11,0.18)', border: '3px solid #f59e0b',
+                      padding: '20px 22px', borderRadius: 20, boxShadow: '0 8px 30px rgba(245,158,11,0.35)',
+                    }}>
+                      <div style={{ fontSize: 18, marginBottom: 8, fontWeight: 900, color: '#f59e0b', display: 'flex', alignItems: 'center', gap: 10 }}>
+                        <span style={{ fontSize: 26 }}>👨‍🍳</span>
+                        <div>
+                          <div>KITCHEN APPROVAL REQUIRED</div>
+                          <div style={{ fontSize: 12, opacity: 0.85, fontWeight: 700 }}>Current Status: {STATUS_LABELS[selectedOrder.status]}</div>
+                        </div>
                       </div>
-                      <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 10 }}>
-                        Order must be accepted & marked ready from kitchen side before serving.
+                      <div style={{ fontSize: 14, color: '#ffffff', marginBottom: 16, fontWeight: 800, lineHeight: 1.5, background: 'rgba(0,0,0,0.3)', padding: '12px 14px', borderRadius: 12, borderLeft: '4px solid #f59e0b' }}>
+                        ⚠️ Order request must be accepted & prepared from the kitchen side first before serving!
                       </div>
                       <button
                         className="btn btn-success"
-                        style={{ width: '100%', justifyContent: 'center' }}
+                        style={{ width: '100%', justifyContent: 'center', padding: '14px 18px', fontSize: 15, fontWeight: 900, borderRadius: 14, boxShadow: '0 4px 16px rgba(34,197,94,0.4)' }}
                         onClick={() => handleStatusUpdate(selectedOrder.id, 'served')}
                       >
                         ✅ Mark as Served — then bill
