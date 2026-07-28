@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { tableApi, menuApi, orderApi } from '../../api';
+import useStore from '../../store/useStore';
 import toast from 'react-hot-toast';
 import { LogoIcon } from '../../components/Logo';
 
