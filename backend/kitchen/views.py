@@ -16,7 +16,7 @@ class KitchenQueueView(APIView):
     def get(self, request):
         # Active orders that kitchen needs to work on
         orders = Order.objects.filter(
-            status__in=['confirmed', 'preparing']
+            status__in=['pending', 'placed', 'confirmed', 'preparing']
         ).select_related('table').prefetch_related('items__menu_item').order_by('created_at')
         return Response(OrderSerializer(orders, many=True).data)
 
@@ -43,7 +43,7 @@ class KitchenUpdateItemView(APIView):
         order = item.order
         all_items = order.items.exclude(status='cancelled')
         if all_items.exists() and all(i.status == 'ready' for i in all_items):
-            if order.status == 'preparing':
+            if order.status in ['pending', 'placed', 'confirmed', 'preparing']:
                 order.status = 'ready'
                 order.save()
 
@@ -60,7 +60,7 @@ class MarkOrderReadyView(APIView):
         except Order.DoesNotExist:
             return Response({'error': 'Order not found'}, status=404)
 
-        if order.status not in ['confirmed', 'preparing']:
+        if order.status not in ['pending', 'placed', 'confirmed', 'preparing']:
             return Response({'error': f'Order is {order.status}, not in kitchen'}, status=400)
 
         order.status = 'ready'

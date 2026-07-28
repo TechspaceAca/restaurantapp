@@ -1,6 +1,7 @@
 import { useNavigate, useLocation } from 'react-router-dom';
 import useStore from '../store/useStore';
 import toast from 'react-hot-toast';
+import { LogoFull } from './Logo';
 
 const adminNav = [
   { section: 'Overview' },
@@ -44,12 +45,8 @@ function Sidebar({ navItems, billRequestedCount = 0 }) {
 
   return (
     <aside className="sidebar">
-      <div className="sidebar-logo">
-        <div className="sidebar-logo-icon">TC</div>
-        <div>
-          <div className="sidebar-logo-text">T Clock POS</div>
-          <div className="sidebar-logo-sub">Restaurant OS v1.0</div>
-        </div>
+      <div className="sidebar-logo" style={{ padding: '16px 14px' }}>
+        <LogoFull size={44} showSubtitle={false} />
       </div>
 
       <nav className="sidebar-nav">

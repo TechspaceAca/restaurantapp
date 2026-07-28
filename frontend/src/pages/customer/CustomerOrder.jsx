@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { tableApi, menuApi, orderApi } from '../../api';
 import toast from 'react-hot-toast';
+import { LogoIcon } from '../../components/Logo';
 
 export default function CustomerOrder() {
   const { qrToken } = useParams();
@@ -129,8 +130,11 @@ export default function CustomerOrder() {
       }}>
         <div style={{ position: 'relative', zIndex: 1 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 4 }}>
-            <div style={{ width: 36, height: 36, background: 'rgba(255,255,255,0.2)', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: 14, color: '#fff' }}>TC</div>
-            <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: 12 }}>T Clock Restaurant</div>
+            <LogoIcon size={40} />
+            <div>
+              <div style={{ color: '#fff', fontSize: 16, fontWeight: 900, fontFamily: "'Playfair Display', serif" }}>T CLOCK RESTO CAFE</div>
+              <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: 11 }}>Time for Tea, Time for Taste</div>
+            </div>
           </div>
           <div style={{ color: '#fff', fontSize: 22, fontWeight: 900 }}>{table?.name}</div>
           <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: 12 }}>Scan & Order — No waiting needed!</div>

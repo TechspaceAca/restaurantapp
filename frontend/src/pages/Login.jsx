@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { authApi } from '../api';
 import useStore from '../store/useStore';
+import { LogoIcon } from '../components/Logo';
 
 const ROLES = [
   {
@@ -69,12 +70,14 @@ export default function Login() {
     <div className="login-page">
       <div className="login-card">
         {/* Logo */}
-        <div className="login-logo">
-          <div className="login-logo-mark">TC</div>
+        <div className="login-logo" style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+          <LogoIcon size={58} />
           <div>
-            <div style={{ fontSize: 22, fontWeight: 900, color: 'var(--text)' }}>T Clock POS</div>
-            <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 2 }}>
-              Select Dashboard Workspace to Continue
+            <div style={{ fontSize: 22, fontWeight: 900, color: 'var(--text)', fontFamily: "'Playfair Display', serif" }}>
+              T CLOCK RESTO CAFE
+            </div>
+            <div style={{ fontSize: 12, color: 'var(--primary)', fontWeight: 600, marginTop: 1 }}>
+              Time for Tea, Time for Taste 🌴
             </div>
           </div>
         </div>

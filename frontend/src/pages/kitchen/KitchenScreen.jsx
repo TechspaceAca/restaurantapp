@@ -3,6 +3,7 @@ import { kitchenApi, orderApi } from '../../api';
 import useStore from '../../store/useStore';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
+import { LogoIcon } from '../../components/Logo';
 
 function TimerBadge({ createdAt }) {
   const [elapsed, setElapsed] = useState(0);
@@ -150,15 +151,10 @@ export default function KitchenScreen() {
         position: 'sticky', top: 0, zIndex: 100,
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-          <div style={{
-            width: 38, height: 38,
-            background: 'linear-gradient(135deg, var(--primary), var(--primary-dark))',
-            borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 16, fontWeight: 900, color: '#fff',
-          }}>TC</div>
+          <LogoIcon size={40} />
           <div>
-            <div style={{ fontWeight: 800, fontSize: 16 }}>👨‍🍳 Kitchen Display</div>
-            <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Auto-refreshes every 5 seconds</div>
+            <div style={{ fontWeight: 800, fontSize: 16 }}>👨‍🍳 Kitchen Display System</div>
+            <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>T CLOCK RESTO CAFE · Auto-refreshes every 5s</div>
           </div>
         </div>
         <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
