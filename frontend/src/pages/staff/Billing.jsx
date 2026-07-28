@@ -27,110 +27,212 @@ const RESTAURANT_INFO = {
 };
 
 /* ─── WhatsApp Send Modal ────────────────────────────────────── */
-function WhatsAppModal({ bill, whatsappText, onClose }) {
+/* ─── Send Customer Receipt Modal (WhatsApp / Email / SMS / Print) ────── */
+function CustomerReceiptModal({ bill, whatsappText, onClose }) {
   const [phone, setPhone] = useState(bill.order_details?.customer_phone || '');
-  const [method, setMethod] = useState('wa'); // 'wa' or 'manual'
+  const [email, setEmail] = useState('');
+  const [method, setMethod] = useState('wa'); // 'wa', 'email', 'sms', 'manual'
   const textRef = useRef(null);
 
   const sendViaWhatsApp = () => {
-    if (!phone.trim()) { toast.error('Enter a WhatsApp number'); return; }
+    if (!phone.trim()) { toast.error('Enter customer phone number'); return; }
     let num = phone.replace(/\D/g, '');
     if (num.startsWith('0')) num = '91' + num.slice(1);
     if (!num.startsWith('91') && num.length === 10) num = '91' + num;
     const url = `https://wa.me/${num}?text=${encodeURIComponent(whatsappText)}`;
     window.open(url, '_blank');
-    toast.success('Opening WhatsApp! 📱');
+    toast.success('Opening WhatsApp Web/App! 📱');
+  };
+
+  const sendViaEmail = () => {
+    if (!email.trim()) { toast.error('Enter customer email ID'); return; }
+    const subject = encodeURIComponent(`Invoice ${bill.bill_number} — T Clock Resto Cafe`);
+    const body = encodeURIComponent(whatsappText);
+    window.location.href = `mailto:${email.trim()}?subject=${subject}&body=${body}`;
+    toast.success('Opening Email Client! ✉️');
+  };
+
+  const sendViaSMS = () => {
+    if (!phone.trim()) { toast.error('Enter customer phone number'); return; }
+    let num = phone.replace(/\D/g, '');
+    const url = `sms:${num}?body=${encodeURIComponent(whatsappText)}`;
+    window.open(url, '_blank');
+    toast.success('Opening Mobile SMS app! 💬');
   };
 
   const copyText = () => {
-    navigator.clipboard.writeText(whatsappText).then(() => toast.success('Bill text copied!'));
+    navigator.clipboard.writeText(whatsappText).then(() => toast.success('Receipt text copied! 📋'));
+  };
+
+  const handlePrint = () => {
+    window.print();
   };
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal" style={{ maxWidth: 520 }} onClick={e => e.stopPropagation()}>
+      <div className="modal" style={{ maxWidth: 520, borderRadius: 'var(--radius-lg)' }} onClick={e => e.stopPropagation()}>
         <div className="modal-header">
-          <div className="modal-title">📱 Send Bill to Customer</div>
+          <div className="modal-title" style={{ fontWeight: 900 }}>🧾 Send Digital Invoice to Customer</div>
           <button className="modal-close" onClick={onClose}>×</button>
         </div>
 
-        {/* Method toggle */}
-        <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
+        {/* Method selector tabs */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 6, marginBottom: 16 }}>
           <button
-            className={`btn flex-1 ${method === 'wa' ? 'btn-primary' : 'btn-secondary'}`}
+            className={`btn ${method === 'wa' ? 'btn-primary' : 'btn-secondary'}`}
             onClick={() => setMethod('wa')}
-            style={{ justifyContent: 'center' }}
+            style={{ justifyContent: 'center', fontSize: 11, padding: '8px 4px' }}
           >
-            📱 Send via WhatsApp
+            📱 WhatsApp
           </button>
           <button
-            className={`btn flex-1 ${method === 'manual' ? 'btn-primary' : 'btn-secondary'}`}
-            onClick={() => setMethod('manual')}
-            style={{ justifyContent: 'center' }}
+            className={`btn ${method === 'email' ? 'btn-primary' : 'btn-secondary'}`}
+            onClick={() => setMethod('email')}
+            style={{ justifyContent: 'center', fontSize: 11, padding: '8px 4px' }}
           >
-            📋 Copy Bill Text
+            ✉️ Email
+          </button>
+          <button
+            className={`btn ${method === 'sms' ? 'btn-primary' : 'btn-secondary'}`}
+            onClick={() => setMethod('sms')}
+            style={{ justifyContent: 'center', fontSize: 11, padding: '8px 4px' }}
+          >
+            💬 SMS
+          </button>
+          <button
+            className={`btn ${method === 'manual' ? 'btn-primary' : 'btn-secondary'}`}
+            onClick={() => setMethod('manual')}
+            style={{ justifyContent: 'center', fontSize: 11, padding: '8px 4px' }}
+          >
+            📋 Copy
           </button>
         </div>
 
         {method === 'wa' && (
           <>
             <div className="form-group" style={{ marginBottom: 12 }}>
-              <label className="form-label">Customer WhatsApp Number</label>
+              <label className="form-label" style={{ fontWeight: 700 }}>Customer Mobile / WhatsApp Number</label>
               <div style={{ display: 'flex', gap: 8 }}>
                 <span style={{
                   display: 'flex', alignItems: 'center', padding: '0 12px',
                   background: 'var(--bg-card2)', border: '1px solid var(--surface-border)',
-                  borderRadius: 'var(--radius-sm)', fontSize: 14, fontWeight: 600, color: 'var(--text-muted)',
+                  borderRadius: 'var(--radius-sm)', fontSize: 14, fontWeight: 700, color: 'var(--text-muted)',
                 }}>+91</span>
                 <input
                   className="form-input"
                   style={{ flex: 1 }}
                   type="tel"
-                  maxLength={12}
+                  maxLength={10}
                   value={phone}
                   onChange={e => setPhone(e.target.value)}
                   placeholder="9876543210"
                   autoFocus
                 />
               </div>
-              <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 4 }}>
-                Enter 10-digit mobile number without country code
-              </div>
             </div>
 
-            {/* Preview */}
             <div style={{
-              background: '#128C7E', borderRadius: 'var(--radius)', padding: '10px 14px',
-              marginBottom: 16, fontFamily: 'monospace', fontSize: 11,
-              color: '#fff', whiteSpace: 'pre-wrap', maxHeight: 180, overflowY: 'auto',
+              background: '#128C7E', borderRadius: 'var(--radius-sm)', padding: '12px 14px',
+              marginBottom: 16, fontFamily: 'sans-serif', fontSize: 11,
+              color: '#fff', whiteSpace: 'pre-wrap', maxHeight: 180, overflowY: 'auto', lineHeight: 1.5
             }}>
               {whatsappText}
             </div>
 
+            <div style={{ display: 'flex', gap: 10 }}>
+              <button className="btn btn-secondary flex-1" onClick={handlePrint} style={{ justifyContent: 'center' }}>
+                🖨️ Print Receipt
+              </button>
+              <button
+                className="btn btn-primary flex-1"
+                style={{ justifyContent: 'center', background: '#25D366', borderColor: '#25D366', color: '#fff', fontWeight: 800 }}
+                onClick={sendViaWhatsApp}
+              >
+                📲 Send via WhatsApp
+              </button>
+            </div>
+          </>
+        )}
+
+        {method === 'email' && (
+          <>
+            <div className="form-group" style={{ marginBottom: 12 }}>
+              <label className="form-label" style={{ fontWeight: 700 }}>Customer Email Address</label>
+              <input
+                className="form-input"
+                type="email"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                placeholder="customer@example.com"
+                autoFocus
+              />
+            </div>
+
+            <div style={{
+              background: 'var(--bg-card2)', borderRadius: 'var(--radius-sm)', padding: '12px 14px',
+              marginBottom: 16, fontSize: 11, color: 'var(--text)', whiteSpace: 'pre-wrap', maxHeight: 180, overflowY: 'auto'
+            }}>
+              {whatsappText}
+            </div>
+
+            <div style={{ display: 'flex', gap: 10 }}>
+              <button className="btn btn-secondary flex-1" onClick={handlePrint} style={{ justifyContent: 'center' }}>
+                🖨️ Print Receipt
+              </button>
+              <button
+                className="btn btn-primary flex-1"
+                style={{ justifyContent: 'center', fontWeight: 800 }}
+                onClick={sendViaEmail}
+              >
+                ✉️ Send Email Receipt
+              </button>
+            </div>
+          </>
+        )}
+
+        {method === 'sms' && (
+          <>
+            <div className="form-group" style={{ marginBottom: 12 }}>
+              <label className="form-label" style={{ fontWeight: 700 }}>Customer Phone Number (SMS)</label>
+              <input
+                className="form-input"
+                type="tel"
+                value={phone}
+                onChange={e => setPhone(e.target.value)}
+                placeholder="9876543210"
+                autoFocus
+              />
+            </div>
+
             <button
               className="btn btn-primary"
-              style={{ width: '100%', justifyContent: 'center', background: '#25D366', borderColor: '#25D366' }}
-              onClick={sendViaWhatsApp}
+              style={{ width: '100%', justifyContent: 'center', fontWeight: 800 }}
+              onClick={sendViaSMS}
             >
-              <span style={{ fontSize: 18 }}>📱</span> Open WhatsApp & Send Bill
+              💬 Send SMS Receipt
             </button>
           </>
         )}
 
         {method === 'manual' && (
           <>
-            <label className="form-label">Bill Text (copy & paste anywhere)</label>
+            <label className="form-label">Bill Receipt Text</label>
             <textarea
               ref={textRef}
               className="form-textarea"
-              style={{ fontFamily: 'monospace', fontSize: 12, minHeight: 220, marginBottom: 12 }}
+              style={{ fontFamily: 'monospace', fontSize: 12, minHeight: 200, marginBottom: 12 }}
               value={whatsappText}
               readOnly
               onClick={e => e.target.select()}
             />
-            <button className="btn btn-primary" style={{ width: '100%', justifyContent: 'center' }} onClick={copyText}>
-              📋 Copy to Clipboard
-            </button>
+            <div style={{ display: 'flex', gap: 10 }}>
+              <button className="btn btn-secondary flex-1" onClick={handlePrint} style={{ justifyContent: 'center' }}>
+                🖨️ Print
+              </button>
+              <button className="btn btn-primary flex-1" style={{ justifyContent: 'center' }} onClick={copyText}>
+                📋 Copy Text
+              </button>
+            </div>
           </>
         )}
       </div>
@@ -477,9 +579,9 @@ function SettlePanel({ order, onBilled, onFormChange, currentForm }) {
         </>
       )}
 
-      {/* WhatsApp send modal */}
+      {/* Customer receipt modal */}
       {waModal && billResult && (
-        <WhatsAppModal
+        <CustomerReceiptModal
           bill={billResult}
           whatsappText={billResult.whatsapp_text}
           onClose={() => setWaModal(false)}
