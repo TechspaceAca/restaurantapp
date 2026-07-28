@@ -322,6 +322,7 @@ function CustomerItemCard({ item, cart, onOpenCustomise }) {
 
 export default function CustomerOrder() {
   const { qrToken } = useParams();
+  const { theme, toggleTheme } = useStore();
   const [table, setTable] = useState(null);
   const [activeOrder, setActiveOrder] = useState(null);
   const [categories, setCategories] = useState([]);
@@ -459,11 +460,9 @@ export default function CustomerOrder() {
     </div>
   );
 
-  const orderStatusConfig = activeOrder ? (FOOD_STATUS_CONFIG[activeOrder.status] || FOOD_STATUS_CONFIG.pending) : null;
+  const orderStatusConfig = (activeOrder?.status && FOOD_STATUS_CONFIG[activeOrder.status]) ? FOOD_STATUS_CONFIG[activeOrder.status] : FOOD_STATUS_CONFIG.pending;
   const activeItems = activeOrder?.items || [];
   const readyItemsCount = activeItems.filter(i => i.status === 'ready' || i.status === 'served').length;
-
-  const { theme, toggleTheme } = useStore();
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg)', paddingBottom: cartCount > 0 ? 120 : 40 }}>
