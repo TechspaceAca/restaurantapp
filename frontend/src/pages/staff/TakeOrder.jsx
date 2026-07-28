@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { menuApi, orderApi } from '../../api';
+import { menuApi, orderApi, tableApi } from '../../api';
 import useStore from '../../store/useStore';
 import toast from 'react-hot-toast';
 
@@ -314,6 +314,7 @@ export default function TakeOrder() {
   const [categories, setCategories] = useState([]);
   const [allItems, setAllItems]     = useState([]);    // all menu items for global search
   const [items, setItems]           = useState([]);
+  const [tables, setTables]         = useState([]);
   const [selectedCat, setSelectedCat] = useState(null);
   const [search, setSearch]         = useState('');
   const [loading, setLoading]       = useState(true);
@@ -321,20 +322,23 @@ export default function TakeOrder() {
 
   const {
     cart, selectedTable, activeOrder, addItemsMode,
-    orderType, setOrderType,
+    orderType, setOrderType, setSelectedTable, setActiveOrder, setAddItemsMode,
+    enterAddItemsMode, enterNewOrderMode,
     addToCart, removeFromCart, getCartTotal, clearCart,
   } = useStore();
   const navigate = useNavigate();
 
-  /* Fetch categories + all items for search */
-  const fetchMenu = useCallback(async () => {
+  /* Fetch categories, menu items, and dining tables */
+  const fetchMenuAndTables = useCallback(async () => {
     try {
-      const [catRes, itemRes] = await Promise.all([
+      const [catRes, itemRes, tableRes] = await Promise.all([
         menuApi.getCategories(),
         menuApi.getItems({ available: 'true' }),
+        tableApi.getTables(),
       ]);
       setCategories(catRes.data);
       setAllItems(itemRes.data);
+      setTables(Array.isArray(tableRes.data) ? tableRes.data : tableRes.data.results || []);
       if (catRes.data.length > 0) {
         setSelectedCat(catRes.data[0].id);
       }
@@ -359,9 +363,30 @@ export default function TakeOrder() {
     ? allItems.filter(i => i.name.toLowerCase().includes(search.toLowerCase()))
     : items;
 
-  const getQty = (itemId) => {
-    const c = cart.find(i => i.id === itemId);
-    return c ? c.qty : 0;
+  /* Select or switch table */
+  const handleSelectTable = async (tableId) => {
+    if (!tableId) {
+      setSelectedTable(null);
+      setActiveOrder(null);
+      setAddItemsMode(false);
+      return;
+    }
+    const tObj = tables.find(t => String(t.id) === String(tableId));
+    if (!tObj) return;
+
+    try {
+      const res = await orderApi.getActiveTableOrder(tObj.id);
+      const actOrd = res.data.order !== undefined ? res.data.order : res.data;
+      if (actOrd && actOrd.id) {
+        enterAddItemsMode(tObj, actOrd);
+        toast.success(`➕ Editing active Order #${actOrd.id} for ${tObj.name}`);
+      } else {
+        enterNewOrderMode(tObj);
+        toast.success(`🪑 Selected ${tObj.name}`);
+      }
+    } catch {
+      enterNewOrderMode(tObj);
+    }
   };
 
   /* Update or remove an existing item on an active order */
@@ -387,6 +412,9 @@ export default function TakeOrder() {
   /* Place new order OR add to existing order */
   const handlePlaceOrder = async () => {
     if (cart.length === 0) { toast.error('Add items to cart first'); return; }
+    if (orderType === 'dine_in' && !selectedTable) {
+      toast.error('Please select a Dining Table first'); return;
+    }
     setPlacing(true);
     try {
       if (addItemsMode && activeOrder?.id) {
@@ -432,7 +460,13 @@ export default function TakeOrder() {
             {ORDER_TYPES.map(t => (
               <button
                 key={t.key}
-                onClick={() => setOrderType(t.key)}
+                onClick={() => {
+                  setOrderType(t.key);
+                  if (t.key !== 'dine_in') {
+                    setSelectedTable(null);
+                    setActiveOrder(null);
+                  }
+                }}
                 style={{
                   flex: 1,
                   padding: '7px 4px',
@@ -455,6 +489,49 @@ export default function TakeOrder() {
                 {t.label}
               </button>
             ))}
+          </div>
+        )}
+
+        {/* Table Selector Dropdown (when orderType is dine_in) */}
+        {orderType === 'dine_in' && (
+          <div style={{
+            background: 'var(--bg-card)', border: '1.5px solid var(--surface-border)',
+            borderRadius: 'var(--radius)', padding: '10px 14px', marginBottom: 14,
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12,
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <span style={{ fontSize: 20 }}>🪑</span>
+              <div>
+                <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--text)' }}>
+                  {selectedTable ? selectedTable.name : 'Select Table'}
+                </div>
+                <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>
+                  {selectedTable
+                    ? (activeOrder ? `Occupied · Active Order #${activeOrder.id}` : `Available (${selectedTable.capacity || 4} seats)`)
+                    : 'Choose a dining table to attach items'
+                  }
+                </div>
+              </div>
+            </div>
+
+            <select
+              className="form-select"
+              style={{
+                width: 'auto', minWidth: 180, fontWeight: 700,
+                color: selectedTable ? 'var(--primary)' : 'var(--text-muted)',
+                borderColor: selectedTable ? 'var(--primary)' : 'var(--border)',
+                background: 'var(--bg-card2)', cursor: 'pointer',
+              }}
+              value={selectedTable?.id || ''}
+              onChange={e => handleSelectTable(e.target.value)}
+            >
+              <option value="">-- Select Table --</option>
+              {tables.map(t => (
+                <option key={t.id} value={t.id}>
+                  {t.name || `Table ${t.number}`} {t.status === 'occupied' ? '🔴 (Occupied)' : t.status === 'bill_requested' ? '💜 (Bill Requested)' : '🟢 (Free)'}
+                </option>
+              ))}
+            </select>
           </div>
         )}
 
