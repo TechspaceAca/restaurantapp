@@ -140,7 +140,7 @@ input, select, textarea { font-family: inherit; outline: none; }
   position: sticky;
   top: 0;
   height: var(--header-h);
-  background: rgba(15,15,19,0.85);
+  background: var(--glass-bg);
   backdrop-filter: blur(16px);
   border-bottom: 1px solid var(--surface-border);
   display: flex;
