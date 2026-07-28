@@ -19,6 +19,7 @@ const staffNav = [
   { path: '/pos', label: 'Dining Tables', icon: '🪑', exact: true },
   { path: '/pos/order', label: 'Take Order', icon: '📝' },
   { path: '/pos/billing', label: 'Billing', icon: '🧾' },
+  { path: '/pos/online', label: 'Swiggy & Zomato', icon: '🛵' },
   { path: '/pos/history', label: 'Order History', icon: '📋' },
 ];
 
