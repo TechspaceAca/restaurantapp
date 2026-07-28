@@ -124,7 +124,7 @@ function MenuItemCard({ item, cart, onAdd, onRemove }) {
 }
 
 /* ── Cart panel ──────────────────────────────────────────────── */
-function CartPanel({ cart, total, selectedTable, activeOrder, addItemsMode, orderType, onPlaceOrder, placing, onUpdateExistingItem }) {
+function CartPanel({ cart, total, selectedTable, activeOrder, addItemsMode, orderType, onPlaceOrder, placing, onUpdateExistingItem, customerPhone, setCustomerPhone, customerName, setCustomerName }) {
   const { removeFromCart, addToCart, clearCart, updateCartItemNotes } = useStore();
   const [expandNotes, setExpandNotes] = useState({});
 
@@ -273,8 +273,34 @@ function CartPanel({ cart, total, selectedTable, activeOrder, addItemsMode, orde
         ))}
       </div>
 
-      {cart.length > 0 && (
+          {cart.length > 0 && (
         <div className="pos-cart-footer">
+          {/* Customer Mobile Number Section */}
+          <div style={{ padding: '8px 10px', background: 'var(--bg-card2)', borderRadius: 8, marginBottom: 10, border: '1px solid var(--surface-border)' }}>
+            <div style={{ fontSize: 11, fontWeight: 800, color: 'var(--primary)', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 4 }}>
+              <span>📱</span> Customer Details (For WhatsApp Bill)
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
+              <input
+                className="form-input"
+                style={{ fontSize: 11, padding: '6px 8px' }}
+                type="tel"
+                maxLength={10}
+                placeholder="Mobile No"
+                value={customerPhone}
+                onChange={e => setCustomerPhone(e.target.value)}
+              />
+              <input
+                className="form-input"
+                style={{ fontSize: 11, padding: '6px 8px' }}
+                type="text"
+                placeholder="Name"
+                value={customerName}
+                onChange={e => setCustomerName(e.target.value)}
+              />
+            </div>
+          </div>
+
           <div className="bill-row" style={{ padding: '4px 0', borderBottom: 'none' }}>
             <span style={{ color: 'var(--text-muted)', fontSize: 13 }}>
               {addItemsMode ? 'New items subtotal' : 'Subtotal'}
@@ -449,6 +475,8 @@ export default function TakeOrder() {
         await orderApi.createOrder({
           table: selectedTable?.id || null,
           order_type: orderType || 'dine_in',
+          customer_name: customerName || 'Guest',
+          customer_phone: customerPhone || '',
           items: cart.map(item => ({
             menu_item: item.menu_item_id || item.id,
             quantity: item.qty,
@@ -649,6 +677,10 @@ export default function TakeOrder() {
         onPlaceOrder={handlePlaceOrder}
         onUpdateExistingItem={handleUpdateExistingItem}
         placing={placing}
+        customerPhone={customerPhone}
+        setCustomerPhone={setCustomerPhone}
+        customerName={customerName}
+        setCustomerName={setCustomerName}
       />
     </div>
   );
