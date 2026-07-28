@@ -29,7 +29,7 @@ const RESTAURANT_INFO = {
 /* ─── WhatsApp Send Modal ────────────────────────────────────── */
 /* ─── Send Customer Receipt Modal (WhatsApp / Email / SMS / Print) ────── */
 function CustomerReceiptModal({ bill, whatsappText, onClose }) {
-  const [phone, setPhone] = useState(bill.order_details?.customer_phone || '');
+  const [phone, setPhone] = useState(bill.order_details?.customer_phone || bill.customer_phone || '8547189033');
   const [email, setEmail] = useState('');
   const [method, setMethod] = useState('wa'); // 'wa', 'email', 'sms', 'manual'
   const textRef = useRef(null);
@@ -333,8 +333,8 @@ function SettlePanel({ order, onBilled, onFormChange, currentForm }) {
     discount_amount: 0,
     discount_reason: '',
     payment_method: 'gpay',
-    customer_phone: order.customer_phone || '',
-    customer_name: order.customer_name || '',
+    customer_phone: order.customer_phone || '8547189033',
+    customer_name: order.customer_name || 'Guest',
     notes: '',
   });
   const [billing, setBilling] = useState(false);
