@@ -787,13 +787,10 @@ export default function BillingPage() {
   const handleStatusUpdate = async (orderId, newStatus) => {
     try {
       await orderApi.updateStatus(orderId, newStatus);
-      toast.success(`✅ Order status updated to ${newStatus.toUpperCase()}`);
+      toast.success(`Marked as ${newStatus.toUpperCase()}`);
       setSelectedOrder(prev => prev && prev.id === orderId ? { ...prev, status: newStatus } : prev);
       fetchOrders();
-    } catch (e) {
-      const err = e.response?.data?.error;
-      toast.error(err || '👨‍🍳 Kitchen Alert: Contact Kitchen staff to prepare and mark items ready!');
-    }
+    } catch (e) { toast.error(e.response?.data?.error || 'Cannot update status'); }
   };
 
   return (

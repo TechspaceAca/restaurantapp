@@ -48,10 +48,10 @@ class UpdateOrderStatusView(APIView):
     permission_classes = [IsAnyStaff]
 
     VALID_TRANSITIONS = {
-        'pending': ['confirmed', 'preparing', 'ready', 'served', 'cancelled'],
-        'confirmed': ['preparing', 'ready', 'served', 'cancelled'],
-        'preparing': ['ready', 'served', 'cancelled'],
-        'ready': ['served', 'billed'],
+        'pending': ['confirmed', 'cancelled'],
+        'confirmed': ['preparing', 'cancelled'],
+        'preparing': ['ready', 'cancelled'],
+        'ready': ['served'],
         'served': ['billed'],
         'billed': [],
         'cancelled': [],
@@ -66,7 +66,7 @@ class UpdateOrderStatusView(APIView):
         new_status = request.data.get('status')
         if new_status not in self.VALID_TRANSITIONS.get(order.status, []):
             return Response({
-                'error': f"👨‍🍳 Kitchen Status Alert: Contact Kitchen staff to prepare and mark Order #{order.id} as ready before serving.",
+                'error': f"Cannot move from '{order.status}' to '{new_status}'",
                 'allowed': self.VALID_TRANSITIONS.get(order.status, [])
             }, status=400)
 
