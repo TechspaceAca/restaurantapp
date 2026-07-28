@@ -717,6 +717,18 @@ function OrderListItem({ order, isSelected, onSelect }) {
           <span className={`badge status-${order.status}`} style={{ fontSize: 9 }}>{STATUS_LABELS[order.status]}</span>
         </div>
       </div>
+
+      {['pending', 'confirmed', 'preparing'].includes(order.status) && (
+        <div style={{ fontSize: 11, color: '#f59e0b', fontWeight: 800, marginTop: 6, display: 'flex', alignItems: 'center', gap: 4, background: 'rgba(245,158,11,0.12)', padding: '3px 8px', borderRadius: 6, width: 'fit-content' }}>
+          <span>👨‍🍳 Kitchen Approval Needed</span>
+        </div>
+      )}
+
+      {order.status === 'ready' && (
+        <div style={{ fontSize: 11, color: '#22c55e', fontWeight: 800, marginTop: 6, display: 'flex', alignItems: 'center', gap: 4, background: 'rgba(34,197,94,0.12)', padding: '3px 8px', borderRadius: 6, width: 'fit-content' }}>
+          <span>✨ Ready to Serve & Bill</span>
+        </div>
+      )}
     </button>
   );
 }
