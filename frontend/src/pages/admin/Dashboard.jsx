@@ -333,8 +333,8 @@ export default function AdminDashboard() {
   };
 
   const activeTables  = tables.filter(t => t.status !== 'available').length;
-  const grossRevenue  = stats?.total_revenue || stats?.today_revenue || 0;
-  const netProfit     = (grossRevenue * 0.32).toFixed(0);
+  const totalRevenue  = stats?.total_revenue || 0;
+  const todayRevenue  = stats?.today_revenue || 0;
   const displayTables = showAllTables ? tables : tables.slice(0, 6);
 
   // Revenue by channel
@@ -360,27 +360,27 @@ export default function AdminDashboard() {
       {/* ── Header ── */}
       <div className="page-header">
         <div>
-          <div className="page-title">Admin Executive Dashboard</div>
-          <div className="page-subtitle">Business Analytics, Financial Margins, Table Management &amp; QR Codes</div>
+          <div className="page-title">Restaurant Executive Dashboard</div>
+          <div className="page-subtitle">Overview of Sales Revenue, Today's Sales, Real-Time Tables &amp; Menu Catalog</div>
         </div>
         <div style={{ display: 'flex', gap: 10 }}>
-          <button className="btn btn-secondary btn-sm" onClick={() => setTableModal('new')}>Add New Table</button>
-          <button className="btn btn-primary" onClick={() => setItemModal('new')}>Add New Menu Dish</button>
+          <button className="btn btn-secondary btn-sm" onClick={() => setTableModal('new')}>+ Add New Table</button>
+          <button className="btn btn-primary" onClick={() => setItemModal('new')}>+ Add New Dish</button>
         </div>
       </div>
 
       {/* ── KPI Row ── */}
       <div className="grid-4 mb-4">
-        <StatCard icon="💰" label="Total Gross Revenue"   value={`₹${grossRevenue?.toFixed(1)}`}  color="#f97316" sub="All Time" />
-        <StatCard icon="📈" label={`Est. Net Profit (32%)`} value={`₹${netProfit}`}               color="#22c55e" />
-        <StatCard icon="🪑" label="Active Tables &amp; QR"     value={`${activeTables} Tables`}       color="#3b82f6" sub={`${tables.length} total`} />
-        <StatCard icon="🍽️" label="Active Menu Catalog"    value={`${menuItems.length} Dishes`}   color="#8b5cf6" />
+        <StatCard icon="💰" label="Total Sales Revenue"  value={`₹${totalRevenue?.toFixed(1)}`}  color="#f97316" sub="Total Collections" />
+        <StatCard icon="📅" label="Today's Revenue"       value={`₹${todayRevenue?.toFixed(1)}`}  color="#22c55e" sub={`${stats?.today_orders || 0} Orders Today`} />
+        <StatCard icon="🪑" label="Occupied Tables"      value={`${activeTables} Seated`}        color="#3b82f6" sub={`${tables.length} Total Tables`} />
+        <StatCard icon="🍽️" label="Active Menu Items"    value={`${menuItems.length} Dishes`}    color="#8b5cf6" sub="Live on Menu" />
       </div>
 
       {/* ── Table QR Grid ── */}
       <div className="card mb-4">
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-          <div style={{ fontWeight: 800, fontSize: 15 }}>Table QR Code Generator ({tables.length} Tables)</div>
+          <div style={{ fontWeight: 800, fontSize: 15 }}>Dining Table QR Codes &amp; Real-time Occupancy ({tables.length} Tables)</div>
           <button className="btn btn-secondary btn-sm" onClick={() => setTableModal('new')}>+ Add New Table</button>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 12 }}>
@@ -426,7 +426,7 @@ export default function AdminDashboard() {
       {/* ── Admin Menu Management ── */}
       <div className="card mb-4">
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-          <div style={{ fontWeight: 800, fontSize: 15 }}>Admin Menu Management ({menuItems.length} Dishes)</div>
+          <div style={{ fontWeight: 800, fontSize: 15 }}>Menu Catalog &amp; Pricing Management ({menuItems.length} Dishes)</div>
           <button className="btn btn-primary btn-sm" onClick={() => setItemModal('new')}>+ Add Dish</button>
         </div>
         {menuItems.length === 0 ? (

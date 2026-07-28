@@ -45,11 +45,15 @@ class DashboardSummaryView(APIView):
         # Average order value
         avg_order = Bill.objects.filter(is_paid=True).aggregate(avg=Avg('total'))['avg'] or 0
 
+        # Total revenue all time
+        total_revenue = Bill.objects.filter(is_paid=True).aggregate(total=Sum('total'))['total'] or 0
+
         return Response({
             'today_revenue': float(today_revenue),
             'today_orders': today_orders,
             'week_revenue': float(week_revenue),
             'month_revenue': float(month_revenue),
+            'total_revenue': float(total_revenue),
             'active_orders': active_orders,
             'avg_order_value': round(float(avg_order), 2),
         })
