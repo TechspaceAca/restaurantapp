@@ -452,16 +452,25 @@ export default function CustomerOrder() {
   };
 
   if (loading) return (
-    <div style={{ minHeight: '100vh', background: 'var(--bg)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 16 }}>
-      <div className="spinner" /><p style={{ color: 'var(--text-muted)' }}>Loading menu...</p>
+    <div style={{ minHeight: '100vh', background: 'var(--bg)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 16, color: 'var(--text)' }}>
+      <div className="spinner" style={{ width: 44, height: 44, borderWidth: 4 }} />
+      <div style={{ fontSize: 16, fontWeight: 800, color: 'var(--text)' }}>🍽️ T CLOCK RESTO CAFE</div>
+      <p style={{ color: 'var(--text-muted)', fontSize: 13 }}>Loading digital menu catalog...</p>
     </div>
   );
 
   if (error) return (
-    <div style={{ minHeight: '100vh', background: 'var(--bg)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 16, padding: 20, textAlign: 'center' }}>
-      <div style={{ fontSize: 60 }}>❌</div>
-      <div style={{ fontSize: 18, fontWeight: 800, color: 'var(--text)' }}>Invalid QR Code</div>
-      <div style={{ color: 'var(--text-muted)', fontSize: 14 }}>{error}</div>
+    <div style={{ minHeight: '100vh', background: 'var(--bg)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 16, padding: 24, textAlign: 'center' }}>
+      <div style={{ fontSize: 64 }}>❌</div>
+      <div style={{ fontSize: 20, fontWeight: 900, color: 'var(--text)' }}>Invalid or Expired QR Code</div>
+      <div style={{ color: 'var(--text-muted)', fontSize: 14, maxWidth: 360, lineHeight: 1.5 }}>{error}</div>
+      <button
+        onClick={() => window.location.reload()}
+        className="btn btn-primary"
+        style={{ marginTop: 12, padding: '10px 24px', borderRadius: 12 }}
+      >
+        🔄 Refresh Page
+      </button>
     </div>
   );
 
