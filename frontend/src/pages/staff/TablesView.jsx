@@ -160,24 +160,19 @@ export default function TablesView() {
     return () => clearInterval(interval);
   }, [fetchTables]);
 
-  /* Smart click: occupied → add-items mode; else → new order */
+  /* Smart click: check if active order exists → add-items mode; else → new order */
   const handleTableClick = async (table) => {
     setLoadingTable(table.id);
     try {
-      if (['occupied', 'bill_requested'].includes(table.status) && table.active_order_id) {
-        // Fetch the active order, then enter add-items mode
-        const res = await orderApi.getActiveTableOrder(table.id);
-        if (res.data && res.data.id) {
-          enterAddItemsMode(table, res.data);
-        } else {
-          enterNewOrderMode(table);
-        }
+      const res = await orderApi.getActiveTableOrder(table.id);
+      const actOrd = res.data && res.data.id ? res.data : (res.data && res.data.order ? res.data.order : null);
+      if (actOrd && actOrd.id) {
+        enterAddItemsMode(table, actOrd);
       } else {
         enterNewOrderMode(table);
       }
       navigate('/pos/order');
     } catch {
-      toast.error('Failed to load table order');
       enterNewOrderMode(table);
       navigate('/pos/order');
     } finally { setLoadingTable(null); }

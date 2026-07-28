@@ -363,6 +363,22 @@ export default function TakeOrder() {
     ? allItems.filter(i => i.name.toLowerCase().includes(search.toLowerCase()))
     : items;
 
+  /* Auto-load active order whenever selectedTable changes or page loads */
+  useEffect(() => {
+    if (selectedTable?.id && orderType === 'dine_in') {
+      orderApi.getActiveTableOrder(selectedTable.id)
+        .then(res => {
+          const actOrd = res.data && res.data.id ? res.data : (res.data && res.data.order ? res.data.order : null);
+          if (actOrd && actOrd.id) {
+            enterAddItemsMode(selectedTable, actOrd);
+          } else {
+            enterNewOrderMode(selectedTable);
+          }
+        })
+        .catch(() => {});
+    }
+  }, [selectedTable?.id, orderType]);
+
   /* Select or switch table */
   const handleSelectTable = async (tableId) => {
     if (!tableId) {
@@ -374,9 +390,10 @@ export default function TakeOrder() {
     const tObj = tables.find(t => String(t.id) === String(tableId));
     if (!tObj) return;
 
+    setSelectedTable(tObj);
     try {
       const res = await orderApi.getActiveTableOrder(tObj.id);
-      const actOrd = res.data.order !== undefined ? res.data.order : res.data;
+      const actOrd = res.data && res.data.id ? res.data : (res.data && res.data.order ? res.data.order : null);
       if (actOrd && actOrd.id) {
         enterAddItemsMode(tObj, actOrd);
         toast.success(`➕ Editing active Order #${actOrd.id} for ${tObj.name}`);

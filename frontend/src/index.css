@@ -2,18 +2,18 @@
    T Clock Restaurant POS — Global Design System
    ═══════════════════════════════════════════════════════════════ */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,600;0,800;0,900;1,600&display=swap');
 
 /* ── CSS Variables ──────────────────────────────────────────────── */
 :root {
   --primary: #f97316;
   --primary-dark: #ea580c;
-  --primary-light: #fed7aa;
-  --primary-glow: rgba(249, 115, 22, 0.25);
+  --primary-light: #ffedd5;
+  --primary-glow: rgba(249, 115, 22, 0.35);
 
-  --accent: #8b5cf6;
-  --accent-dark: #7c3aed;
-  --accent-light: #ede9fe;
+  --accent: #a855f7;
+  --accent-dark: #9333ea;
+  --accent-light: #f3e8ff;
 
   --success: #22c55e;
   --success-light: #dcfce7;
@@ -24,14 +24,15 @@
   --info: #3b82f6;
   --info-light: #dbeafe;
 
-  --bg: #0f0f13;
-  --bg-card: #1a1a24;
-  --bg-card2: #22222f;
-  --bg-sidebar: #13131a;
-  --bg-hover: #2a2a3a;
-  --surface-border: rgba(255,255,255,0.08);
+  --bg: #0b0b0f;
+  --bg-card: #15151f;
+  --bg-card2: #1e1e2c;
+  --bg-sidebar: #101017;
+  --bg-hover: #262638;
+  --surface-border: rgba(255,255,255,0.09);
+  --glass-bg: rgba(21, 21, 31, 0.75);
 
-  --text: #f1f5f9;
+  --text: #f8fafc;
   --text-muted: #94a3b8;
   --text-dim: #64748b;
   --text-dark: #cbd5e1;
@@ -42,17 +43,18 @@
   --radius-xl: 24px;
   --radius-full: 9999px;
 
-  --shadow-sm: 0 1px 3px rgba(0,0,0,0.4);
-  --shadow: 0 4px 16px rgba(0,0,0,0.4);
-  --shadow-lg: 0 8px 32px rgba(0,0,0,0.5);
-  --shadow-glow: 0 0 24px var(--primary-glow);
+  --shadow-sm: 0 2px 4px rgba(0,0,0,0.4);
+  --shadow: 0 6px 20px rgba(0,0,0,0.5);
+  --shadow-lg: 0 12px 40px rgba(0,0,0,0.65);
+  --shadow-glow: 0 0 28px var(--primary-glow);
 
-  --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-slow: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition: 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 0.38s cubic-bezier(0.4, 0, 0.2, 1);
 
-  --sidebar-w: 240px;
-  --header-h: 60px;
-  --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --sidebar-w: 245px;
+  --header-h: 62px;
+  --font: 'Outfit', 'Inter', -apple-system, sans-serif;
+  --font-heading: 'Playfair Display', Georgia, serif;
 }
 
 /* ── Reset ──────────────────────────────────────────────────────── */
