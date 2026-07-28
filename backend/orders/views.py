@@ -104,7 +104,21 @@ class AddItemsToOrderView(APIView):
             from menu.models import MenuItem
             try:
                 menu_item = MenuItem.objects.get(id=item_data['menu_item'])
-                existing = order.items.filter(menu_item=menu_item).first()
+                portion = item_data.get('portion', 'Full')
+                unit_price = item_data.get('unit_price')
+                if unit_price is None:
+                    if portion == 'Half' and menu_item.half_price:
+                        unit_price = menu_item.half_price
+                    elif portion == 'Half':
+                        unit_price = round(menu_item.price * 0.6, 2)
+                    elif portion == 'Quarter' and menu_item.quarter_price:
+                        unit_price = menu_item.quarter_price
+                    elif portion == 'Quarter':
+                        unit_price = round(menu_item.price * 0.35, 2)
+                    else:
+                        unit_price = menu_item.price
+
+                existing = order.items.filter(menu_item=menu_item, portion=portion).first()
                 if existing:
                     existing.quantity += item_data.get('quantity', 1)
                     existing.save()
@@ -113,7 +127,8 @@ class AddItemsToOrderView(APIView):
                         order=order,
                         menu_item=menu_item,
                         quantity=item_data.get('quantity', 1),
-                        unit_price=menu_item.price,
+                        unit_price=unit_price,
+                        portion=portion,
                         notes=item_data.get('notes', ''),
                     )
             except MenuItem.DoesNotExist:

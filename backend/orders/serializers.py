@@ -15,14 +15,17 @@ class OrderItemSerializer(serializers.ModelSerializer):
         model = OrderItem
         fields = [
             'id', 'menu_item', 'menu_item_name', 'menu_item_image',
-            'is_veg', 'quantity', 'unit_price', 'subtotal', 'notes', 'status',
+            'is_veg', 'quantity', 'unit_price', 'portion', 'subtotal', 'notes', 'status',
         ]
 
 
 class OrderItemCreateSerializer(serializers.ModelSerializer):
+    unit_price = serializers.DecimalField(max_digits=8, decimal_places=2, required=False)
+    portion = serializers.CharField(max_length=20, required=False, default='Full')
+
     class Meta:
         model = OrderItem
-        fields = ['menu_item', 'quantity', 'notes']
+        fields = ['menu_item', 'quantity', 'unit_price', 'portion', 'notes']
 
     def validate_menu_item(self, item):
         if not item.is_available:
@@ -64,11 +67,26 @@ class OrderCreateSerializer(serializers.ModelSerializer):
         )
         for item_data in items_data:
             menu_item = item_data['menu_item']
+            portion = item_data.get('portion', 'Full')
+            unit_price = item_data.get('unit_price')
+            if unit_price is None:
+                if portion == 'Half' and menu_item.half_price:
+                    unit_price = menu_item.half_price
+                elif portion == 'Half':
+                    unit_price = round(menu_item.price * 0.6, 2)
+                elif portion == 'Quarter' and menu_item.quarter_price:
+                    unit_price = menu_item.quarter_price
+                elif portion == 'Quarter':
+                    unit_price = round(menu_item.price * 0.35, 2)
+                else:
+                    unit_price = menu_item.price
+
             OrderItem.objects.create(
                 order=order,
                 menu_item=menu_item,
                 quantity=item_data['quantity'],
-                unit_price=menu_item.price,
+                unit_price=unit_price,
+                portion=portion,
                 notes=item_data.get('notes', ''),
             )
         # Mark table as occupied if dine_in

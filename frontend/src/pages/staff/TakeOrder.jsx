@@ -13,38 +13,111 @@ const ORDER_TYPES = [
   { key: 'zomato',   label: 'Zomato',   icon: '🔴' },
 ];
 
-/* ── Single menu-item card ───────────────────────────────────── */
-function MenuItemCard({ item, qty, onAdd, onRemove }) {
-  const inCart = qty > 0;
+/* ── Single menu-item card with Portion Selection ───────────── */
+function MenuItemCard({ item, cart, onAdd, onRemove }) {
+  const fullPrice = Number(item.price);
+  const halfPrice = item.half_price ? Number(item.half_price) : Math.round(fullPrice * 0.6);
+  const quarterPrice = item.quarter_price ? Number(item.quarter_price) : Math.round(fullPrice * 0.35);
+
+  const portions = [
+    { key: 'Full', label: `Full ₹${fullPrice}`, price: fullPrice },
+    { key: 'Half', label: `Half ₹${halfPrice}`, price: halfPrice },
+    { key: 'Quarter', label: `Quarter ₹${quarterPrice}`, price: quarterPrice },
+  ];
+
+  const [selectedPortion, setSelectedPortion] = useState('Full');
+  const activePortion = portions.find(p => p.key === selectedPortion) || portions[0];
+
+  const cartItemId = `${item.id}-${selectedPortion}`;
+  const cartItem = cart.find(c => c.id === cartItemId);
+  const qty = cartItem ? cartItem.qty : 0;
+
+  const handleAdd = () => {
+    onAdd({
+      id: cartItemId,
+      menu_item_id: item.id,
+      name: `${item.name} (${selectedPortion})`,
+      base_name: item.name,
+      portion: selectedPortion,
+      price: activePortion.price,
+      is_veg: item.is_veg,
+      image: item.image,
+    });
+  };
+
   return (
     <div
       className="menu-item-card"
-      style={{ borderColor: inCart ? 'var(--primary)' : undefined, position: 'relative' }}
-      onClick={() => onAdd(item)}
+      style={{
+        borderColor: qty > 0 ? 'var(--primary)' : undefined,
+        display: 'flex', flexDirection: 'column', height: '100%', position: 'relative'
+      }}
     >
       {item.image ? (
         <img src={item.image} alt={item.name} className="menu-item-image" />
       ) : (
         <div className="menu-item-image-placeholder">{item.is_veg ? '🥗' : '🍗'}</div>
       )}
-      <div className="menu-item-body">
+      <div className="menu-item-body" style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
           {item.is_veg ? <div className="veg-dot" /> : <div className="nonveg-dot" />}
-          <div className="menu-item-name">{item.name}</div>
-        </div>
-        {item.description && <div className="menu-item-desc">{item.description}</div>}
-        <div className="menu-item-footer">
-          <div className="menu-item-price">₹{item.price}</div>
-          {inCart ? (
-            <div className="qty-control" onClick={e => e.stopPropagation()}>
-              <button className="qty-btn" onClick={() => onRemove(item.id)}>−</button>
-              <span className="qty-num">{qty}</span>
-              <button className="qty-btn" onClick={() => onAdd(item)}>+</button>
-            </div>
-          ) : (
-            <div className="menu-item-add">+</div>
+          {item.is_featured && (
+            <span style={{ fontSize: 10, padding: '1px 6px', background: 'rgba(249,115,22,0.15)', color: 'var(--primary)', borderRadius: 99, fontWeight: 700 }}>
+              🔥 Highly reordered
+            </span>
           )}
         </div>
+        <div className="menu-item-name" style={{ fontSize: 14, fontWeight: 700 }}>{item.name}</div>
+        <div style={{ fontSize: 16, fontWeight: 800, color: 'var(--primary)', margin: '2px 0 4px' }}>₹{activePortion.price}</div>
+        {item.description && <div className="menu-item-desc" style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 8 }}>{item.description}</div>}
+
+        {/* Portion Selector Pills */}
+        <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginBottom: 10, marginTop: 'auto' }}>
+          {portions.map(p => {
+            const isSel = selectedPortion === p.key;
+            return (
+              <button
+                key={p.key}
+                type="button"
+                onClick={(e) => { e.stopPropagation(); setSelectedPortion(p.key); }}
+                style={{
+                  padding: '3px 8px',
+                  borderRadius: 12,
+                  fontSize: 11,
+                  fontWeight: isSel ? 700 : 500,
+                  border: isSel ? '1.5px solid var(--primary)' : '1px solid var(--border)',
+                  background: isSel ? 'rgba(249,115,22,0.14)' : 'var(--bg-card2)',
+                  color: isSel ? 'var(--primary)' : 'var(--text-muted)',
+                  cursor: 'pointer',
+                  transition: 'all 0.15s ease',
+                }}
+              >
+                {p.label}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Action Button */}
+        {qty > 0 ? (
+          <div className="qty-control" onClick={e => e.stopPropagation()} style={{ width: '100%', justifyContent: 'space-between' }}>
+            <button className="qty-btn" onClick={() => onRemove(cartItemId)}>−</button>
+            <span className="qty-num" style={{ fontSize: 12 }}>{qty} in cart</span>
+            <button className="qty-btn" onClick={handleAdd}>+</button>
+          </div>
+        ) : (
+          <button
+            type="button"
+            className="btn btn-secondary btn-sm"
+            onClick={handleAdd}
+            style={{
+              width: '100%', justifyContent: 'center', borderColor: 'var(--primary)',
+              color: 'var(--primary)', fontWeight: 700, background: 'rgba(249,115,22,0.06)',
+            }}
+          >
+            + Add ({selectedPortion})
+          </button>
+        )}
       </div>
     </div>
   );
@@ -284,8 +357,10 @@ export default function TakeOrder() {
       if (addItemsMode && activeOrder?.id) {
         // Add items to existing order
         await orderApi.addItems(activeOrder.id, cart.map(item => ({
-          menu_item: item.id,
+          menu_item: item.menu_item_id || item.id,
           quantity: item.qty,
+          unit_price: item.price,
+          portion: item.portion || 'Full',
           notes: item.notes || '',
         })));
         toast.success('✅ Items added to order!');
@@ -295,8 +370,10 @@ export default function TakeOrder() {
           table: selectedTable?.id || null,
           order_type: orderType || 'dine_in',
           items: cart.map(item => ({
-            menu_item: item.id,
+            menu_item: item.menu_item_id || item.id,
             quantity: item.qty,
+            unit_price: item.price,
+            portion: item.portion || 'Full',
             notes: item.notes || '',
           })),
         });
@@ -415,7 +492,7 @@ export default function TakeOrder() {
               <MenuItemCard
                 key={item.id}
                 item={item}
-                qty={getQty(item.id)}
+                cart={cart}
                 onAdd={addToCart}
                 onRemove={removeFromCart}
               />

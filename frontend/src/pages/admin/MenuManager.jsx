@@ -50,7 +50,10 @@ function CategoryModal({ cat, onClose, onSave }) {
 function ItemModal({ item, categories, onClose, onSave }) {
   const [form, setForm] = useState({
     name: item?.name || '', description: item?.description || '',
-    price: item?.price || '', category: item?.category || (categories[0]?.id || ''),
+    price: item?.price || '',
+    half_price: item?.half_price || '',
+    quarter_price: item?.quarter_price || '',
+    category: item?.category || (categories[0]?.id || ''),
     is_veg: item?.is_veg ?? true, is_available: item?.is_available ?? true,
     is_featured: item?.is_featured ?? false, prep_time: item?.prep_time || 15,
     sort_order: item?.sort_order || 0,
@@ -65,7 +68,11 @@ function ItemModal({ item, categories, onClose, onSave }) {
     setSaving(true);
     try {
       const fd = new FormData();
-      Object.entries(form).forEach(([k, v]) => fd.append(k, v));
+      Object.entries(form).forEach(([k, v]) => {
+        if (v !== null && v !== undefined && v !== '') {
+          fd.append(k, v);
+        }
+      });
       if (imageFile) fd.append('image', imageFile);
       if (item?.id) await menuApi.updateItem(item.id, fd);
       else await menuApi.createItem(fd);
@@ -96,14 +103,52 @@ function ItemModal({ item, categories, onClose, onSave }) {
             </select>
           </div>
           <div className="form-group">
-            <label className="form-label">Price (₹) *</label>
-            <input className="form-input" type="number" value={form.price} onChange={e => setForm(f => ({ ...f, price: e.target.value }))} placeholder="0.00" />
-          </div>
-          <div className="form-group">
             <label className="form-label">Prep Time (min)</label>
             <input className="form-input" type="number" value={form.prep_time} onChange={e => setForm(f => ({ ...f, prep_time: +e.target.value }))} />
           </div>
-          <div className="form-group">
+
+          {/* Portion Pricing Grid */}
+          <div className="form-group" style={{ gridColumn: '1/-1' }}>
+            <label className="form-label">Portion Pricing (₹)</label>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10 }}>
+              <div>
+                <label className="form-label" style={{ fontSize: 11, color: 'var(--text-muted)' }}>Full Price *</label>
+                <input
+                  className="form-input"
+                  type="number"
+                  step="0.01"
+                  value={form.price}
+                  onChange={e => setForm(f => ({ ...f, price: e.target.value }))}
+                  placeholder="e.g. 380"
+                  required
+                />
+              </div>
+              <div>
+                <label className="form-label" style={{ fontSize: 11, color: 'var(--text-muted)' }}>Half Price</label>
+                <input
+                  className="form-input"
+                  type="number"
+                  step="0.01"
+                  value={form.half_price}
+                  onChange={e => setForm(f => ({ ...f, half_price: e.target.value }))}
+                  placeholder={form.price ? `Auto (~₹${Math.round(form.price * 0.6)})` : "e.g. 220"}
+                />
+              </div>
+              <div>
+                <label className="form-label" style={{ fontSize: 11, color: 'var(--text-muted)' }}>Quarter Price</label>
+                <input
+                  className="form-input"
+                  type="number"
+                  step="0.01"
+                  value={form.quarter_price}
+                  onChange={e => setForm(f => ({ ...f, quarter_price: e.target.value }))}
+                  placeholder={form.price ? `Auto (~₹${Math.round(form.price * 0.35)})` : "e.g. 130"}
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="form-group" style={{ gridColumn: '1/-1' }}>
             <label className="form-label">Sort Order</label>
             <input className="form-input" type="number" value={form.sort_order} onChange={e => setForm(f => ({ ...f, sort_order: +e.target.value }))} />
           </div>

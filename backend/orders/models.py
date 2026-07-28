@@ -62,6 +62,7 @@ class OrderItem(models.Model):
     menu_item = models.ForeignKey('menu.MenuItem', on_delete=models.PROTECT)
     quantity = models.IntegerField(default=1)
     unit_price = models.DecimalField(max_digits=8, decimal_places=2)
+    portion = models.CharField(max_length=20, default='Full', blank=True)
     notes = models.CharField(max_length=300, blank=True)
     status = models.CharField(max_length=20, choices=ITEM_STATUS, default='pending')
     created_at = models.DateTimeField(auto_now_add=True)

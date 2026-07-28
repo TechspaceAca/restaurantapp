@@ -9,12 +9,12 @@ const STATUS_LABELS = {
 };
 
 const PAYMENT_METHODS = [
-  { key: 'cash',          label: '💵 Cash Register',         icon: '💵' },
-  { key: 'gpay',          label: '📱 Google Pay (GPay)',     icon: '📱' },
-  { key: 'card',          label: '💳 Credit / Debit Card',   icon: '💳' },
-  { key: 'upi',           label: '📲 UPI / QR Code',          icon: '📲' },
-  { key: 'split',         label: '🔀 Split Payment',          icon: '🔀' },
-  { key: 'complimentary', label: '🎁 Complimentary',         icon: '🎁' },
+  { key: 'cash', label: '💵 Cash Register', icon: '💵' },
+  { key: 'gpay', label: '📱 Google Pay (GPay)', icon: '📱' },
+  { key: 'card', label: '💳 Credit / Debit Card', icon: '💳' },
+  { key: 'upi', label: '📲 UPI / QR Code', icon: '📲' },
+  { key: 'split', label: '🔀 Split Payment', icon: '🔀' },
+  { key: 'complimentary', label: '🎁 Complimentary', icon: '🎁' },
 ];
 
 const RESTAURANT_INFO = {
@@ -28,7 +28,7 @@ const RESTAURANT_INFO = {
 
 /* ─── WhatsApp Send Modal ────────────────────────────────────── */
 function WhatsAppModal({ bill, whatsappText, onClose }) {
-  const [phone, setPhone]   = useState(bill.order_details?.customer_phone || '');
+  const [phone, setPhone] = useState(bill.order_details?.customer_phone || '');
   const [method, setMethod] = useState('wa'); // 'wa' or 'manual'
   const textRef = useRef(null);
 
@@ -140,11 +140,11 @@ function WhatsAppModal({ bill, whatsappText, onClose }) {
 
 /* ─── Thermal Receipt Preview ────────────────────────────────── */
 function ReceiptPreview({ order, includeGst, taxPercent, discountAmount, discountReason }) {
-  const subtotal  = Number(order.subtotal);
-  const tax       = includeGst ? (subtotal * taxPercent) / 100 : 0;
-  const discount  = Number(discountAmount) || 0;
-  const total     = subtotal + tax - discount;
-  const now       = new Date();
+  const subtotal = Number(order.subtotal);
+  const tax = includeGst ? (subtotal * taxPercent) / 100 : 0;
+  const discount = Number(discountAmount) || 0;
+  const total = subtotal + tax - discount;
+  const now = new Date();
 
   return (
     <div className="receipt-paper">
@@ -233,9 +233,9 @@ function SettlePanel({ order, onBilled, onFormChange, currentForm }) {
     payment_method: 'gpay',
     notes: '',
   });
-  const [billing, setBilling]     = useState(false);
+  const [billing, setBilling] = useState(false);
   const [billResult, setBillResult] = useState(null);
-  const [waModal, setWaModal]     = useState(false);
+  const [waModal, setWaModal] = useState(false);
 
   // Sync form state up to parent for live receipt preview
   useEffect(() => {
@@ -243,9 +243,9 @@ function SettlePanel({ order, onBilled, onFormChange, currentForm }) {
   }, [form, onFormChange]);
 
   const subtotal = Number(order.subtotal);
-  const tax      = form.include_gst ? (subtotal * form.tax_percent) / 100 : 0;
+  const tax = form.include_gst ? (subtotal * form.tax_percent) / 100 : 0;
   const discount = Number(form.discount_amount) || 0;
-  const total    = subtotal + tax - discount;
+  const total = subtotal + tax - discount;
 
   const handleGenerateBill = async () => {
     setBilling(true);
@@ -263,7 +263,20 @@ function SettlePanel({ order, onBilled, onFormChange, currentForm }) {
       toast.success('🧾 Bill generated! Table is now free.');
       onBilled();
     } catch (e) {
-      toast.error(e.response?.data?.error || 'Failed to generate bill');
+      const errData = e.response?.data;
+      let msg = 'Failed to generate bill';
+      if (typeof errData === 'string') {
+        msg = errData;
+      } else if (errData?.error) {
+        msg = errData.error;
+      } else if (errData?.detail) {
+        msg = errData.detail;
+      } else if (errData && typeof errData === 'object') {
+        const firstKey = Object.keys(errData)[0];
+        const val = errData[firstKey];
+        msg = Array.isArray(val) ? `${firstKey}: ${val[0]}` : `${firstKey}: ${val}`;
+      }
+      toast.error(msg);
     } finally {
       setBilling(false);
     }
@@ -289,12 +302,12 @@ function SettlePanel({ order, onBilled, onFormChange, currentForm }) {
       <p>Ph: ${RESTAURANT_INFO.phone}</p>
       <p>GSTIN: ${RESTAURANT_INFO.gstin}</p>
       <div class="dashed"></div>
-      <div class="row"><span>Date:</span><span>${now.toLocaleDateString('en-IN')} ${now.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})}</span></div>
+      <div class="row"><span>Date:</span><span>${now.toLocaleDateString('en-IN')} ${now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}</span></div>
       <div class="row"><span>Type/Table:</span><span>${order.order_type === 'swiggy' ? 'Swiggy' : order.order_type === 'zomato' ? 'Zomato' : (order.table_name || 'Takeaway')}</span></div>
       <div class="row"><span>Order #:</span><span>${order.id}</span></div>
       ${billResult ? `<div class="row"><span>Bill No:</span><span>${billResult.bill_number}</span></div>` : ''}
       <div class="dashed"></div>
-      ${order.items.map(i => `<div class="row"><span>${i.quantity}× ${i.menu_item_name}</span><span>₹${(i.quantity*i.unit_price).toFixed(0)}</span></div>`).join('')}
+      ${order.items.map(i => `<div class="row"><span>${i.quantity}× ${i.menu_item_name}</span><span>₹${(i.quantity * i.unit_price).toFixed(0)}</span></div>`).join('')}
       <div class="dashed"></div>
       <div class="row"><span>Subtotal:</span><span>₹${subtotal.toFixed(2)}</span></div>
       ${form.include_gst ? `<div class="row"><span>GST (${form.tax_percent}%):</span><span>₹${tax.toFixed(2)}</span></div>` : `<div class="row"><span>GST:</span><span>Excluded</span></div>`}
@@ -383,8 +396,8 @@ function SettlePanel({ order, onBilled, onFormChange, currentForm }) {
                     padding: '9px 10px', borderRadius: 'var(--radius-sm)', cursor: 'pointer',
                     fontWeight: 700, fontSize: 12, textAlign: 'left',
                     background: form.payment_method === pm.key ? 'var(--primary)' : 'var(--bg-card2)',
-                    color:      form.payment_method === pm.key ? '#fff' : 'var(--text)',
-                    border:     form.payment_method === pm.key ? '2px solid var(--primary)' : '1px solid var(--surface-border)',
+                    color: form.payment_method === pm.key ? '#fff' : 'var(--text)',
+                    border: form.payment_method === pm.key ? '2px solid var(--primary)' : '1px solid var(--surface-border)',
                     transition: 'all 0.15s',
                     whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
                   }}
@@ -479,8 +492,8 @@ function SettlePanel({ order, onBilled, onFormChange, currentForm }) {
 /* ─── Order List Item (left sidebar) ────────────────────────── */
 function OrderListItem({ order, isSelected, onSelect }) {
   const isBillReq = order.bill_requested || order.table_status === 'bill_requested';
-  const isSwiggy  = order.order_type === 'swiggy';
-  const isZomato  = order.order_type === 'zomato';
+  const isSwiggy = order.order_type === 'swiggy';
+  const isZomato = order.order_type === 'zomato';
 
   return (
     <button
@@ -491,8 +504,8 @@ function OrderListItem({ order, isSelected, onSelect }) {
         borderLeft: isSelected
           ? '4px solid var(--primary)'
           : isSwiggy ? '4px solid #f97316'
-          : isZomato ? '4px solid #ef4444'
-          : '4px solid transparent',
+            : isZomato ? '4px solid #ef4444'
+              : '4px solid transparent',
         borderTop: 'none', borderRight: 'none', borderBottom: '1px solid var(--surface-border)',
         transition: 'all 0.15s',
       }}
@@ -526,17 +539,17 @@ function OrderListItem({ order, isSelected, onSelect }) {
 /* ─── Main Billing Page ──────────────────────────────────────── */
 const TABS = [
   { key: 'bill_requested', label: '🔔 Bill Requested' },
-  { key: 'active',         label: '🔥 Active Orders'  },
-  { key: 'online',         label: '🛵 Swiggy & Zomato' },
-  { key: 'billed',         label: '✅ Billed Today'   },
+  { key: 'active', label: '🔥 Active Orders' },
+  { key: 'online', label: '🛵 Swiggy & Zomato' },
+  { key: 'billed', label: '✅ Billed Today' },
 ];
 
 export default function BillingPage() {
-  const [allOrders, setAllOrders]       = useState([]);
-  const [loading, setLoading]           = useState(true);
-  const [tab, setTab]                   = useState('active');
+  const [allOrders, setAllOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [tab, setTab] = useState('active');
   const [selectedOrder, setSelectedOrder] = useState(null);
-  const [settleForm, setSettleForm]     = useState({ include_gst: true, tax_percent: 5, discount_amount: 0 });
+  const [settleForm, setSettleForm] = useState({ include_gst: true, tax_percent: 5, discount_amount: 0 });
 
   const fetchOrders = useCallback(async () => {
     setLoading(true);
@@ -558,12 +571,12 @@ export default function BillingPage() {
   /* Filter by tab */
   const visibleOrders = allOrders.filter(o => {
     if (tab === 'bill_requested') {
-      return !['billed','cancelled'].includes(o.status) &&
+      return !['billed', 'cancelled'].includes(o.status) &&
         (o.bill_requested || o.table_status === 'bill_requested' || o.status === 'served');
     }
-    if (tab === 'active') return !['billed','cancelled'].includes(o.status);
+    if (tab === 'active') return !['billed', 'cancelled'].includes(o.status);
     if (tab === 'online') {
-      return !['billed','cancelled'].includes(o.status) &&
+      return !['billed', 'cancelled'].includes(o.status) &&
         ['swiggy', 'zomato', 'delivery'].includes(o.order_type);
     }
     if (tab === 'billed') {
@@ -574,7 +587,7 @@ export default function BillingPage() {
   });
 
   const billRequestedCount = allOrders.filter(o =>
-    !['billed','cancelled'].includes(o.status) &&
+    !['billed', 'cancelled'].includes(o.status) &&
     (o.bill_requested || o.table_status === 'bill_requested' || o.status === 'served')
   ).length;
 
@@ -643,8 +656,8 @@ export default function BillingPage() {
                 <div className="empty-state-title" style={{ fontSize: 14 }}>No orders here</div>
                 <div className="empty-state-text" style={{ fontSize: 12 }}>
                   {tab === 'bill_requested' ? 'No bill requests yet' :
-                   tab === 'online' ? 'No active Swiggy/Zomato orders' :
-                   tab === 'active' ? 'All tables are free!' : 'No bills generated today'}
+                    tab === 'online' ? 'No active Swiggy/Zomato orders' :
+                      tab === 'active' ? 'All tables are free!' : 'No bills generated today'}
                 </div>
               </div>
             ) : (
@@ -690,7 +703,7 @@ export default function BillingPage() {
                 />
 
                 {/* Quick status action if not served yet */}
-                {['pending','confirmed','preparing','ready'].includes(selectedOrder.status) && (
+                {['pending', 'confirmed', 'preparing', 'ready'].includes(selectedOrder.status) && (
                   <div style={{ marginTop: 16 }}>
                     <div className="card" style={{ background: 'rgba(249,115,22,0.06)', borderColor: 'rgba(249,115,22,0.2)' }}>
                       <div style={{ fontSize: 13, marginBottom: 8, fontWeight: 600 }}>

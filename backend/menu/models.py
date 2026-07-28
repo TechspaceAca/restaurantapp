@@ -24,6 +24,8 @@ class MenuItem(models.Model):
     name = models.CharField(max_length=200)
     description = models.TextField(blank=True)
     price = models.DecimalField(max_digits=8, decimal_places=2)
+    half_price = models.DecimalField(max_digits=8, decimal_places=2, null=True, blank=True)
+    quarter_price = models.DecimalField(max_digits=8, decimal_places=2, null=True, blank=True)
     image = models.ImageField(upload_to='menu/', blank=True, null=True)
     is_veg = models.BooleanField(default=True)
     is_available = models.BooleanField(default=True)

@@ -106,6 +106,8 @@ for i, cat_data in enumerate(menu_data):
             category=cat,
             defaults={
                 'price': item_data['price'],
+                'half_price': item_data.get('half_price', round(item_data['price'] * 0.6)),
+                'quarter_price': item_data.get('quarter_price', round(item_data['price'] * 0.35)),
                 'is_veg': item_data.get('is_veg', True),
                 'prep_time': item_data.get('prep_time', 15),
                 'description': item_data.get('description', ''),
