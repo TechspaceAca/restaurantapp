@@ -26,8 +26,7 @@ const SECTION_ICONS = { indoor: '🏠', outdoor: '🌳', terrace: '🌅', privat
 /* ── QR Code Modal ───────────────────────────────────────────── */
 function QRModal({ table, onClose }) {
   const qrUrl = `${window.location.origin}/order/${table.qr_token}`;
-  // Use Google Charts QR API (no external lib needed)
-  const qrImgSrc = `https://chart.googleapis.com/chart?chs=220x220&cht=qr&chl=${encodeURIComponent(qrUrl)}&choe=UTF-8`;
+  const qrImgSrc = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(qrUrl)}&margin=12`;
 
   const handleCopy = () => {
     navigator.clipboard.writeText(qrUrl);
@@ -35,19 +34,22 @@ function QRModal({ table, onClose }) {
   };
 
   const handlePrint = () => {
-    const win = window.open('', '_blank', 'width=400,height=500');
+    const win = window.open('', '_blank', 'width=450,height=550');
     win.document.write(`
       <html><head><title>QR — ${table.name}</title>
       <style>
-        body { font-family: sans-serif; text-align: center; padding: 30px; }
-        h2 { margin: 0 0 6px; font-size: 22px; }
-        p  { color: #666; font-size: 13px; margin: 0 0 16px; }
-        img { border: 2px solid #ddd; border-radius: 12px; padding: 8px; }
-        .url { font-size: 11px; color: #888; word-break: break-all; margin-top: 12px; }
+        body { font-family: sans-serif; text-align: center; padding: 40px 20px; background: #fff; color: #000; }
+        h2 { margin: 0 0 6px; font-size: 24px; font-weight: 800; }
+        p  { color: #555; font-size: 14px; margin: 0 0 20px; }
+        .qr-box { background: #fff; padding: 16px; display: inline-block; border: 3px solid #000; border-radius: 20px; }
+        img { width: 220px; height: 220px; display: block; }
+        .url { font-size: 11px; color: #666; word-break: break-all; margin-top: 16px; font-family: monospace; }
       </style></head><body>
-      <h2>🍽️ T Clock — ${table.name}</h2>
-      <p>${table.capacity} seats • Scan to order</p>
-      <img src="${qrImgSrc}" alt="QR Code" />
+      <h2>🍽️ T CLOCK RESTO CAFE</h2>
+      <p>Table: ${table.name} (${table.capacity} seats) • Scan to order</p>
+      <div class="qr-box">
+        <img src="${qrImgSrc}" alt="QR Code" />
+      </div>
       <div class="url">${qrUrl}</div>
       </body></html>
     `);
@@ -56,20 +58,25 @@ function QRModal({ table, onClose }) {
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal" style={{ maxWidth: 360 }} onClick={e => e.stopPropagation()}>
+      <div className="modal" style={{ maxWidth: 360, textAlign: 'center' }} onClick={e => e.stopPropagation()}>
         <div className="modal-header">
           <div className="modal-title">📱 QR Code — {table.name}</div>
           <button className="modal-close" onClick={onClose}>×</button>
         </div>
 
-        <div style={{ textAlign: 'center', padding: '8px 0 16px' }}>
-          <img
-            src={qrImgSrc}
-            alt="QR Code"
-            style={{ borderRadius: 12, border: '2px solid var(--border)', padding: 8, width: 220, height: 220 }}
-            onError={e => { e.target.style.display='none'; }}
-          />
-          <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 12, wordBreak: 'break-all', padding: '0 8px' }}>
+        <div style={{ textAlign: 'center', padding: '16px 0 20px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <div style={{
+            background: '#ffffff', padding: 16, borderRadius: 18,
+            boxShadow: '0 6px 24px rgba(0,0,0,0.3)', border: '2px solid #ffffff',
+            display: 'inline-block',
+          }}>
+            <img
+              src={qrImgSrc}
+              alt="QR Code"
+              style={{ width: 200, height: 200, display: 'block', borderRadius: 4 }}
+            />
+          </div>
+          <div style={{ fontSize: 11.5, color: 'var(--text-muted)', marginTop: 14, wordBreak: 'break-all', padding: '0 8px', fontFamily: 'monospace' }}>
             {qrUrl}
           </div>
         </div>

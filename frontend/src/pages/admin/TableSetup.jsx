@@ -164,7 +164,7 @@ function TableModal({ table, existingSections = [], onClose, onSave }) {
 
 function QRModal({ table, onClose }) {
   const qrUrl = `${window.location.origin}/order/${table.qr_token}`;
-  const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrUrl)}`;
+  const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(qrUrl)}&margin=12`;
 
   return (
     <div className="modal-overlay" onClick={onClose}>
@@ -173,7 +173,11 @@ function QRModal({ table, onClose }) {
           <div className="modal-title">QR Code — {table.name}</div>
           <button className="modal-close" onClick={onClose}>×</button>
         </div>
-        <img src={qrImageUrl} alt="QR Code" style={{ width: 200, height: 200, margin: '0 auto 16px', display: 'block', borderRadius: 12 }} />
+        <div style={{ textAlign: 'center', padding: '12px 0 16px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <div style={{ background: '#ffffff', padding: 16, borderRadius: 16, boxShadow: '0 4px 20px rgba(0,0,0,0.3)' }}>
+            <img src={qrImageUrl} alt="QR Code" style={{ width: 200, height: 200, display: 'block' }} />
+          </div>
+        </div>
         <div style={{ fontSize: 12, color: 'var(--text-muted)', wordBreak: 'break-all', marginBottom: 16, padding: '8px 12px', background: 'var(--bg-card2)', borderRadius: 8 }}>
           {qrUrl}
         </div>
