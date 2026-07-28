@@ -26,14 +26,21 @@ function TimerBadge({ createdAt }) {
 }
 
 function KDSCard({ order, onItemUpdate, onOrderReady }) {
-  const allDone = order.items.filter(i => i.status !== 'cancelled').every(i => i.status === 'ready');
+  const activeItems = order.items.filter(i => i.status !== 'cancelled');
+  const allDone = activeItems.length > 0 && activeItems.every(i => i.status === 'ready');
+  const hasCookingNotes = activeItems.some(i => i.notes && i.notes.trim().length > 0);
 
   return (
-    <div className={`kds-card ${order.status}`}>
+    <div className={`kds-card ${order.status}`} style={{ border: hasCookingNotes ? '2px solid #f59e0b' : undefined }}>
       <div className={`kds-card-header ${order.status}-bg`}>
         <div>
-          <div style={{ fontWeight: 900, fontSize: 16 }}>
-            {order.table_name ? `Table ${order.table_number}` : '🥡 Takeaway'}
+          <div style={{ fontWeight: 900, fontSize: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
+            {order.table_name ? `${order.table_name}` : '🥡 Takeaway'}
+            {hasCookingNotes && (
+              <span style={{ fontSize: 10, background: '#f59e0b', color: '#000', padding: '1px 6px', borderRadius: 99, fontWeight: 900, animation: 'pulse 2s infinite' }}>
+                📝 SPECIAL NOTE
+              </span>
+            )}
           </div>
           <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 2 }}>
             Order #{order.id} · {order.order_type.replace('_', ' ')}
@@ -43,23 +50,43 @@ function KDSCard({ order, onItemUpdate, onOrderReady }) {
       </div>
 
       <div>
-        {order.items.filter(i => i.status !== 'cancelled').map(item => (
+        {activeItems.map(item => (
           <div
             key={item.id}
             className={`kds-item ${item.status === 'ready' ? 'done' : ''}`}
             onClick={() => onItemUpdate(item.id, item.status === 'ready' ? 'preparing' : 'ready')}
-            style={{ cursor: 'pointer' }}
-            title="Click to toggle ready"
+            style={{ cursor: 'pointer', padding: '12px 14px' }}
+            title="Click to mark item as ready"
           >
             <span className="kds-item-qty">{item.quantity}</span>
             <div style={{ flex: 1 }}>
-              <div className="kds-item-name">{item.menu_item_name}</div>
-              {item.notes && <div style={{ fontSize: 11, color: 'var(--warning)' }}>📝 {item.notes}</div>}
+              <div className="kds-item-name" style={{ fontSize: 14, fontWeight: 800 }}>
+                {item.menu_item_name}
+                {item.portion && (
+                  <span style={{ marginLeft: 6, fontSize: 11, background: 'rgba(249,115,22,0.18)', color: 'var(--primary)', padding: '1px 7px', borderRadius: 10, fontWeight: 800 }}>
+                    {item.portion}
+                  </span>
+                )}
+              </div>
+
+              {/* Cooking Request / Special Notes Highlight Box */}
+              {item.notes && item.notes.trim() && (
+                <div style={{
+                  marginTop: 6, padding: '6px 10px', borderRadius: 8,
+                  background: 'rgba(245,158,11,0.16)', border: '1px solid rgba(245,158,11,0.4)',
+                  color: '#f59e0b', fontSize: 12, fontWeight: 800,
+                  display: 'flex', alignItems: 'center', gap: 6,
+                }}>
+                  <span>🔥</span>
+                  <span>COOKING REQUEST: {item.notes}</span>
+                </div>
+              )}
             </div>
+
             <div style={{ marginLeft: 8 }}>
               {item.status === 'ready'
-                ? <span style={{ color: 'var(--success)', fontSize: 18 }}>✅</span>
-                : <span style={{ color: 'var(--text-dim)', fontSize: 18 }}>⬜</span>
+                ? <span style={{ color: 'var(--success)', fontSize: 20 }}>✅</span>
+                : <span style={{ color: 'var(--text-dim)', fontSize: 20 }}>⬜</span>
               }
             </div>
           </div>
