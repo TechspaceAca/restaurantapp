@@ -787,10 +787,17 @@ export default function BillingPage() {
   const handleStatusUpdate = async (orderId, newStatus) => {
     try {
       await orderApi.updateStatus(orderId, newStatus);
-      toast.success(`Marked as ${newStatus.toUpperCase()}`);
+      toast.success(`✅ Order status updated to ${newStatus.toUpperCase()}`);
       setSelectedOrder(prev => prev && prev.id === orderId ? { ...prev, status: newStatus } : prev);
       fetchOrders();
-    } catch (e) { toast.error(e.response?.data?.error || 'Cannot update status'); }
+    } catch (e) {
+      const serverErr = e.response?.data?.error;
+      if (serverErr && (serverErr.includes('pending') || serverErr.includes('Cannot move'))) {
+        toast.error("👨‍🍳 Kitchen Alert: Order request must be accepted from the kitchen side first!");
+      } else {
+        toast.error(serverErr || "👨‍🍳 Kitchen Alert: Order request must be accepted from the kitchen side first!");
+      }
+    }
   };
 
   return (
@@ -892,8 +899,11 @@ export default function BillingPage() {
                 {['pending', 'confirmed', 'preparing', 'ready'].includes(selectedOrder.status) ? (
                   <div style={{ marginTop: 16 }}>
                     <div className="card" style={{ background: 'rgba(249,115,22,0.06)', borderColor: 'rgba(249,115,22,0.2)' }}>
-                      <div style={{ fontSize: 13, marginBottom: 8, fontWeight: 600 }}>
-                        ⚠️ Order is still in kitchen ({STATUS_LABELS[selectedOrder.status]})
+                      <div style={{ fontSize: 13, marginBottom: 4, fontWeight: 800, color: 'var(--warning)' }}>
+                        👨‍🍳 Order in Kitchen ({STATUS_LABELS[selectedOrder.status]})
+                      </div>
+                      <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 10 }}>
+                        Order must be accepted & marked ready from kitchen side before serving.
                       </div>
                       <button
                         className="btn btn-success"
