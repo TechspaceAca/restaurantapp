@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import useStore from './store/useStore';
@@ -35,11 +36,16 @@ function RoleRedirect() {
   if (!user) return <Navigate to="/login" replace />;
   if (user.role === 'admin') return <Navigate to="/admin" replace />;
   if (user.role === 'staff') return <Navigate to="/pos" replace />;
-  if (user.role === 'kitchen') return <Navigate to="/kitchen" replace />;
   return <Navigate to="/login" replace />;
 }
 
 export default function App() {
+  const theme = useStore(state => state.theme);
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme || 'dark');
+  }, [theme]);
+
   return (
     <BrowserRouter>
       <Toaster

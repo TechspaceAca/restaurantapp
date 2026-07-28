@@ -5,9 +5,10 @@
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600&family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@400;500;600;700;800;900&display=swap');
 
 /* ── CSS Variables ──────────────────────────────────────────────── */
-:root {
+:root, [data-theme="dark"] {
   --primary: #f97316;
   --primary-dark: #ea580c;
+  --primary-gold: #d4af37;
   --primary-light: #ffedd5;
   --primary-glow: rgba(249, 115, 22, 0.35);
 
@@ -24,18 +25,18 @@
   --info: #3b82f6;
   --info-light: #dbeafe;
 
-  --bg: #0b0b0f;
-  --bg-card: #15151f;
-  --bg-card2: #1e1e2c;
-  --bg-sidebar: #101017;
-  --bg-hover: #262638;
-  --surface-border: rgba(255,255,255,0.09);
-  --glass-bg: rgba(21, 21, 31, 0.75);
+  --bg: #120A07;
+  --bg-card: #1C110C;
+  --bg-card2: #281812;
+  --bg-sidebar: #170E0A;
+  --bg-hover: #38221A;
+  --surface-border: rgba(212, 175, 55, 0.18);
+  --glass-bg: rgba(28, 17, 12, 0.85);
 
-  --text: #f8fafc;
-  --text-muted: #94a3b8;
-  --text-dim: #64748b;
-  --text-dark: #cbd5e1;
+  --text: #FFF8F0;
+  --text-muted: #C5B09E;
+  --text-dim: #8C7565;
+  --text-dark: #E6D7C8;
 
   --radius-sm: 8px;
   --radius: 12px;
@@ -57,24 +58,30 @@
   --font-heading: 'Plus Jakarta Sans', 'Inter', sans-serif;
 }
 
-/* ── Light Mode Theme Overrides ──────────────────────────────────── */
+/* ── Light Mode Theme Overrides (Pristine White Theme with Logo Warm Accents) ── */
 [data-theme="light"] {
-  --bg: #f8fafc;
-  --bg-card: #ffffff;
-  --bg-card2: #f1f5f9;
-  --bg-sidebar: #ffffff;
-  --bg-hover: #e2e8f0;
-  --surface-border: rgba(0, 0, 0, 0.08);
-  --glass-bg: rgba(255, 255, 255, 0.85);
+  --primary: #f97316;
+  --primary-dark: #ea580c;
+  --primary-gold: #d4af37;
+  --primary-light: #fff7ed;
+  --primary-glow: rgba(249, 115, 22, 0.25);
 
-  --text: #0f172a;
-  --text-muted: #475569;
-  --text-dim: #94a3b8;
-  --text-dark: #334155;
+  --bg: #FDFBF7;
+  --bg-card: #FFFFFF;
+  --bg-card2: #F7F1E7;
+  --bg-sidebar: #FFFFFF;
+  --bg-hover: #EFE5D6;
+  --surface-border: rgba(74, 32, 22, 0.12);
+  --glass-bg: rgba(255, 255, 255, 0.90);
 
-  --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
-  --shadow: 0 4px 16px rgba(0,0,0,0.08);
-  --shadow-lg: 0 10px 30px rgba(0,0,0,0.12);
+  --text: #2D110B;
+  --text-muted: #6E4D3E;
+  --text-dim: #A08375;
+  --text-dark: #4A2016;
+
+  --shadow-sm: 0 1px 4px rgba(74, 32, 22, 0.06);
+  --shadow: 0 4px 18px rgba(74, 32, 22, 0.08);
+  --shadow-lg: 0 10px 32px rgba(74, 32, 22, 0.12);
   --shadow-glow: 0 0 20px rgba(249, 115, 22, 0.2);
 }
 
