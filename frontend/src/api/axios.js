@@ -5,10 +5,13 @@ const api = axios.create({
   headers: { 'Content-Type': 'application/json' },
 });
 
-// Auto-attach JWT token
+// Auto-attach JWT token (except for public customer QR ordering routes)
 api.interceptors.request.use((config) => {
+  const isPublicCustomerRoute = window.location.pathname.startsWith('/order/');
   const token = localStorage.getItem('access_token');
-  if (token) config.headers.Authorization = `Bearer ${token}`;
+  if (token && !isPublicCustomerRoute) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
   return config;
 });
 
@@ -22,7 +25,14 @@ api.interceptors.response.use(
     return res;
   },
   async (error) => {
+    const isPublicCustomerRoute = window.location.pathname.startsWith('/order/');
+
     if (error.response?.status === 401) {
+      if (isPublicCustomerRoute) {
+        // For public customer QR routes, ignore 401 authentication errors
+        return Promise.reject(error);
+      }
+
       const refresh = localStorage.getItem('refresh_token');
       if (refresh && !error.config._retry) {
         error.config._retry = true;
