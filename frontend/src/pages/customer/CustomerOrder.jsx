@@ -61,34 +61,50 @@ function CustomiseItemModal({ item, onClose, onConfirm, initialPortion = 'Full',
   };
 
   return (
-    <div className="modal-overlay" onClick={onClose} style={{ zIndex: 3000, background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(6px)' }}>
+    <div
+      className="modal-overlay"
+      onClick={onClose}
+      style={{
+        zIndex: 3000, background: 'rgba(0,0,0,0.68)', backdropFilter: 'blur(6px)',
+        display: 'flex', alignItems: 'flex-end', justifyContent: 'center', padding: 0,
+      }}
+    >
       <div
-        className="modal"
         style={{
-          maxWidth: 440, width: '92%', borderRadius: '24px', padding: 0, overflow: 'hidden',
-          background: 'var(--bg-card)', border: '1px solid var(--surface-border)',
-          boxShadow: '0 20px 50px rgba(0,0,0,0.6)', animation: 'slideUp 0.3s ease-out',
+          width: '100%', maxWidth: 480,
+          background: 'var(--bg-card)',
+          borderRadius: '28px 28px 0 0',
+          borderTop: '1px solid var(--surface-border)',
+          boxShadow: '0 -10px 40px rgba(0,0,0,0.6)',
+          animation: 'slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+          display: 'flex', flexDirection: 'column',
+          maxHeight: '88vh', position: 'relative',
         }}
         onClick={e => e.stopPropagation()}
       >
-        {/* Modal Close Icon Header */}
-        <div style={{ position: 'relative', padding: '16px 20px 12px', borderBottom: '1px solid var(--surface-border)', textAlign: 'center' }}>
+        {/* Floating Top Close Circle Button */}
+        <div style={{ display: 'flex', justifyContent: 'center', marginTop: -20, marginBottom: 10, position: 'relative', zIndex: 10 }}>
           <button
             onClick={onClose}
             style={{
-              position: 'absolute', top: 14, right: 16, width: 32, height: 32,
-              borderRadius: '50%', background: 'var(--bg-card2)', border: '1px solid var(--surface-border)',
-              color: 'var(--text)', fontSize: 16, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+              width: 40, height: 40, borderRadius: '50%',
+              background: '#22222f', border: '2px solid rgba(255,255,255,0.2)',
+              color: '#ffffff', fontSize: 18, fontWeight: 700, cursor: 'pointer',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              boxShadow: '0 6px 20px rgba(0,0,0,0.6)',
             }}
           >
             ✕
           </button>
-          
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, textAlign: 'left' }}>
+        </div>
+
+        {/* Modal Item Header */}
+        <div style={{ padding: '0 20px 14px', borderBottom: '1px solid var(--surface-border)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             {item.image ? (
-              <img src={item.image} style={{ width: 50, height: 50, borderRadius: 10, objectFit: 'cover' }} alt={item.name} />
+              <img src={item.image} style={{ width: 54, height: 54, borderRadius: 12, objectFit: 'cover' }} alt={item.name} />
             ) : (
-              <div style={{ width: 50, height: 50, borderRadius: 10, background: 'var(--bg-card2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24 }}>
+              <div style={{ width: 54, height: 54, borderRadius: 12, background: 'var(--bg-card2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 26 }}>
                 {item.is_veg ? '🥗' : '🍗'}
               </div>
             )}
@@ -97,7 +113,7 @@ function CustomiseItemModal({ item, onClose, onConfirm, initialPortion = 'Full',
                 {item.is_veg ? <div className="veg-dot" /> : <div className="nonveg-dot" />}
                 {item.is_veg ? 'Veg' : 'Non-Veg'}
               </div>
-              <div style={{ fontSize: 16, fontWeight: 800, color: 'var(--text)', marginTop: 2 }}>{item.name}</div>
+              <div style={{ fontSize: 17, fontWeight: 800, color: 'var(--text)', marginTop: 2 }}>{item.name}</div>
             </div>
           </div>
         </div>
