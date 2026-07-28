@@ -346,7 +346,7 @@ export default function TakeOrder() {
     finally { setLoading(false); }
   }, []);
 
-  useEffect(() => { fetchMenu(); }, [fetchMenu]);
+  useEffect(() => { fetchMenuAndTables(); }, [fetchMenuAndTables]);
 
   /* Load items for selected category */
   useEffect(() => {
