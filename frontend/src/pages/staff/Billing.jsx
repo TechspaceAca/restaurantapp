@@ -34,14 +34,19 @@ function CustomerReceiptModal({ bill, whatsappText, onClose }) {
   const [method, setMethod] = useState('wa'); // 'wa', 'email', 'sms', 'manual'
   const textRef = useRef(null);
 
-  const sendViaWhatsApp = () => {
-    if (!phone.trim()) { toast.error('Enter customer phone number'); return; }
+  const getCleanPhone = () => {
     let num = phone.replace(/\D/g, '');
     if (num.startsWith('0')) num = '91' + num.slice(1);
     if (!num.startsWith('91') && num.length === 10) num = '91' + num;
-    const url = `https://wa.me/${num}?text=${encodeURIComponent(whatsappText)}`;
-    window.open(url, '_blank');
-    toast.success('Opening WhatsApp Web/App! 📱');
+    return num;
+  };
+
+  const waUrl = `https://api.whatsapp.com/send?phone=${getCleanPhone()}&text=${encodeURIComponent(whatsappText)}`;
+
+  const sendViaWhatsApp = () => {
+    if (!phone.trim()) { toast.error('Enter customer phone number'); return; }
+    window.open(waUrl, '_blank');
+    toast.success(`Opening WhatsApp for +${getCleanPhone()}! 📱`);
   };
 
   const sendViaEmail = () => {
@@ -143,13 +148,16 @@ function CustomerReceiptModal({ bill, whatsappText, onClose }) {
               <button className="btn btn-secondary flex-1" onClick={handlePrint} style={{ justifyContent: 'center' }}>
                 🖨️ Print Receipt
               </button>
-              <button
+              <a
+                href={waUrl}
+                target="_blank"
+                rel="noreferrer"
                 className="btn btn-primary flex-1"
-                style={{ justifyContent: 'center', background: '#25D366', borderColor: '#25D366', color: '#fff', fontWeight: 800 }}
-                onClick={sendViaWhatsApp}
+                style={{ justifyContent: 'center', background: '#25D366', borderColor: '#25D366', color: '#fff', fontWeight: 800, textDecoration: 'none' }}
+                onClick={() => toast.success(`Opening WhatsApp for +${getCleanPhone()}! 📱`)}
               >
-                📲 Send via WhatsApp
-              </button>
+                📲 Open WhatsApp & Send
+              </a>
             </div>
           </>
         )}
