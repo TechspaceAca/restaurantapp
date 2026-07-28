@@ -19,6 +19,15 @@ const useStore = create((set, get) => ({
     set({ user: null, token: null, cart: [], selectedTable: null, activeOrder: null, addItemsMode: false });
   },
 
+  // ── Theme ────────────────────────────────────────────────────────
+  theme: localStorage.getItem('theme') || 'dark',
+  toggleTheme: () => {
+    const nextTheme = get().theme === 'dark' ? 'light' : 'dark';
+    localStorage.setItem('theme', nextTheme);
+    document.documentElement.setAttribute('data-theme', nextTheme);
+    set({ theme: nextTheme });
+  },
+
   // ── Cart ─────────────────────────────────────────────────────────
   cart: [],
   selectedTable: null,

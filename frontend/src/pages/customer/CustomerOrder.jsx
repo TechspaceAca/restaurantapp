@@ -463,6 +463,8 @@ export default function CustomerOrder() {
   const activeItems = activeOrder?.items || [];
   const readyItemsCount = activeItems.filter(i => i.status === 'ready' || i.status === 'served').length;
 
+  const { theme, toggleTheme } = useStore();
+
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg)', paddingBottom: cartCount > 0 ? 120 : 40 }}>
       {/* Header */}
@@ -471,12 +473,27 @@ export default function CustomerOrder() {
         padding: '20px 20px 36px', position: 'relative', overflow: 'hidden',
       }}>
         <div style={{ position: 'relative', zIndex: 1 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 6 }}>
-            <LogoIcon size={44} />
-            <div>
-              <div style={{ color: '#fff', fontSize: 18, fontWeight: 900, fontFamily: "'Playfair Display', serif" }}>T CLOCK RESTO CAFE</div>
-              <div style={{ color: 'rgba(255,255,255,0.85)', fontSize: 11 }}>Time for Tea, Time for Taste 🌴</div>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <LogoIcon size={44} />
+              <div>
+                <div style={{ color: '#fff', fontSize: 18, fontWeight: 900, fontFamily: "'Playfair Display', serif" }}>T CLOCK RESTO CAFE</div>
+                <div style={{ color: 'rgba(255,255,255,0.85)', fontSize: 11 }}>Customer Self-Order · {table?.name || 'Scan QR'}</div>
+              </div>
             </div>
+
+            <button
+              type="button"
+              onClick={toggleTheme}
+              style={{
+                background: 'rgba(255,255,255,0.22)', border: '1px solid rgba(255,255,255,0.45)',
+                color: '#fff', padding: '6px 14px', borderRadius: 99,
+                fontSize: 12, fontWeight: 800, cursor: 'pointer', backdropFilter: 'blur(6px)',
+                boxShadow: '0 2px 10px rgba(0,0,0,0.15)', transition: 'all 0.2s ease',
+              }}
+            >
+              {theme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode'}
+            </button>
           </div>
           <div style={{ color: '#fff', fontSize: 22, fontWeight: 900, marginTop: 4 }}>{table?.name}</div>
           <div style={{ color: 'rgba(255,255,255,0.75)', fontSize: 12 }}>Scan & Order — Customise & track food live!</div>

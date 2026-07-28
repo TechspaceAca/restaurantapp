@@ -57,6 +57,27 @@
   --font-heading: 'Playfair Display', Georgia, serif;
 }
 
+/* ── Light Mode Theme Overrides ──────────────────────────────────── */
+[data-theme="light"] {
+  --bg: #f8fafc;
+  --bg-card: #ffffff;
+  --bg-card2: #f1f5f9;
+  --bg-sidebar: #ffffff;
+  --bg-hover: #e2e8f0;
+  --surface-border: rgba(0, 0, 0, 0.08);
+  --glass-bg: rgba(255, 255, 255, 0.85);
+
+  --text: #0f172a;
+  --text-muted: #475569;
+  --text-dim: #94a3b8;
+  --text-dark: #334155;
+
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+  --shadow: 0 4px 16px rgba(0,0,0,0.08);
+  --shadow-lg: 0 10px 30px rgba(0,0,0,0.12);
+  --shadow-glow: 0 0 20px rgba(249, 115, 22, 0.2);
+}
+
 /* ── Reset ──────────────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 

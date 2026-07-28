@@ -14,7 +14,7 @@ const pageTitles = {
 export default function StaffLayout() {
   const location  = useLocation();
   const navigate  = useNavigate();
-  const { selectedTable, addItemsMode, activeOrder, getCartCount } = useStore();
+  const { selectedTable, addItemsMode, activeOrder, getCartCount, theme, toggleTheme } = useStore();
   const [billRequestedCount, setBillRequestedCount] = useState(0);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -116,6 +116,21 @@ export default function StaffLayout() {
                 🛒 {cartCount}
               </button>
             )}
+
+            {/* Theme Toggle Button */}
+            <button
+              type="button"
+              onClick={toggleTheme}
+              style={{
+                padding: '5px 12px', borderRadius: 'var(--radius-full)',
+                background: 'var(--bg-card2)', border: '1px solid var(--surface-border)',
+                fontSize: 12, fontWeight: 700, color: 'var(--text)',
+                cursor: 'pointer', transition: 'all var(--transition)',
+              }}
+              title="Toggle Light / Dark Mode"
+            >
+              {theme === 'dark' ? '☀️ Light' : '🌙 Dark'}
+            </button>
 
             {/* Role badge */}
             <div style={{
