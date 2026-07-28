@@ -96,42 +96,46 @@ class GenerateBillView(APIView):
 
 
 def _build_whatsapp_receipt(bill, order):
-    """Build a WhatsApp-friendly receipt message for the customer."""
-    lines = []
-    lines.append("🌴 *T Clock POS — Receipt*")
-    lines.append("━━━━━━━━━━━━━━━━━━━━")
+    """Build a customer-friendly receipt message for WhatsApp & SMS."""
+    date_str = bill.created_at.strftime('%d/%m/%Y %H:%M')
+    cust_name = order.customer_name or "Customer"
+    rest_name = "T Clock Resto Cafe"
+    qr_token = order.table.qr_token if (order.table and hasattr(order.table, 'qr_token')) else ''
+    invoice_url = f"http://localhost:5173/order/{qr_token}" if qr_token else "http://localhost:5173"
 
-    if order.table:
-        lines.append(f"🪑 Table: *{order.table.name or order.table.number}*")
-    lines.append(f"🧾 Bill No: *{bill.bill_number}*")
-    lines.append(f"📅 Date: {bill.created_at.strftime('%d %b %Y, %I:%M %p')}")
+    lines = []
+    lines.append(f"Dear {cust_name},")
     lines.append("")
-    lines.append("*Order Items:*")
+    lines.append(f"Thank you for your recent order at *{rest_name}*! 🌴")
+    lines.append("Your invoice is now available. 🪄")
+    lines.append("")
+    lines.append(f"💰 Amount : *Rs.{int(bill.total)}*")
+    lines.append(f"📅 Date : {date_str}")
+    lines.append(f"🧾 Invoice No : *{bill.bill_number}*")
+    lines.append(f"💳 Payment : {bill.get_payment_method_display()}")
+    lines.append(f"🔗 View Invoice & Menu : {invoice_url}")
+    lines.append("")
+    lines.append("*Order Details:*")
     lines.append("─────────────────────")
 
     for item in order.items.all():
-        item_total = item.quantity * item.unit_price
-        lines.append(f"  {item.quantity}× {item.menu_item.name}  ₹{int(item_total)}")
+        item_total = int(item.quantity * item.unit_price)
+        portion_str = f" ({item.portion})" if item.portion else ""
+        lines.append(f"  {item.quantity}× {item.menu_item.name}{portion_str} — ₹{item_total}")
         if item.notes:
-            lines.append(f"     _{item.notes}_")
+            lines.append(f"     📝 _{item.notes}_")
 
     lines.append("─────────────────────")
-    lines.append(f"Subtotal:   ₹{int(bill.subtotal)}")
+    lines.append(f"Subtotal: ₹{int(bill.subtotal)}")
     if bill.include_gst and bill.tax_amount > 0:
-        lines.append(f"GST ({bill.tax_percent}%):  ₹{int(bill.tax_amount)}")
-    else:
-        lines.append("GST: Excluded (No GST charged)")
-
+        lines.append(f"GST ({bill.tax_percent}%): ₹{int(bill.tax_amount)}")
     if bill.discount_amount > 0:
-        reason = f" ({bill.discount_reason})" if bill.discount_reason else ""
-        lines.append(f"Discount{reason}: -₹{int(bill.discount_amount)}")
-
+        lines.append(f"Discount: -₹{int(bill.discount_amount)}")
+    lines.append(f"*TOTAL PAID: ₹{int(bill.total)}*")
     lines.append("━━━━━━━━━━━━━━━━━━━━")
-    lines.append(f"*TOTAL:  ₹{int(bill.total)}*")
-    lines.append(f"💳 Payment: {bill.get_payment_method_display()}")
-    lines.append("━━━━━━━━━━━━━━━━━━━━")
-    lines.append("Thank you for visiting! 😊")
-    lines.append("Visit us again at T Clock Resto Cafe 🌴")
+    lines.append("")
+    lines.append(f"How was your experience with your order at *{rest_name}* today? 😊")
+    lines.append("We look forward to welcoming you back!")
 
     return "\n".join(lines)
 
