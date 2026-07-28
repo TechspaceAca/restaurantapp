@@ -16,6 +16,7 @@ export default function StaffLayout() {
   const navigate  = useNavigate();
   const { selectedTable, addItemsMode, activeOrder, getCartCount } = useStore();
   const [billRequestedCount, setBillRequestedCount] = useState(0);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const title     = pageTitles[location.pathname] || 'POS';
   const cartCount = getCartCount();
@@ -36,11 +37,35 @@ export default function StaffLayout() {
     return () => clearInterval(interval);
   }, []);
 
+  const posNavItems = [
+    { path: '/pos', label: 'Tables', icon: '🪑' },
+    { path: '/pos/order', label: 'Take Order', icon: '📝' },
+    { path: '/pos/billing', label: 'Billing', icon: '🧾' },
+    { path: '/pos/online', label: 'Online Hub', icon: '🛵' },
+    { path: '/kitchen', label: 'Kitchen KDS', icon: '👨‍🍳' },
+  ];
+
   return (
     <div className="app-layout">
-      <Sidebar navItems={staffNav} billRequestedCount={billRequestedCount} />
+      <Sidebar
+        navItems={staffNav}
+        billRequestedCount={billRequestedCount}
+        isOpen={mobileMenuOpen}
+        onClose={() => setMobileMenuOpen(false)}
+      />
+
       <div className="main-content">
         <header className="main-header">
+          {/* Mobile Hamburger Menu Toggle */}
+          <button
+            className="btn btn-ghost btn-sm mobile-menu-btn"
+            onClick={() => setMobileMenuOpen(prev => !prev)}
+            style={{ fontSize: 20, padding: '4px 8px' }}
+            title="Menu"
+          >
+            ☰
+          </button>
+
           {/* Left: page title + context */}
           <div>
             <div style={{ fontSize: 16, fontWeight: 800, color: 'var(--text)' }}>{title}</div>
@@ -73,7 +98,7 @@ export default function StaffLayout() {
                 }}
                 title="Go to billing"
               >
-                🔔 {billRequestedCount} Bill Request{billRequestedCount > 1 ? 's' : ''}
+                🔔 {billRequestedCount}
               </button>
             )}
 
@@ -88,7 +113,7 @@ export default function StaffLayout() {
                   cursor: 'pointer',
                 }}
               >
-                🛒 {cartCount} item{cartCount > 1 ? 's' : ''} in cart
+                🛒 {cartCount}
               </button>
             )}
 
@@ -102,7 +127,25 @@ export default function StaffLayout() {
             </div>
           </div>
         </header>
+
         <Outlet />
+
+        {/* Mobile Quick Bottom Navigation Bar */}
+        <nav className="mobile-bottom-nav">
+          {posNavItems.map(item => {
+            const isActive = location.pathname === item.path;
+            return (
+              <button
+                key={item.path}
+                className={`mobile-nav-btn ${isActive ? 'active' : ''}`}
+                onClick={() => navigate(item.path)}
+              >
+                <span style={{ fontSize: 18 }}>{item.icon}</span>
+                <span>{item.label}</span>
+              </button>
+            );
+          })}
+        </nav>
       </div>
     </div>
   );

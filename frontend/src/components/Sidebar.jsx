@@ -28,7 +28,7 @@ const kitchenNav = [
   { path: '/kitchen', label: 'KDS Screen', icon: '👨‍🍳' },
 ];
 
-function Sidebar({ navItems, billRequestedCount = 0 }) {
+function Sidebar({ navItems, billRequestedCount = 0, isOpen = false, onClose = () => {} }) {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, logout } = useStore();
@@ -44,11 +44,34 @@ function Sidebar({ navItems, billRequestedCount = 0 }) {
     return location.pathname.startsWith(item.path);
   };
 
+  const handleNavClick = (path) => {
+    navigate(path);
+    if (onClose) onClose();
+  };
+
   return (
-    <aside className="sidebar">
-      <div className="sidebar-logo" style={{ padding: '16px 14px' }}>
-        <LogoFull size={44} showSubtitle={false} />
-      </div>
+    <>
+      {isOpen && (
+        <div
+          onClick={onClose}
+          style={{
+            position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.65)',
+            backdropFilter: 'blur(4px)', zIndex: 1999,
+          }}
+        />
+      )}
+      <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
+        <div className="sidebar-logo" style={{ padding: '16px 14px', justifyContent: 'space-between' }}>
+          <LogoFull size={44} showSubtitle={false} />
+          {isOpen && (
+            <button
+              onClick={onClose}
+              style={{ background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: 22, cursor: 'pointer' }}
+            >
+              ×
+            </button>
+          )}
+        </div>
 
       <nav className="sidebar-nav">
         {navItems.map((item, i) => {
@@ -59,7 +82,7 @@ function Sidebar({ navItems, billRequestedCount = 0 }) {
             <button
               key={item.path}
               className={`nav-item ${isActive(item) ? 'active' : ''}`}
-              onClick={() => navigate(item.path)}
+              onClick={() => handleNavClick(item.path)}
             >
               <span className="nav-icon">{item.icon}</span>
               {item.label}
@@ -111,7 +134,8 @@ function Sidebar({ navItems, billRequestedCount = 0 }) {
         </div>
       </div>
     </aside>
-  );
+  </>
+);
 }
 
 export { adminNav, staffNav, kitchenNav };
