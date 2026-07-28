@@ -124,7 +124,7 @@ function MenuItemCard({ item, cart, onAdd, onRemove }) {
 }
 
 /* ── Cart panel ──────────────────────────────────────────────── */
-function CartPanel({ cart, total, selectedTable, activeOrder, addItemsMode, orderType, onPlaceOrder, placing }) {
+function CartPanel({ cart, total, selectedTable, activeOrder, addItemsMode, orderType, onPlaceOrder, placing, onUpdateExistingItem }) {
   const { removeFromCart, addToCart, clearCart, updateCartItemNotes } = useStore();
   const [expandNotes, setExpandNotes] = useState({});
 
@@ -134,13 +134,12 @@ function CartPanel({ cart, total, selectedTable, activeOrder, addItemsMode, orde
   const grandTotal = total + tax;
 
   const existingSubtotal = addItemsMode && activeOrder ? Number(activeOrder.subtotal) : 0;
-  const newTotal = grandTotal + existingSubtotal * 1.05; // rough combined with tax
 
   if (cart.length === 0 && !(addItemsMode && activeOrder?.items?.length)) {
     return (
       <div className="pos-cart-panel">
         <div className="pos-cart-header">
-          <span style={{ fontWeight: 800, fontSize: 15 }}>🛒 {addItemsMode ? 'Add Items' : 'Cart'}</span>
+          <span style={{ fontWeight: 800, fontSize: 15 }}>🛒 {addItemsMode ? 'Edit / Add Items' : 'Cart'}</span>
           <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>
             {selectedTable ? selectedTable.name : 'No table selected'}
           </span>
@@ -149,13 +148,23 @@ function CartPanel({ cart, total, selectedTable, activeOrder, addItemsMode, orde
         {/* Show existing order items even if cart is empty */}
         {addItemsMode && activeOrder?.items?.length > 0 && (
           <div style={{ marginBottom: 12 }}>
-            <div style={{ fontSize: 11, color: 'var(--text-muted)', fontWeight: 600, marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-              Current Order #{activeOrder.id}
+            <div style={{ fontSize: 10, color: 'var(--primary)', fontWeight: 700, marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+              Active Order #{activeOrder.id} — Items
             </div>
             {activeOrder.items.map(item => (
-              <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0', fontSize: 13, borderBottom: '1px solid var(--border)', opacity: 0.7 }}>
-                <span>{item.quantity}× {item.menu_item_name}</span>
-                <span style={{ color: 'var(--text-muted)' }}>₹{(item.quantity * item.unit_price).toFixed(0)}</span>
+              <div key={item.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '6px 0', fontSize: 13, borderBottom: '1px solid var(--border)' }}>
+                <div style={{ flex: 1, minWidth: 0, paddingRight: 6 }}>
+                  <div style={{ fontWeight: 600 }}>{item.menu_item_name} {item.portion ? `(${item.portion})` : ''}</div>
+                  <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>₹{item.unit_price} each</div>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <div className="qty-control">
+                    <button className="qty-btn" onClick={() => onUpdateExistingItem(item.id, item.quantity - 1)}>−</button>
+                    <span className="qty-num">{item.quantity}</span>
+                    <button className="qty-btn" onClick={() => onUpdateExistingItem(item.id, item.quantity + 1)}>+</button>
+                  </div>
+                  <span style={{ fontWeight: 700, minWidth: 44, textAlign: 'right' }}>₹{(item.quantity * item.unit_price).toFixed(0)}</span>
+                </div>
               </div>
             ))}
           </div>
@@ -166,7 +175,7 @@ function CartPanel({ cart, total, selectedTable, activeOrder, addItemsMode, orde
           <div className="empty-state-title">
             {addItemsMode ? 'Select new items to add' : 'Cart is empty'}
           </div>
-          <div className="empty-state-text">Click items from the menu</div>
+          <div className="empty-state-text">Click dishes from menu to add</div>
         </div>
       </div>
     );
@@ -176,7 +185,7 @@ function CartPanel({ cart, total, selectedTable, activeOrder, addItemsMode, orde
     <div className="pos-cart-panel">
       <div className="pos-cart-header">
         <span style={{ fontWeight: 800, fontSize: 15 }}>
-          {addItemsMode ? '➕ Add Items' : '🛒 Order'}
+          {addItemsMode ? '✏️ Edit / Add Items' : '🛒 Order'}
         </span>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
           <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>
@@ -191,25 +200,31 @@ function CartPanel({ cart, total, selectedTable, activeOrder, addItemsMode, orde
       </div>
 
       <div className="pos-cart-items">
-        {/* Existing order items (greyed out, not editable) */}
+        {/* Existing order items (editable) */}
         {addItemsMode && activeOrder?.items?.length > 0 && (
           <>
-            <div style={{ fontSize: 10, color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', padding: '4px 0 6px' }}>
-              Existing — Order #{activeOrder.id}
+            <div style={{ fontSize: 10, color: 'var(--primary)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', padding: '4px 0 6px' }}>
+              Current Order #{activeOrder.id} Items
             </div>
             {activeOrder.items.map(item => (
-              <div key={`existing-${item.id}`} className="cart-item" style={{ opacity: 0.55 }}>
+              <div key={`existing-${item.id}`} className="cart-item" style={{ background: 'rgba(255,255,255,0.02)', borderRadius: 8, padding: '8px' }}>
                 <div style={{ flex: 1, fontSize: 13 }}>
-                  <div className="cart-item-name">{item.menu_item_name}</div>
+                  <div className="cart-item-name">{item.menu_item_name} {item.portion ? `(${item.portion})` : ''}</div>
                   <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>₹{item.unit_price} each</div>
                 </div>
-                <span style={{ fontSize: 12, color: 'var(--text-muted)', marginRight: 6 }}>×{item.quantity}</span>
-                <div className="cart-item-price">₹{(item.quantity * item.unit_price).toFixed(0)}</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <div className="qty-control">
+                    <button className="qty-btn" onClick={() => onUpdateExistingItem(item.id, item.quantity - 1)} title="Decrease/Remove">−</button>
+                    <span className="qty-num">{item.quantity}</span>
+                    <button className="qty-btn" onClick={() => onUpdateExistingItem(item.id, item.quantity + 1)} title="Increase">+</button>
+                  </div>
+                  <div className="cart-item-price">₹{(item.quantity * item.unit_price).toFixed(0)}</div>
+                </div>
               </div>
             ))}
             {cart.length > 0 && (
               <div style={{ fontSize: 10, color: 'var(--primary)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', padding: '8px 0 6px', borderTop: '1px dashed var(--border)' }}>
-                ➕ New Items
+                ➕ New Items to Add
               </div>
             )}
           </>
@@ -347,6 +362,26 @@ export default function TakeOrder() {
   const getQty = (itemId) => {
     const c = cart.find(i => i.id === itemId);
     return c ? c.qty : 0;
+  };
+
+  /* Update or remove an existing item on an active order */
+  const handleUpdateExistingItem = async (itemId, newQty) => {
+    try {
+      if (newQty <= 0) {
+        if (!confirm('Remove this item from the order?')) return;
+        await orderApi.deleteOrderItem(itemId);
+        toast.success('Item removed');
+      } else {
+        await orderApi.updateOrderItem(itemId, { quantity: newQty });
+      }
+      if (selectedTable?.id) {
+        const res = await orderApi.getActiveTableOrder(selectedTable.id);
+        const refreshedOrder = res.data.order !== undefined ? res.data.order : res.data;
+        useStore.getState().setActiveOrder(refreshedOrder);
+      }
+    } catch {
+      toast.error('Failed to update item quantity');
+    }
   };
 
   /* Place new order OR add to existing order */
@@ -518,6 +553,7 @@ export default function TakeOrder() {
         addItemsMode={addItemsMode}
         orderType={orderType}
         onPlaceOrder={handlePlaceOrder}
+        onUpdateExistingItem={handleUpdateExistingItem}
         placing={placing}
       />
     </div>

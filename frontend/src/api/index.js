@@ -38,6 +38,8 @@ export const orderApi = {
   updateStatus: (id, status) => api.patch(`/orders/${id}/status/`, { status }),
   addItems: (id, items) => api.post(`/orders/${id}/add-items/`, { items }),
   getActiveTableOrder: (tableId) => api.get(`/orders/table/${tableId}/active/`),
+  updateOrderItem: (itemId, data) => api.patch(`/orders/items/${itemId}/`, data),
+  deleteOrderItem: (itemId) => api.delete(`/orders/items/${itemId}/`),
 };
 
 export const billingApi = {

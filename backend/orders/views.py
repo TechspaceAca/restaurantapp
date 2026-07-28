@@ -139,7 +139,7 @@ class AddItemsToOrderView(APIView):
 
 class ActiveTableOrderView(APIView):
     """GET /api/orders/table/<table_id>/active/ — get active order for table."""
-    permission_classes = [IsAnyStaff]
+    permission_classes = [AllowAny]
 
     def get(self, request, table_id):
         order = Order.objects.filter(
@@ -148,3 +148,47 @@ class ActiveTableOrderView(APIView):
         if not order:
             return Response({'order': None})
         return Response(OrderSerializer(order).data)
+
+
+class UpdateOrderItemView(APIView):
+    """PATCH /api/orders/items/<item_id>/ & DELETE — edit quantity or remove item from order."""
+    permission_classes = [AllowAny]
+
+    def patch(self, request, item_id):
+        try:
+            item = OrderItem.objects.get(id=item_id)
+        except OrderItem.DoesNotExist:
+            return Response({'error': 'Item not found'}, status=404)
+
+        if item.order.status in ['billed', 'cancelled']:
+            return Response({'error': 'Cannot edit a closed order'}, status=400)
+
+        quantity = request.data.get('quantity')
+        notes = request.data.get('notes')
+
+        if quantity is not None:
+            new_qty = int(quantity)
+            if new_qty <= 0:
+                order = item.order
+                item.delete()
+                return Response({'message': 'Item deleted', 'order': OrderSerializer(order).data})
+            item.quantity = new_qty
+
+        if notes is not None:
+            item.notes = notes
+
+        item.save()
+        return Response(OrderItemSerializer(item).data)
+
+    def delete(self, request, item_id):
+        try:
+            item = OrderItem.objects.get(id=item_id)
+        except OrderItem.DoesNotExist:
+            return Response({'error': 'Item not found'}, status=404)
+
+        if item.order.status in ['billed', 'cancelled']:
+            return Response({'error': 'Cannot edit a closed order'}, status=400)
+
+        order = item.order
+        item.delete()
+        return Response({'message': 'Item removed', 'order': OrderSerializer(order).data})
