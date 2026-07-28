@@ -602,7 +602,8 @@ export default function BillingPage() {
   const handleStatusUpdate = async (orderId, newStatus) => {
     try {
       await orderApi.updateStatus(orderId, newStatus);
-      toast.success(`Marked as ${newStatus}`);
+      toast.success(`Marked as ${newStatus.toUpperCase()}`);
+      setSelectedOrder(prev => prev && prev.id === orderId ? { ...prev, status: newStatus } : prev);
       fetchOrders();
     } catch (e) { toast.error(e.response?.data?.error || 'Cannot update status'); }
   };
@@ -703,7 +704,7 @@ export default function BillingPage() {
                 />
 
                 {/* Quick status action if not served yet */}
-                {['pending', 'confirmed', 'preparing', 'ready'].includes(selectedOrder.status) && (
+                {['pending', 'confirmed', 'preparing', 'ready'].includes(selectedOrder.status) ? (
                   <div style={{ marginTop: 16 }}>
                     <div className="card" style={{ background: 'rgba(249,115,22,0.06)', borderColor: 'rgba(249,115,22,0.2)' }}>
                       <div style={{ fontSize: 13, marginBottom: 8, fontWeight: 600 }}>
@@ -718,7 +719,18 @@ export default function BillingPage() {
                       </button>
                     </div>
                   </div>
-                )}
+                ) : selectedOrder.status === 'served' ? (
+                  <div style={{ marginTop: 16 }}>
+                    <div className="card" style={{ background: 'rgba(34,197,94,0.08)', borderColor: 'rgba(34,197,94,0.25)', textAlign: 'center' }}>
+                      <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--success)' }}>
+                        🍽️ Food Served to Customer
+                      </div>
+                      <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 2 }}>
+                        All items delivered · Ready for payment settlement →
+                      </div>
+                    </div>
+                  </div>
+                ) : null}
               </div>
 
               {/* Settle panel */}
