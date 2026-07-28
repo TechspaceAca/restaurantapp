@@ -343,7 +343,8 @@ export default function CustomerOrder() {
     if (!tableId) return;
     try {
       const res = await orderApi.getActiveTableOrder(tableId);
-      setActiveOrder(res.data.order !== undefined ? res.data.order : res.data);
+      const actOrd = res.data && res.data.id ? res.data : (res.data && res.data.order ? res.data.order : null);
+      setActiveOrder(actOrd);
     } catch {}
   }, []);
 
@@ -354,8 +355,9 @@ export default function CustomerOrder() {
       setTable(tableData);
 
       const catRes = await menuApi.getCategories();
-      setCategories(catRes.data);
-      if (catRes.data.length > 0) setSelectedCat(catRes.data[0].id);
+      const catList = Array.isArray(catRes.data) ? catRes.data : (catRes.data?.results || []);
+      setCategories(catList);
+      if (catList.length > 0) setSelectedCat(catList[0].id);
 
       await fetchActiveOrder(tableData.id);
     } catch {
@@ -379,7 +381,10 @@ export default function CustomerOrder() {
   useEffect(() => {
     if (selectedCat) {
       menuApi.getItems({ category: selectedCat, available: 'true' })
-        .then(res => setItems(res.data))
+        .then(res => {
+          const itemList = Array.isArray(res.data) ? res.data : (res.data?.results || []);
+          setItems(itemList);
+        })
         .catch(() => {});
     }
   }, [selectedCat]);
