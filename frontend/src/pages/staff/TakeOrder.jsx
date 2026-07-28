@@ -343,6 +343,8 @@ export default function TakeOrder() {
   const [tables, setTables]         = useState([]);
   const [selectedCat, setSelectedCat] = useState(null);
   const [search, setSearch]         = useState('');
+  const [customerPhone, setCustomerPhone] = useState('');
+  const [customerName, setCustomerName]   = useState('');
   const [loading, setLoading]       = useState(true);
   const [placing, setPlacing]       = useState(false);
 
