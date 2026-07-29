@@ -37,10 +37,12 @@ export default function Login() {
   const [username, setUsername] = useState('admin');
   const [password, setPassword] = useState('admin123');
   const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
   const { login } = useStore();
   const navigate = useNavigate();
 
   const handleRoleSelect = (role) => {
+    setErrorMsg('');
     const roleData = ROLES.find(r => r.id === role);
     setSelectedRole(role);
     setUsername(roleData.defaultUser);
@@ -50,6 +52,7 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+    setErrorMsg('');
     try {
       const res = await authApi.login(username, password);
       const { access, refresh, user } = res.data;
@@ -59,7 +62,8 @@ export default function Login() {
       else if (user.role === 'staff') navigate('/pos');
       else if (user.role === 'kitchen') navigate('/kitchen');
     } catch (err) {
-      const msg = err.response?.data?.detail || 'Invalid credentials. Try again.';
+      const msg = err.response?.data?.detail || err.response?.data?.error || '⚠️ Invalid username or password. Please verify your credentials.';
+      setErrorMsg(msg);
       toast.error(msg);
     } finally {
       setLoading(false);
@@ -132,6 +136,25 @@ export default function Login() {
               💡 Demo: admin/admin123 · staff/staff123 · kitchen/kitchen123
             </div>
           </div>
+
+          {errorMsg && (
+            <div style={{
+              background: 'rgba(239, 68, 68, 0.12)',
+              border: '1.5px solid rgba(239, 68, 68, 0.4)',
+              color: '#f87171',
+              padding: '10px 14px',
+              borderRadius: '8px',
+              fontSize: '12.5px',
+              fontWeight: 600,
+              marginTop: 10,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8
+            }}>
+              <span>⚠️</span>
+              <span>{errorMsg}</span>
+            </div>
+          )}
 
           <button
             type="submit"

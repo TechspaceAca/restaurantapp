@@ -28,10 +28,11 @@ api.interceptors.response.use(
   },
   async (error) => {
     const isPublicCustomerRoute = window.location.pathname.startsWith('/order/');
+    const isLoginRoute = window.location.pathname === '/login' || error.config?.url?.includes('/auth/');
 
     if (error.response?.status === 401) {
-      if (isPublicCustomerRoute) {
-        // For public customer QR routes, ignore 401 authentication errors
+      if (isPublicCustomerRoute || isLoginRoute) {
+        // For public customer QR routes or login failures, reject promise cleanly without triggering page reloads
         return Promise.reject(error);
       }
 
@@ -46,12 +47,16 @@ api.interceptors.response.use(
         } catch {
           localStorage.removeItem('access_token');
           localStorage.removeItem('refresh_token');
-          window.location.href = '/login';
+          if (window.location.pathname !== '/login') {
+            window.location.href = '/login';
+          }
         }
       } else {
         localStorage.removeItem('access_token');
         localStorage.removeItem('refresh_token');
-        window.location.href = '/login';
+        if (window.location.pathname !== '/login') {
+          window.location.href = '/login';
+        }
       }
     }
     return Promise.reject(error);
