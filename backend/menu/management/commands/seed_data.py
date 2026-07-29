@@ -55,7 +55,7 @@ class Command(BaseCommand):
         for name, icon, order in cats:
             cat_obj, _ = Category.objects.get_or_create(
                 name=name,
-                defaults={'icon': icon, 'display_order': order}
+                defaults={'icon': icon, 'sort_order': order}
             )
 
         starters = Category.objects.filter(name='Starters').first()
