@@ -163,7 +163,7 @@ function TableModal({ table, existingSections = [], onClose, onSave }) {
 }
 
 function QRModal({ table, onClose }) {
-  const qrUrl = `${window.location.origin}/order/${table.qr_token}`;
+  const qrUrl = `${window.location.origin}/#/order/${table.qr_token}`;
   const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(qrUrl)}&margin=12`;
 
   return (

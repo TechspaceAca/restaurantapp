@@ -59,7 +59,7 @@ function TableModal({ table, onClose, onSave }) {
 }
 
 function QRModal({ table, onClose }) {
-  const qrUrl = `${window.location.origin}/order/${table.qr_token}`;
+  const qrUrl = `${window.location.origin}/#/order/${table.qr_token}`;
   const qrImg = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(qrUrl)}`;
   return (
     <div className="modal-overlay" onClick={onClose}>

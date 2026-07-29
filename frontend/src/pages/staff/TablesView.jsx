@@ -25,7 +25,7 @@ const SECTION_ICONS = { indoor: '🏠', outdoor: '🌳', terrace: '🌅', privat
 
 /* ── QR Code Modal ───────────────────────────────────────────── */
 function QRModal({ table, onClose }) {
-  const qrUrl = `${window.location.origin}/order/${table.qr_token}`;
+  const qrUrl = `${window.location.origin}/#/order/${table.qr_token}`;
   const qrImgSrc = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(qrUrl)}&margin=12`;
 
   const handleCopy = () => {

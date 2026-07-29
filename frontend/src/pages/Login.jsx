@@ -179,7 +179,7 @@ export default function Login() {
             Customer QR Self-Order View
           </div>
           <a
-            href="/order/demo"
+            href="#/order/demo"
             className="btn btn-ghost w-full"
             style={{ justifyContent: 'center' }}
           >

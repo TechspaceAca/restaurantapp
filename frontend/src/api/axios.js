@@ -9,7 +9,7 @@ const api = axios.create({
 
 // Auto-attach JWT token (except for public customer QR ordering routes)
 api.interceptors.request.use((config) => {
-  const isPublicCustomerRoute = window.location.pathname.startsWith('/order/');
+  const isPublicCustomerRoute = window.location.pathname.startsWith('/order/') || window.location.hash.includes('/order/');
   const token = localStorage.getItem('access_token');
   if (token && !isPublicCustomerRoute) {
     config.headers.Authorization = `Bearer ${token}`;
@@ -27,7 +27,7 @@ api.interceptors.response.use(
     return res;
   },
   async (error) => {
-    const isPublicCustomerRoute = window.location.pathname.startsWith('/order/');
+    const isPublicCustomerRoute = window.location.pathname.startsWith('/order/') || window.location.hash.includes('/order/');
     const isAuthRoute = error.config?.url?.includes('/auth/login') || error.config?.url?.includes('/auth/token') || window.location.pathname === '/login' || window.location.pathname === '/';
 
     if (error.response?.status === 401) {
