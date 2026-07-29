@@ -513,20 +513,30 @@ export default function CustomerOrder() {
     <div style={{ minHeight: '100vh', background: 'var(--bg)', paddingBottom: cartCount > 0 ? 120 : 40 }}>
       {/* Header */}
       <div style={{
-        background: 'linear-gradient(135deg, #1f0b07 0%, #2d110b 50%, #4a1c10 100%)',
-        borderBottom: '2px solid rgba(212,175,55,0.3)',
-        padding: '24px 20px 36px', position: 'relative', overflow: 'hidden',
-        boxShadow: '0 8px 30px rgba(0,0,0,0.3)',
+        background: theme === 'light'
+          ? 'linear-gradient(135deg, #FFF9F2 0%, #FDF4E7 50%, #FBEBDB 100%)'
+          : 'linear-gradient(135deg, #1f0b07 0%, #2d110b 50%, #4a1c10 100%)',
+        borderBottom: theme === 'light'
+          ? '2px solid rgba(249,115,22,0.2)'
+          : '2px solid rgba(212,175,55,0.3)',
+        padding: '22px 20px 24px', position: 'relative', overflow: 'hidden',
+        boxShadow: theme === 'light' ? '0 4px 20px rgba(0,0,0,0.05)' : '0 8px 30px rgba(0,0,0,0.3)',
       }}>
         <div style={{ position: 'relative', zIndex: 1 }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
               <LogoIcon size={46} />
               <div>
-                <div style={{ color: '#FDFBF7', fontSize: 19, fontWeight: 900, fontFamily: "'Playfair Display', serif", letterSpacing: '0.02em' }}>
+                <div style={{
+                  color: theme === 'light' ? '#2D110B' : '#FDFBF7',
+                  fontSize: 19, fontWeight: 900, fontFamily: "'Playfair Display', serif", letterSpacing: '0.02em'
+                }}>
                   T CLOCK RESTO CAFE
                 </div>
-                <div style={{ color: '#D4AF37', fontSize: 11.5, fontWeight: 700, marginTop: 1 }}>
+                <div style={{
+                  color: theme === 'light' ? '#C2410C' : '#D4AF37',
+                  fontSize: 11.5, fontWeight: 700, marginTop: 1
+                }}>
                   Customer Self-Order · {table?.name || 'Scan QR'}
                 </div>
               </div>
@@ -536,28 +546,35 @@ export default function CustomerOrder() {
               type="button"
               onClick={toggleTheme}
               style={{
-                background: 'rgba(212,175,55,0.15)', border: '1px solid rgba(212,175,55,0.4)',
-                color: '#D4AF37', padding: '6px 14px', borderRadius: 99,
+                background: theme === 'light' ? 'rgba(249,115,22,0.12)' : 'rgba(212,175,55,0.15)',
+                border: theme === 'light' ? '1px solid rgba(249,115,22,0.3)' : '1px solid rgba(212,175,55,0.4)',
+                color: theme === 'light' ? '#ea580c' : '#D4AF37',
+                padding: '6px 14px', borderRadius: 99,
                 fontSize: 12, fontWeight: 800, cursor: 'pointer', backdropFilter: 'blur(8px)',
-                boxShadow: '0 2px 10px rgba(0,0,0,0.2)', transition: 'all 0.2s ease',
+                boxShadow: '0 2px 10px rgba(0,0,0,0.08)', transition: 'all 0.2s ease',
               }}
             >
               {theme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode'}
             </button>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 10 }}>
-            <span style={{ fontSize: 24, fontWeight: 900, color: '#fff', letterSpacing: '-0.02em' }}>{table?.name}</span>
-            <span style={{ fontSize: 11, background: 'rgba(249,115,22,0.25)', color: '#f97316', border: '1px solid rgba(249,115,22,0.4)', padding: '2px 10px', borderRadius: 99, fontWeight: 800 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 8 }}>
+            <span style={{ fontSize: 24, fontWeight: 900, color: theme === 'light' ? '#2D110B' : '#fff', letterSpacing: '-0.02em' }}>
+              {table?.name}
+            </span>
+            <span style={{
+              fontSize: 11, background: 'rgba(249,115,22,0.18)', color: '#f97316',
+              border: '1px solid rgba(249,115,22,0.35)', padding: '2px 10px', borderRadius: 99, fontWeight: 800
+            }}>
               Dine-In QR Active
             </span>
           </div>
-          <div style={{ color: 'rgba(253,251,247,0.75)', fontSize: 12, marginTop: 3 }}>
+          <div style={{ color: theme === 'light' ? '#64748b' : 'rgba(253,251,247,0.75)', fontSize: 12, marginTop: 3 }}>
             Scan & Order — Customise & track food live!
           </div>
         </div>
       </div>
 
-      <div style={{ padding: '0 16px', marginTop: -16, position: 'relative', zIndex: 1 }}>
+      <div style={{ padding: '20px 16px 0', position: 'relative', zIndex: 1 }}>
 
         {/* Live Food Tracker */}
         {activeOrder && activeOrder.id && (
