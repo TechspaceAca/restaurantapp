@@ -11,31 +11,25 @@ const ROLES = [
     icon: '👑',
     title: '1. Admin Dashboard',
     desc: 'Analytics, Menu Catalog, Tables & QR Codes',
-    defaultUser: 'admin',
-    defaultPass: 'admin123',
   },
   {
     id: 'staff',
     icon: '🧾',
     title: '2. Staff & Billing Counter',
     desc: 'Dining Tables, Take Order & Billing POS',
-    defaultUser: 'staff',
-    defaultPass: 'staff123',
   },
   {
     id: 'kitchen',
     icon: '👨‍🍳',
     title: '3. Kitchen Order Screen',
     desc: 'Live Order Cooking Cards & Kitchen Queue',
-    defaultUser: 'kitchen',
-    defaultPass: 'kitchen123',
   },
 ];
 
 export default function Login() {
   const [selectedRole, setSelectedRole] = useState('admin');
-  const [username, setUsername] = useState('admin');
-  const [password, setPassword] = useState('admin123');
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const { login } = useStore();
@@ -43,10 +37,7 @@ export default function Login() {
 
   const handleRoleSelect = (role) => {
     setErrorMsg('');
-    const roleData = ROLES.find(r => r.id === role);
     setSelectedRole(role);
-    setUsername(roleData.defaultUser);
-    setPassword(roleData.defaultPass);
   };
 
   const handleSubmit = async (e) => {
@@ -132,9 +123,6 @@ export default function Login() {
               required
               placeholder="Enter password"
             />
-            <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 6 }}>
-              💡 Demo: admin/admin123 · staff/staff123 · kitchen/kitchen123
-            </div>
           </div>
 
           {errorMsg && (
