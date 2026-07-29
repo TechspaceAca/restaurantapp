@@ -262,54 +262,68 @@ function CustomerItemCard({ item, cart, onOpenCustomise }) {
     <div style={{
       background: 'var(--bg-card)',
       border: `1.5px solid ${totalQty > 0 ? 'var(--primary)' : 'var(--surface-border)'}`,
-      borderRadius: 'var(--radius-lg)', padding: '16px 14px',
+      borderRadius: 18, padding: '16px 14px',
       display: 'flex', justifyContent: 'space-between', gap: 14, alignItems: 'center',
-      transition: 'all 0.2s ease', position: 'relative',
+      transition: 'all 0.25s cubic-bezier(0.16, 1, 0.3, 1)', position: 'relative',
+      boxShadow: totalQty > 0 ? '0 8px 24px rgba(249,115,22,0.18)' : '0 4px 16px rgba(0,0,0,0.06)',
     }}>
-      {/* Right Dish Details */}
+      {/* Dish Details */}
       <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6, flexWrap: 'wrap' }}>
           {item.is_veg ? <div className="veg-dot" /> : <div className="nonveg-dot" />}
           {item.is_featured && (
             <span style={{ fontSize: 10, padding: '2px 8px', background: 'rgba(34,197,94,0.15)', color: '#22c55e', borderRadius: 99, fontWeight: 700 }}>
-              🔥 Highly reordered
+              🔥 Highly Reordered
+            </span>
+          )}
+          {(item.half_price || item.quarter_price) && (
+            <span style={{ fontSize: 9.5, padding: '2px 6px', background: 'rgba(212,175,55,0.15)', color: '#d4af37', borderRadius: 4, fontWeight: 700 }}>
+              Portions Available
             </span>
           )}
         </div>
 
-        <div style={{ fontWeight: 800, fontSize: 15, color: 'var(--text)', marginBottom: 2 }}>{item.name}</div>
-        <div style={{ fontSize: 16, fontWeight: 900, color: 'var(--text)', marginBottom: 4 }}>₹{fullPrice}</div>
+        <div style={{ fontWeight: 800, fontSize: 15.5, color: 'var(--text)', marginBottom: 4, textTransform: 'capitalize', letterSpacing: '-0.01em' }}>
+          {item.name}
+        </div>
+        <div style={{ fontSize: 16.5, fontWeight: 900, color: 'var(--primary)', marginBottom: 6 }}>
+          ₹{fullPrice}
+        </div>
 
         {item.description && (
-          <div style={{ fontSize: 11.5, color: 'var(--text-muted)', lineHeight: 1.35 }}>
+          <div style={{ fontSize: 11.5, color: 'var(--text-muted)', lineHeight: 1.4, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
             {item.description}
           </div>
         )}
       </div>
 
       {/* Left Image & Overlay ADD+ Button */}
-      <div style={{ position: 'relative', flexShrink: 0, width: 106, textAlign: 'center' }}>
+      <div style={{ position: 'relative', flexShrink: 0, width: 108, textAlign: 'center' }}>
         {item.image ? (
-          <img src={item.image} style={{ width: 106, height: 96, borderRadius: 14, objectFit: 'cover' }} alt={item.name} />
+          <img
+            src={item.image}
+            style={{ width: 108, height: 100, borderRadius: 16, objectFit: 'cover', boxShadow: '0 4px 14px rgba(0,0,0,0.12)' }}
+            alt={item.name}
+          />
         ) : (
-          <div style={{ width: 106, height: 96, borderRadius: 14, background: 'var(--bg-card2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 36 }}>
-            {item.is_veg ? '🥗' : '🍗'}
+          <div style={{ width: 108, height: 100, borderRadius: 16, background: 'var(--bg-card2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 38 }}>
+            {item.is_veg ? '🥗' : '🍛'}
           </div>
         )}
 
         {/* Overlay ADD + / Qty Button */}
-        <div style={{ position: 'absolute', bottom: -12, left: '50%', transform: 'translateX(-50%)', width: '85%' }}>
+        <div style={{ position: 'absolute', bottom: -12, left: '50%', transform: 'translateX(-50%)', width: '90%' }}>
           {totalQty > 0 ? (
             <div
               onClick={() => onOpenCustomise(item)}
               style={{
-                background: '#be123c', color: '#fff', padding: '5px 10px', borderRadius: 10,
+                background: 'linear-gradient(135deg, #f97316, #ea580c)', color: '#fff', padding: '6px 12px', borderRadius: 10,
                 fontWeight: 900, fontSize: 13, border: '2px solid #fff',
-                boxShadow: '0 4px 12px rgba(0,0,0,0.4)', cursor: 'pointer',
+                boxShadow: '0 4px 14px rgba(249,115,22,0.4)', cursor: 'pointer',
                 display: 'flex', alignItems: 'center', justifyContent: 'space-between',
               }}
             >
-              <span>-</span>
+              <span>−</span>
               <span>{totalQty}</span>
               <span>+</span>
             </div>
@@ -318,9 +332,9 @@ function CustomerItemCard({ item, cart, onOpenCustomise }) {
               type="button"
               onClick={() => onOpenCustomise(item)}
               style={{
-                width: '100%', background: '#fff', color: '#be123c', padding: '5px 12px', borderRadius: 10,
-                fontWeight: 900, fontSize: 13, border: '1.5px solid #be123c',
-                boxShadow: '0 4px 12px rgba(0,0,0,0.2)', cursor: 'pointer',
+                width: '100%', background: '#fff', color: '#f97316', padding: '6px 12px', borderRadius: 10,
+                fontWeight: 900, fontSize: 13, border: '1.5px solid #f97316',
+                boxShadow: '0 4px 14px rgba(0,0,0,0.12)', cursor: 'pointer',
                 transition: 'all 0.15s ease',
               }}
             >
@@ -329,8 +343,8 @@ function CustomerItemCard({ item, cart, onOpenCustomise }) {
           )}
         </div>
 
-        <div style={{ fontSize: 9.5, color: 'var(--text-muted)', marginTop: 14, fontWeight: 600 }}>
-          customisable
+        <div style={{ fontSize: 9.5, color: 'var(--text-muted)', marginTop: 16, fontWeight: 700 }}>
+          Customisable
         </div>
       </div>
     </div>
@@ -499,16 +513,22 @@ export default function CustomerOrder() {
     <div style={{ minHeight: '100vh', background: 'var(--bg)', paddingBottom: cartCount > 0 ? 120 : 40 }}>
       {/* Header */}
       <div style={{
-        background: 'linear-gradient(135deg, var(--primary), var(--primary-dark))',
-        padding: '20px 20px 36px', position: 'relative', overflow: 'hidden',
+        background: 'linear-gradient(135deg, #1f0b07 0%, #2d110b 50%, #4a1c10 100%)',
+        borderBottom: '2px solid rgba(212,175,55,0.3)',
+        padding: '24px 20px 36px', position: 'relative', overflow: 'hidden',
+        boxShadow: '0 8px 30px rgba(0,0,0,0.3)',
       }}>
         <div style={{ position: 'relative', zIndex: 1 }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <LogoIcon size={44} />
+              <LogoIcon size={46} />
               <div>
-                <div style={{ color: '#fff', fontSize: 18, fontWeight: 900, fontFamily: "'Playfair Display', serif" }}>T CLOCK RESTO CAFE</div>
-                <div style={{ color: 'rgba(255,255,255,0.85)', fontSize: 11 }}>Customer Self-Order · {table?.name || 'Scan QR'}</div>
+                <div style={{ color: '#FDFBF7', fontSize: 19, fontWeight: 900, fontFamily: "'Playfair Display', serif", letterSpacing: '0.02em' }}>
+                  T CLOCK RESTO CAFE
+                </div>
+                <div style={{ color: '#D4AF37', fontSize: 11.5, fontWeight: 700, marginTop: 1 }}>
+                  Customer Self-Order · {table?.name || 'Scan QR'}
+                </div>
               </div>
             </div>
 
@@ -516,17 +536,24 @@ export default function CustomerOrder() {
               type="button"
               onClick={toggleTheme}
               style={{
-                background: 'rgba(255,255,255,0.22)', border: '1px solid rgba(255,255,255,0.45)',
-                color: '#fff', padding: '6px 14px', borderRadius: 99,
-                fontSize: 12, fontWeight: 800, cursor: 'pointer', backdropFilter: 'blur(6px)',
-                boxShadow: '0 2px 10px rgba(0,0,0,0.15)', transition: 'all 0.2s ease',
+                background: 'rgba(212,175,55,0.15)', border: '1px solid rgba(212,175,55,0.4)',
+                color: '#D4AF37', padding: '6px 14px', borderRadius: 99,
+                fontSize: 12, fontWeight: 800, cursor: 'pointer', backdropFilter: 'blur(8px)',
+                boxShadow: '0 2px 10px rgba(0,0,0,0.2)', transition: 'all 0.2s ease',
               }}
             >
               {theme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode'}
             </button>
           </div>
-          <div style={{ color: '#fff', fontSize: 22, fontWeight: 900, marginTop: 4 }}>{table?.name}</div>
-          <div style={{ color: 'rgba(255,255,255,0.75)', fontSize: 12 }}>Scan & Order — Customise & track food live!</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 10 }}>
+            <span style={{ fontSize: 24, fontWeight: 900, color: '#fff', letterSpacing: '-0.02em' }}>{table?.name}</span>
+            <span style={{ fontSize: 11, background: 'rgba(249,115,22,0.25)', color: '#f97316', border: '1px solid rgba(249,115,22,0.4)', padding: '2px 10px', borderRadius: 99, fontWeight: 800 }}>
+              Dine-In QR Active
+            </span>
+          </div>
+          <div style={{ color: 'rgba(253,251,247,0.75)', fontSize: 12, marginTop: 3 }}>
+            Scan & Order — Customise & track food live!
+          </div>
         </div>
       </div>
 
