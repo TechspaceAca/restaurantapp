@@ -12,7 +12,7 @@ const ROLES = [
     title: '1. Admin Dashboard',
     desc: 'Analytics, Menu Catalog, Tables & QR Codes',
     defaultUser: 'admin',
-    defaultPass: 'owner123',
+    defaultPass: 'admin123',
   },
   {
     id: 'staff',
@@ -35,7 +35,7 @@ const ROLES = [
 export default function Login() {
   const [selectedRole, setSelectedRole] = useState('admin');
   const [username, setUsername] = useState('admin');
-  const [password, setPassword] = useState('owner123');
+  const [password, setPassword] = useState('admin123');
   const [loading, setLoading] = useState(false);
   const { login } = useStore();
   const navigate = useNavigate();
@@ -129,7 +129,7 @@ export default function Login() {
               placeholder="Enter password"
             />
             <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 6 }}>
-              💡 Demo: admin/owner123 · staff/staff123 · kitchen/kitchen123
+              💡 Demo: admin/admin123 · staff/staff123 · kitchen/kitchen123
             </div>
           </div>
 
