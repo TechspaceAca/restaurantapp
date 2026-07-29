@@ -59,8 +59,8 @@ export default function Login() {
       login(user, access, refresh);
       toast.success(`Welcome, ${user.name}! 🎉`);
       if (user.role === 'admin') navigate('/admin');
-      else if (user.role === 'staff') navigate('/pos');
       else if (user.role === 'kitchen') navigate('/kitchen');
+      else navigate('/pos');
     } catch (err) {
       const msg = err.response?.data?.detail || err.response?.data?.error || '⚠️ Invalid username or password. Please verify your credentials.';
       setErrorMsg(msg);

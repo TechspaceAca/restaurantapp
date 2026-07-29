@@ -35,8 +35,8 @@ function RoleRedirect() {
   const { user } = useStore();
   if (!user) return <Navigate to="/login" replace />;
   if (user.role === 'admin') return <Navigate to="/admin" replace />;
-  if (user.role === 'staff') return <Navigate to="/pos" replace />;
-  return <Navigate to="/login" replace />;
+  if (user.role === 'kitchen') return <Navigate to="/kitchen" replace />;
+  return <Navigate to="/pos" replace />;
 }
 
 export default function App() {
