@@ -1,7 +1,9 @@
 import axios from 'axios';
 
+const API_BASE = (import.meta.env.VITE_API_BASE_URL || 'https://restaurantapp-uiua.onrender.com').replace(/\/$/, '');
+
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: `${API_BASE}/api`,
   headers: { 'Content-Type': 'application/json' },
 });
 
@@ -37,7 +39,7 @@ api.interceptors.response.use(
       if (refresh && !error.config._retry) {
         error.config._retry = true;
         try {
-          const r = await axios.post('/api/auth/refresh/', { refresh });
+          const r = await axios.post(`${API_BASE}/api/auth/refresh/`, { refresh });
           localStorage.setItem('access_token', r.data.access);
           error.config.headers.Authorization = `Bearer ${r.data.access}`;
           return api(error.config);
