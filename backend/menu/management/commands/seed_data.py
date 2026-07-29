@@ -18,13 +18,12 @@ class Command(BaseCommand):
                 'is_superuser': True,
             }
         )
-        admin.role = 'admin'
-        admin.is_active = True
-        admin.is_staff = True
-        admin.is_superuser = True
-        admin.set_password('admin123')
-        admin.save()
-        self.stdout.write(self.style.SUCCESS('Admin user ready: admin / admin123'))
+        if created:
+            admin.set_password('admin123')
+            admin.save()
+            self.stdout.write(self.style.SUCCESS('Created initial admin user: admin / admin123'))
+        else:
+            self.stdout.write(self.style.SUCCESS('Admin user exists. Preserving custom client password.'))
 
         # 2. Staff user
         staff, s_created = User.objects.get_or_create(
@@ -36,11 +35,9 @@ class Command(BaseCommand):
                 'is_staff': True,
             }
         )
-        staff.role = 'staff'
-        staff.is_active = True
-        staff.set_password('staff123')
-        staff.save()
-        self.stdout.write(self.style.SUCCESS('Staff user ready: staff / staff123'))
+        if s_created:
+            staff.set_password('staff123')
+            staff.save()
 
         # 3. Kitchen user
         kitchen, k_created = User.objects.get_or_create(
@@ -52,11 +49,9 @@ class Command(BaseCommand):
                 'is_staff': True,
             }
         )
-        kitchen.role = 'kitchen'
-        kitchen.is_active = True
-        kitchen.set_password('kitchen123')
-        kitchen.save()
-        self.stdout.write(self.style.SUCCESS('Kitchen user ready: kitchen / kitchen123'))
+        if k_created:
+            kitchen.set_password('kitchen123')
+            kitchen.save()
 
         # 3. Dining Tables
         for i in range(1, 11):
