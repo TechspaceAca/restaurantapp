@@ -41,8 +41,8 @@ class Command(BaseCommand):
         # 3. Dining Tables
         for i in range(1, 11):
             DiningTable.objects.get_or_create(
-                table_number=f"T{i}",
-                defaults={'name': f"Table {i}", 'seats': 4, 'status': 'available'}
+                number=f"T{i}",
+                defaults={'name': f"Table {i}", 'capacity': 4, 'status': 'available'}
             )
 
         # 4. Categories & Menu Items
