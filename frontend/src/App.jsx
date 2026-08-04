@@ -18,7 +18,7 @@ import TablesView from './pages/staff/TablesView';
 import TakeOrder from './pages/staff/TakeOrder';
 import BillingPage from './pages/staff/Billing';
 import OrderHistory from './pages/staff/OrderHistory';
-import OnlineOrders from './pages/staff/OnlineOrders';
+import OnlineOrders from './pages/admin/OnlineOrders';
 import KitchenScreen from './pages/kitchen/KitchenScreen';
 import CustomerOrder from './pages/customer/CustomerOrder';
 
@@ -80,6 +80,7 @@ export default function App() {
           <Route path="tables" element={<TableSetup />} />
           <Route path="staff" element={<StaffList />} />
           <Route path="settings" element={<Settings />} />
+          <Route path="online" element={<OnlineOrders />} />
         </Route>
 
         {/* Staff/POS Routes */}
@@ -91,7 +92,6 @@ export default function App() {
           <Route index element={<TablesView />} />
           <Route path="order" element={<TakeOrder />} />
           <Route path="billing" element={<BillingPage />} />
-          <Route path="online" element={<OnlineOrders />} />
           <Route path="history" element={<OrderHistory />} />
         </Route>
 

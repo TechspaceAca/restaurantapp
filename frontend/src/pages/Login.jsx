@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { authApi } from '../api';
 import useStore from '../store/useStore';
@@ -63,15 +63,15 @@ export default function Login() {
 
   return (
     <div className="login-page">
-      <div className="login-card">
+      <div className="login-card" style={{ padding: '24px 32px' }}>
         {/* Logo */}
-        <div className="login-logo" style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-          <LogoIcon size={58} />
+        <div className="login-logo" style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 20 }}>
+          <LogoIcon size={52} />
           <div>
-            <div style={{ fontSize: 22, fontWeight: 900, color: 'var(--text)', fontFamily: "'Playfair Display', serif" }}>
+            <div style={{ fontSize: 20, fontWeight: 900, color: 'var(--text)', fontFamily: "'Playfair Display', serif" }}>
               T CLOCK RESTO CAFE
             </div>
-            <div style={{ fontSize: 12, color: 'var(--primary)', fontWeight: 600, marginTop: 1 }}>
+            <div style={{ fontSize: 11, color: 'var(--primary)', fontWeight: 600, marginTop: 1 }}>
               Time for Tea, Time for Taste 🌴
             </div>
           </div>
@@ -79,29 +79,30 @@ export default function Login() {
 
         <form onSubmit={handleSubmit}>
           {/* Role Selection */}
-          <div className="form-group">
+          <div className="form-group" style={{ marginBottom: 12 }}>
             <label className="form-label">Select Dashboard Role</label>
             {ROLES.map(role => (
               <div
                 key={role.id}
                 className={`role-card ${selectedRole === role.id ? 'selected' : ''}`}
                 onClick={() => handleRoleSelect(role.id)}
+                style={{ padding: '10px 14px', marginBottom: 8 }}
               >
-                <div className="role-card-icon">{role.icon}</div>
+                <div className="role-card-icon" style={{ fontSize: 20 }}>{role.icon}</div>
                 <div>
                   <div className="role-card-title">{role.title}</div>
                   <div className="role-card-desc">{role.desc}</div>
                 </div>
                 {selectedRole === role.id && (
-                  <div style={{ marginLeft: 'auto', color: 'var(--primary)', fontSize: 20 }}>✓</div>
+                  <div style={{ marginLeft: 'auto', color: 'var(--primary)', fontSize: 18 }}>✓</div>
                 )}
               </div>
             ))}
           </div>
 
           {/* Username */}
-          <div className="form-group">
-            <label className="form-label">Username</label>
+          <div className="form-group" style={{ marginBottom: 12 }}>
+            <label className="form-label" style={{ marginBottom: 4 }}>Username</label>
             <input
               className="form-input"
               type="text"
@@ -109,12 +110,13 @@ export default function Login() {
               onChange={e => setUsername(e.target.value)}
               required
               placeholder="Enter username"
+              style={{ padding: '8px 12px' }}
             />
           </div>
 
           {/* Password */}
-          <div className="form-group">
-            <label className="form-label">Password</label>
+          <div className="form-group" style={{ marginBottom: 12 }}>
+            <label className="form-label" style={{ marginBottom: 4 }}>Password</label>
             <input
               className="form-input"
               type="password"
@@ -122,6 +124,7 @@ export default function Login() {
               onChange={e => setPassword(e.target.value)}
               required
               placeholder="Enter password"
+              style={{ padding: '8px 12px' }}
             />
           </div>
 
@@ -130,11 +133,11 @@ export default function Login() {
               background: 'rgba(239, 68, 68, 0.12)',
               border: '1.5px solid rgba(239, 68, 68, 0.4)',
               color: '#f87171',
-              padding: '10px 14px',
+              padding: '8px 12px',
               borderRadius: '8px',
-              fontSize: '12.5px',
+              fontSize: '12px',
               fontWeight: 600,
-              marginTop: 10,
+              marginTop: 8,
               display: 'flex',
               alignItems: 'center',
               gap: 8
@@ -147,7 +150,7 @@ export default function Login() {
           <button
             type="submit"
             className="btn btn-primary w-full"
-            style={{ justifyContent: 'center', padding: '13px', fontSize: 14, marginTop: 4 }}
+            style={{ justifyContent: 'center', padding: '10px', fontSize: 14, marginTop: 4 }}
             disabled={loading}
           >
             {loading ? (
@@ -159,20 +162,20 @@ export default function Login() {
         </form>
 
         {/* Divider */}
-        <div className="divider" style={{ margin: '20px 0' }} />
+        <div className="divider" style={{ margin: '14px 0' }} />
 
         {/* Customer QR */}
         <div style={{ textAlign: 'center' }}>
-          <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 8 }}>
+          <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 6 }}>
             Customer QR Self-Order View
           </div>
-          <a
-            href="#/order/demo"
+          <Link
+            to="/order/demo"
             className="btn btn-ghost w-full"
-            style={{ justifyContent: 'center' }}
+            style={{ justifyContent: 'center', padding: '8px', fontSize: 13 }}
           >
             📱 View Customer Ordering Portal
-          </a>
+          </Link>
         </div>
       </div>
     </div>

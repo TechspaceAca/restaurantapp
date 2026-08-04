@@ -18,6 +18,7 @@ function TableModal({ table, existingSections = [], onClose, onSave }) {
     section: isExistingCustom ? '__CUSTOM__' : (table?.section || 'indoor'),
     customSection: isExistingCustom ? table.section : '',
     is_active: table?.is_active ?? true,
+    status: table?.status || 'available',
   });
   const [saving, setSaving] = useState(false);
 
@@ -57,6 +58,7 @@ function TableModal({ table, existingSections = [], onClose, onSave }) {
         capacity: form.capacity,
         section: finalSection,
         is_active: form.is_active,
+        status: form.status,
       };
 
       if (table?.id) await tableApi.updateTable(table.id, payload);
@@ -125,6 +127,18 @@ function TableModal({ table, existingSections = [], onClose, onSave }) {
                 return <option key={s} value={s}>{icon} {label}</option>;
               })}
               <option value="__CUSTOM__">➕ Add Custom Section...</option>
+            </select>
+          </div>
+
+          <div className="form-group">
+            <label className="form-label">CURRENT STATUS</label>
+            <select
+              className="form-select"
+              value={form.status}
+              onChange={e => setForm(f => ({ ...f, status: e.target.value }))}
+            >
+              <option value="available">🟢 Available</option>
+              <option value="reserved">🔵 Reserved</option>
             </select>
           </div>
         </div>
@@ -273,111 +287,114 @@ export default function TableSetup() {
       {loading ? (
         <div className="loading-screen"><div className="spinner" /><p>Loading tables...</p></div>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 14 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 20 }}>
           {filtered.map(table => {
             const enrichedStatus = getEnrichedTableStatus(table, liveOrders);
             const sc = ENRICHED_STATUS_INFO[enrichedStatus] || ENRICHED_STATUS_INFO.available;
-            
             return (
               <div 
                 key={table.id} 
                 style={{ 
                   display: 'flex',
-                  overflow: 'hidden',
                   background: 'var(--bg-card)',
-                  borderRadius: 16,
-                  boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                  borderRadius: 8,
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
                   transition: 'transform 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
                   minHeight: 140,
+                  position: 'relative',
+                  overflow: 'hidden',
                   border: '1px solid var(--border)'
                 }}
                 onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-4px)'}
                 onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
               >
-                {/* Left Color Block */}
+                {/* Left Color Block (Muted/Dull Feel) */}
                 <div style={{
-                  width: 90,
-                  background: `linear-gradient(145deg, ${sc.color}, ${sc.dark})`,
+                  width: 100,
+                  background: `${sc.color}15`,
                   display: 'flex',
                   flexDirection: 'column',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  color: '#fff',
-                  borderRight: '2px dashed rgba(255,255,255,0.25)',
-                  padding: 10,
-                  position: 'relative'
+                  padding: 12,
+                  color: sc.color,
+                  borderRight: `1px solid ${sc.color}30`
                 }}>
-                  {/* Subtle inner shadow for depth */}
-                  <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, boxShadow: 'inset 0 4px 12px rgba(0,0,0,0.2)' }} />
-                  
-                  <div style={{ fontSize: 34, fontWeight: 900, lineHeight: 1, textShadow: '0 2px 10px rgba(0,0,0,0.5)', zIndex: 1 }}>
+                  <div style={{ fontSize: 10, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 4, opacity: 0.8 }}>
+                    Table
+                  </div>
+                  <div style={{ fontSize: 36, fontWeight: 900, lineHeight: 1 }}>
                     {table.number.replace(/\D/g, '') || table.number}
                   </div>
                   <div style={{ 
-                    fontSize: 10, fontWeight: 800, letterSpacing: '0.1em', marginTop: 10, 
-                    textAlign: 'center', textTransform: 'uppercase', zIndex: 1,
-                    background: 'rgba(0,0,0,0.3)', padding: '4px 8px', borderRadius: 99
+                    fontSize: 9, fontWeight: 800, letterSpacing: '0.1em', marginTop: 12, 
+                    textAlign: 'center', textTransform: 'uppercase',
+                    background: `${sc.color}20`, padding: '4px 10px', borderRadius: 4,
+                    color: sc.color
                   }}>
                     {sc.label}
                   </div>
                 </div>
 
-                {/* Right Content Block */}
-                <div style={{ flex: 1, padding: '16px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                {/* Right Content */}
+                <div style={{ flex: 1, padding: '16px 20px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', background: 'var(--bg-card)' }}>
                   <div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                      <div style={{ fontWeight: 800, fontSize: 17, color: 'var(--text)' }}>{table.name}</div>
-                      <span style={{ 
-                        background: 'var(--bg-card2)', padding: '4px 8px', borderRadius: 6, fontSize: 11, fontWeight: 700,
-                        display: 'flex', alignItems: 'center', gap: 4, textTransform: 'capitalize', color: 'var(--text-muted)'
-                      }}>
-                        {SECTION_ICONS[table.section?.toLowerCase()] || '📍'} {table.section}
-                      </span>
-                    </div>
-                    <div style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
-                      <span style={{ filter: 'grayscale(1)', opacity: 0.7 }}>👥</span> {table.capacity} Seats
+                    <div style={{ fontWeight: 800, fontSize: 18, color: 'var(--text)' }}>{table.name}</div>
+                    
+                    <div style={{ display: 'flex', gap: 16, marginTop: 12 }}>
+                      <div style={{ display: 'flex', flexDirection: 'column' }}>
+                        <span style={{ fontSize: 9, color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 600 }}>Section</span>
+                        <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text)', textTransform: 'capitalize' }}>{SECTION_ICONS[table.section?.toLowerCase()] || '📍'} {table.section}</span>
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column' }}>
+                        <span style={{ fontSize: 9, color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 600 }}>Capacity</span>
+                        <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text)' }}>👥 {table.capacity}</span>
+                      </div>
                     </div>
                   </div>
 
                   {/* Actions */}
-                  <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end', marginTop: 16 }}>
+                  <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 16 }}>
                     {(enrichedStatus === 'served' || enrichedStatus === 'billing' || enrichedStatus === 'bill_requested') && (
                       <button 
-                        className="btn btn-primary btn-sm" 
-                        style={{ padding: '6px 12px', fontSize: 12, borderRadius: 8 }}
+                        style={{ padding: '6px 12px', fontSize: 12, borderRadius: 6, background: sc.color, color: '#fff', border: 'none', fontWeight: 700, cursor: 'pointer' }}
                         onClick={() => setBillModal(table)}
-                        title="View Bill"
                       >
                         🧾 Bill
                       </button>
                     )}
                     <button 
-                      className="btn btn-secondary btn-sm" 
-                      style={{ padding: '6px 12px', fontSize: 12, borderRadius: 8, background: 'var(--bg-card2)', color: 'var(--text)' }}
+                      style={{ padding: '6px 10px', fontSize: 12, borderRadius: 6, background: 'var(--bg)', color: 'var(--text)', border: '1px solid var(--border)', fontWeight: 600, cursor: 'pointer' }}
+                      onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-hover)'}
+                      onMouseLeave={e => e.currentTarget.style.background = 'var(--bg)'}
                       onClick={() => setQrModal(table)}
                       title="View QR Code"
                     >
                       📱 QR
                     </button>
                     <button 
-                      className="btn btn-secondary btn-sm" 
-                      style={{ padding: '6px 12px', fontSize: 12, borderRadius: 8, background: 'var(--bg-card2)', color: 'var(--text)' }}
+                      style={{ padding: '6px 10px', fontSize: 12, borderRadius: 6, background: 'var(--bg)', color: 'var(--text)', border: '1px solid var(--border)', fontWeight: 600, cursor: 'pointer' }}
+                      onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-hover)'}
+                      onMouseLeave={e => e.currentTarget.style.background = 'var(--bg)'}
                       onClick={() => setTableModal(table)}
                       title="Edit Table"
                     >
                       ✏️ Edit
                     </button>
                     <button 
-                      className="btn btn-secondary btn-sm" 
-                      style={{ padding: '6px 10px', fontSize: 12, borderRadius: 8, background: 'var(--bg-card2)' }}
+                      style={{ padding: '6px 10px', fontSize: 12, borderRadius: 6, background: 'rgba(239,68,68,0.1)', color: '#ef4444', border: '1px solid rgba(239,68,68,0.2)', cursor: 'pointer' }}
+                      onMouseEnter={e => e.currentTarget.style.background = 'rgba(239,68,68,0.2)'}
+                      onMouseLeave={e => e.currentTarget.style.background = 'rgba(239,68,68,0.1)'}
                       onClick={() => handleDelete(table.id)}
                       title="Delete Table"
                     >
-                      <span style={{ color: 'var(--danger)' }}>🗑️</span>
+                      🗑️
                     </button>
                   </div>
                 </div>
               </div>
+
+
             );
           })}
           {filtered.length === 0 && (

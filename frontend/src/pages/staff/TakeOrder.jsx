@@ -9,8 +9,6 @@ const ORDER_TYPES = [
   { key: 'dine_in',  label: 'Dine In',  icon: '🪑' },
   { key: 'takeaway', label: 'Takeaway', icon: '🥡' },
   { key: 'delivery', label: 'Delivery', icon: '🛵' },
-  { key: 'swiggy',   label: 'Swiggy',   icon: '🟠' },
-  { key: 'zomato',   label: 'Zomato',   icon: '🔴' },
 ];
 
 /* ── Icons ───────────────────────────────────────────────────── */

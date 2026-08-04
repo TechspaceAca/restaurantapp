@@ -10,6 +10,7 @@ const adminNav = [
   { section: 'Management' },
   { path: '/admin/menu', label: 'Menu Catalog', icon: '🍽️' },
   { path: '/admin/tables', label: 'Tables & QR', icon: '🪑' },
+  { path: '/admin/online', label: 'Swiggy & Zomato', icon: '🛵' },
   { path: '/admin/staff', label: 'Staff Users', icon: '👥' },
   { section: 'Configuration' },
   { path: '/admin/settings', label: 'Settings', icon: '⚙️' },
@@ -20,7 +21,6 @@ const staffNav = [
   { path: '/pos', label: 'Dining Tables', icon: '🪑', exact: true },
   { path: '/pos/order', label: 'Take Order', icon: '📝' },
   { path: '/pos/billing', label: 'Billing', icon: '🧾' },
-  { path: '/pos/online', label: 'Swiggy & Zomato', icon: '🛵' },
   { path: '/pos/history', label: 'Order History', icon: '📋' },
 ];
 

@@ -754,7 +754,6 @@ function OrderListItem({ order, isSelected, onSelect }) {
 const TABS = [
   { key: 'bill_requested', label: '🔔 Bill Requested' },
   { key: 'active', label: '🔥 Active Orders' },
-  { key: 'online', label: '🛵 Swiggy & Zomato' },
   { key: 'billed', label: '✅ Billed Today' },
 ];
 
@@ -788,12 +787,12 @@ export default function BillingPage() {
   const visibleOrders = allOrders.filter(o => {
     if (tab === 'bill_requested') {
       return !['billed', 'cancelled'].includes(o.status) &&
-        (o.bill_requested || o.table_status === 'bill_requested' || o.status === 'served');
+        (o.bill_requested || o.table_status === 'bill_requested' || o.status === 'served') &&
+        !['swiggy', 'zomato'].includes(o.order_type);
     }
-    if (tab === 'active') return !['billed', 'cancelled'].includes(o.status);
-    if (tab === 'online') {
+    if (tab === 'active') {
       return !['billed', 'cancelled'].includes(o.status) &&
-        ['swiggy', 'zomato', 'delivery'].includes(o.order_type);
+        !['swiggy', 'zomato'].includes(o.order_type);
     }
     if (tab === 'billed') {
       const today = new Date().toDateString();
