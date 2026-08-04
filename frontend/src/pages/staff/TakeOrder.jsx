@@ -13,6 +13,12 @@ const ORDER_TYPES = [
   { key: 'zomato',   label: 'Zomato',   icon: '🔴' },
 ];
 
+/* ── Icons ───────────────────────────────────────────────────── */
+const MinusIcon = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line></svg>;
+const PlusIcon = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>;
+
+
+
 /* ── Single menu-item card with Portion Selection ───────────── */
 function MenuItemCard({ item, cart, onAdd, onRemove }) {
   const fullPrice = Number(item.price);
@@ -100,10 +106,10 @@ function MenuItemCard({ item, cart, onAdd, onRemove }) {
 
         {/* Action Button */}
         {qty > 0 ? (
-          <div className="qty-control" onClick={e => e.stopPropagation()} style={{ width: '100%', justifyContent: 'space-between' }}>
-            <button className="qty-btn" onClick={() => onRemove(cartItemId)}>−</button>
+          <div className="qty-control">
+            <button className="qty-btn" onClick={() => onRemove(cartItemId)}><MinusIcon /></button>
             <span className="qty-num" style={{ fontSize: 12 }}>{qty} in cart</span>
-            <button className="qty-btn" onClick={handleAdd}>+</button>
+            <button className="qty-btn" onClick={handleAdd}><PlusIcon /></button>
           </div>
         ) : (
           <button
@@ -159,9 +165,9 @@ function CartPanel({ cart, total, selectedTable, activeOrder, addItemsMode, orde
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                   <div className="qty-control">
-                    <button className="qty-btn" onClick={() => onUpdateExistingItem(item.id, item.quantity - 1)}>−</button>
+                    <button className="qty-btn" onClick={() => onUpdateExistingItem(item.id, item.quantity - 1)}><MinusIcon /></button>
                     <span className="qty-num">{item.quantity}</span>
-                    <button className="qty-btn" onClick={() => onUpdateExistingItem(item.id, item.quantity + 1)}>+</button>
+                    <button className="qty-btn" onClick={() => onUpdateExistingItem(item.id, item.quantity + 1)}><PlusIcon /></button>
                   </div>
                   <span style={{ fontWeight: 700, minWidth: 44, textAlign: 'right' }}>₹{(item.quantity * item.unit_price).toFixed(0)}</span>
                 </div>
@@ -214,9 +220,9 @@ function CartPanel({ cart, total, selectedTable, activeOrder, addItemsMode, orde
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                   <div className="qty-control">
-                    <button className="qty-btn" onClick={() => onUpdateExistingItem(item.id, item.quantity - 1)} title="Decrease/Remove">−</button>
+                    <button className="qty-btn" onClick={() => onUpdateExistingItem(item.id, item.quantity - 1)} title="Decrease/Remove"><MinusIcon /></button>
                     <span className="qty-num">{item.quantity}</span>
-                    <button className="qty-btn" onClick={() => onUpdateExistingItem(item.id, item.quantity + 1)} title="Increase">+</button>
+                    <button className="qty-btn" onClick={() => onUpdateExistingItem(item.id, item.quantity + 1)} title="Increase"><PlusIcon /></button>
                   </div>
                   <div className="cart-item-price">₹{(item.quantity * item.unit_price).toFixed(0)}</div>
                 </div>
@@ -253,9 +259,9 @@ function CartPanel({ cart, total, selectedTable, activeOrder, addItemsMode, orde
                   }}
                 >📝</button>
                 <div className="qty-control">
-                  <button className="qty-btn" onClick={() => removeFromCart(item.id)}>−</button>
+                  <button className="qty-btn" onClick={() => removeFromCart(item.id)}><MinusIcon /></button>
                   <span className="qty-num">{item.qty}</span>
-                  <button className="qty-btn" onClick={() => addToCart(item)}>+</button>
+                  <button className="qty-btn" onClick={() => addToCart(item)}><PlusIcon /></button>
                 </div>
                 <div className="cart-item-price">₹{(item.price * item.qty).toFixed(0)}</div>
               </div>
@@ -343,7 +349,7 @@ export default function TakeOrder() {
   const [tables, setTables]         = useState([]);
   const [selectedCat, setSelectedCat] = useState(null);
   const [search, setSearch]         = useState('');
-  const [customerPhone, setCustomerPhone] = useState('8547189033');
+  const [customerPhone, setCustomerPhone] = useState('');
   const [customerName, setCustomerName]   = useState('');
   const [loading, setLoading]       = useState(true);
   const [placing, setPlacing]       = useState(false);
@@ -364,9 +370,17 @@ export default function TakeOrder() {
         menuApi.getItems({ available: 'true' }),
         tableApi.getTables(),
       ]);
+      const fetchedTables = Array.isArray(tableRes.data) ? tableRes.data : tableRes.data.results || [];
+      // Sort tables numerically by name/number for better UX
+      fetchedTables.sort((a, b) => {
+        const numA = a.number || parseInt(a.name.replace(/[^0-9]/g, '')) || 0;
+        const numB = b.number || parseInt(b.name.replace(/[^0-9]/g, '')) || 0;
+        return numA - numB;
+      });
+      
       setCategories(catRes.data);
       setAllItems(itemRes.data);
-      setTables(Array.isArray(tableRes.data) ? tableRes.data : tableRes.data.results || []);
+      setTables(fetchedTables);
       if (catRes.data.length > 0) {
         setSelectedCat(catRes.data[0].id);
       }
@@ -539,43 +553,28 @@ export default function TakeOrder() {
           </div>
         )}
 
-        {/* Table Selector Dropdown (when orderType is dine_in) */}
-        {orderType === 'dine_in' && (
-          <div style={{
-            background: 'var(--bg-card)', border: '1.5px solid var(--surface-border)',
-            borderRadius: 'var(--radius)', padding: '10px 14px', marginBottom: 14,
-            display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12,
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <span style={{ fontSize: 20 }}>🪑</span>
-              <div>
-                <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--text)' }}>
-                  {selectedTable ? selectedTable.name : 'Select Table'}
-                </div>
-                <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>
-                  {selectedTable
-                    ? (activeOrder ? `Occupied · Active Order #${activeOrder.id}` : `Available (${selectedTable.capacity || 4} seats)`)
-                    : 'Choose a dining table to attach items'
-                  }
-                </div>
-              </div>
-            </div>
-
+        {/* Table Selector (only if Dine In) */}
+        {orderType === 'dine_in' && !addItemsMode && (
+          <div style={{ marginBottom: 16 }}>
+            <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 6 }}>Select Table</div>
+            <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 8 }}>Choose a dining table to attach items</div>
             <select
-              className="form-select"
-              style={{
-                width: 'auto', minWidth: 180, fontWeight: 700,
-                color: selectedTable ? 'var(--primary)' : 'var(--text-muted)',
-                borderColor: selectedTable ? 'var(--primary)' : 'var(--border)',
-                background: 'var(--bg-card2)', cursor: 'pointer',
-              }}
+              className="input w-full"
               value={selectedTable?.id || ''}
-              onChange={e => handleSelectTable(e.target.value)}
+              onChange={(e) => {
+                const t = tables.find(t => t.id === Number(e.target.value));
+                setSelectedTable(t);
+              }}
+              style={{
+                background: 'var(--surface)', border: '1px solid var(--border)',
+                color: 'var(--text)', padding: '10px 14px', borderRadius: 8,
+                fontSize: 14, outline: 'none'
+              }}
             >
-              <option value="">-- Select Table --</option>
+              <option value="" style={{ background: '#1c1c1e', color: '#fff' }}>-- Select Table --</option>
               {tables.map(t => (
-                <option key={t.id} value={t.id}>
-                  {t.name || `Table ${t.number}`} {t.status === 'occupied' ? '🔴 (Occupied)' : t.status === 'bill_requested' ? '💜 (Bill Requested)' : '🟢 (Free)'}
+                <option key={t.id} value={t.id} disabled={t.status !== 'available'} style={{ background: '#1c1c1e', color: '#fff' }}>
+                  {t.name} {t.status === 'available' ? '🟢 (Free)' : '🔴 (Occupied)'}
                 </option>
               ))}
             </select>

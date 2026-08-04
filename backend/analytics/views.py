@@ -23,19 +23,21 @@ class DashboardSummaryView(APIView):
         month_ago = today - timedelta(days=30)
 
         # Today's revenue
-        today_bills = Bill.objects.filter(is_paid=True, created_at__date=today)
-        today_revenue = today_bills.aggregate(total=Sum('total'))['total'] or 0
+        today_orders_qs = Order.objects.filter(created_at__date=today, status='billed')
+        today_revenue = today_orders_qs.aggregate(
+            total=Sum(F('items__quantity') * F('items__unit_price'))
+        )['total'] or 0
         today_orders = Order.objects.filter(created_at__date=today).count()
 
         # This week
-        week_revenue = Bill.objects.filter(
-            is_paid=True, created_at__date__gte=week_ago
-        ).aggregate(total=Sum('total'))['total'] or 0
+        week_revenue = Order.objects.filter(
+            created_at__date__gte=week_ago, status='billed'
+        ).aggregate(total=Sum(F('items__quantity') * F('items__unit_price')))['total'] or 0
 
         # This month
-        month_revenue = Bill.objects.filter(
-            is_paid=True, created_at__date__gte=month_ago
-        ).aggregate(total=Sum('total'))['total'] or 0
+        month_revenue = Order.objects.filter(
+            created_at__date__gte=month_ago, status='billed'
+        ).aggregate(total=Sum(F('items__quantity') * F('items__unit_price')))['total'] or 0
 
         # Active orders
         active_orders = Order.objects.filter(
@@ -43,10 +45,11 @@ class DashboardSummaryView(APIView):
         ).count()
 
         # Average order value
-        avg_order = Bill.objects.filter(is_paid=True).aggregate(avg=Avg('total'))['avg'] or 0
-
-        # Total revenue all time
-        total_revenue = Bill.objects.filter(is_paid=True).aggregate(total=Sum('total'))['total'] or 0
+        total_billed_orders = Order.objects.filter(status='billed').count()
+        total_revenue = Order.objects.filter(status='billed').aggregate(
+            total=Sum(F('items__quantity') * F('items__unit_price'))
+        )['total'] or 0
+        avg_order = (total_revenue / total_billed_orders) if total_billed_orders > 0 else 0
 
         return Response({
             'today_revenue': float(today_revenue),
@@ -67,20 +70,20 @@ class RevenueChartView(APIView):
         period = request.query_params.get('period', 'daily')
 
         if period == 'monthly':
-            data = Bill.objects.filter(is_paid=True).annotate(
+            data = Order.objects.filter(status='billed').annotate(
                 date=TruncMonth('created_at')
             ).values('date').annotate(
-                revenue=Sum('total'), orders=Count('id')
+                revenue=Sum(F('items__quantity') * F('items__unit_price')), orders=Count('id', distinct=True)
             ).order_by('date')[:12]
         else:
             # Last 14 days
             days_ago = timezone.now().date() - timedelta(days=14)
-            data = Bill.objects.filter(
-                is_paid=True, created_at__date__gte=days_ago
+            data = Order.objects.filter(
+                created_at__date__gte=days_ago, status='billed'
             ).annotate(
                 date=TruncDate('created_at')
             ).values('date').annotate(
-                revenue=Sum('total'), orders=Count('id')
+                revenue=Sum(F('items__quantity') * F('items__unit_price')), orders=Count('id', distinct=True)
             ).order_by('date')
 
         return Response([

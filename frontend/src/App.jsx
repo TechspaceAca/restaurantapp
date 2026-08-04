@@ -75,6 +75,7 @@ export default function App() {
           </ProtectedRoute>
         }>
           <Route index element={<AdminDashboard />} />
+          <Route path="history" element={<OrderHistory />} />
           <Route path="menu" element={<MenuManager />} />
           <Route path="tables" element={<TableSetup />} />
           <Route path="staff" element={<StaffList />} />

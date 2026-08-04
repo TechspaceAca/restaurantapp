@@ -3,6 +3,7 @@ import Sidebar, { adminNav } from '../components/Sidebar';
 
 const pageTitles = {
   '/admin': 'Dashboard',
+  '/admin/history': 'Order History',
   '/admin/menu': 'Menu Catalog',
   '/admin/tables': 'Tables & QR Codes',
   '/admin/staff': 'Staff Management',

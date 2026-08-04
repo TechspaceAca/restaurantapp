@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react';
-import { tableApi } from '../../api';
+import { useNavigate } from 'react-router-dom';
+import { tableApi, orderApi } from '../../api';
 import toast from 'react-hot-toast';
+import { getEnrichedTableStatus, ENRICHED_STATUS_INFO } from '../../utils/tableUtils';
+import AdminBillModal from '../../components/AdminBillModal';
 
 const DEFAULT_SECTIONS = ['indoor', 'outdoor', 'terrace', 'private'];
 const SECTION_ICONS = { indoor: '🏠', outdoor: '🌳', terrace: '🌅', private: '🔒' };
@@ -196,17 +199,28 @@ function QRModal({ table, onClose }) {
 
 export default function TableSetup() {
   const [tables, setTables] = useState([]);
+  const [liveOrders, setLiveOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [tableModal, setTableModal] = useState(null);
   const [qrModal, setQrModal] = useState(null);
+  const [billModal, setBillModal] = useState(null);
   const [filterSection, setFilterSection] = useState('all');
+  const navigate = useNavigate();
 
   useEffect(() => { fetchTables(); }, []);
 
   const fetchTables = async () => {
     try {
-      const res = await tableApi.getTables();
+      const activeStatuses = ['pending', 'placed', 'confirmed', 'preparing', 'cooking', 'ready', 'served'];
+      const statusPromises = activeStatuses.map(status => orderApi.getOrders({ status }));
+
+      const [res, ...ordersResponses] = await Promise.all([
+        tableApi.getTables(),
+        ...statusPromises
+      ]);
       setTables(res.data);
+      const loData = ordersResponses.flatMap(r => Array.isArray(r.data) ? r.data : r.data?.results || []);
+      setLiveOrders(loData);
     } catch { toast.error('Failed to load tables'); }
     finally { setLoading(false); }
   };
@@ -259,33 +273,113 @@ export default function TableSetup() {
       {loading ? (
         <div className="loading-screen"><div className="spinner" /><p>Loading tables...</p></div>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 14 }}>
-          {filtered.map(table => (
-            <div key={table.id} className="card card-hover">
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
-                <div style={{ fontSize: 28, fontWeight: 900, color: table.status === 'available' ? 'var(--success)' : table.status === 'occupied' ? 'var(--danger)' : 'var(--warning)' }}>
-                  {table.number}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 14 }}>
+          {filtered.map(table => {
+            const enrichedStatus = getEnrichedTableStatus(table, liveOrders);
+            const sc = ENRICHED_STATUS_INFO[enrichedStatus] || ENRICHED_STATUS_INFO.available;
+            
+            return (
+              <div 
+                key={table.id} 
+                style={{ 
+                  display: 'flex',
+                  overflow: 'hidden',
+                  background: 'var(--bg-card)',
+                  borderRadius: 16,
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                  transition: 'transform 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                  minHeight: 140,
+                  border: '1px solid var(--border)'
+                }}
+                onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-4px)'}
+                onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
+              >
+                {/* Left Color Block */}
+                <div style={{
+                  width: 90,
+                  background: `linear-gradient(145deg, ${sc.color}, ${sc.dark})`,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#fff',
+                  borderRight: '2px dashed rgba(255,255,255,0.25)',
+                  padding: 10,
+                  position: 'relative'
+                }}>
+                  {/* Subtle inner shadow for depth */}
+                  <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, boxShadow: 'inset 0 4px 12px rgba(0,0,0,0.2)' }} />
+                  
+                  <div style={{ fontSize: 34, fontWeight: 900, lineHeight: 1, textShadow: '0 2px 10px rgba(0,0,0,0.5)', zIndex: 1 }}>
+                    {table.number.replace(/\D/g, '') || table.number}
+                  </div>
+                  <div style={{ 
+                    fontSize: 10, fontWeight: 800, letterSpacing: '0.1em', marginTop: 10, 
+                    textAlign: 'center', textTransform: 'uppercase', zIndex: 1,
+                    background: 'rgba(0,0,0,0.3)', padding: '4px 8px', borderRadius: 99
+                  }}>
+                    {sc.label}
+                  </div>
                 </div>
-                <span className="badge badge-muted" style={{ alignSelf: 'flex-start', textTransform: 'capitalize' }}>
-                  {SECTION_ICONS[table.section?.toLowerCase()] || '📍'} {table.section}
-                </span>
+
+                {/* Right Content Block */}
+                <div style={{ flex: 1, padding: '16px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                  <div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                      <div style={{ fontWeight: 800, fontSize: 17, color: 'var(--text)' }}>{table.name}</div>
+                      <span style={{ 
+                        background: 'var(--bg-card2)', padding: '4px 8px', borderRadius: 6, fontSize: 11, fontWeight: 700,
+                        display: 'flex', alignItems: 'center', gap: 4, textTransform: 'capitalize', color: 'var(--text-muted)'
+                      }}>
+                        {SECTION_ICONS[table.section?.toLowerCase()] || '📍'} {table.section}
+                      </span>
+                    </div>
+                    <div style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <span style={{ filter: 'grayscale(1)', opacity: 0.7 }}>👥</span> {table.capacity} Seats
+                    </div>
+                  </div>
+
+                  {/* Actions */}
+                  <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end', marginTop: 16 }}>
+                    {(enrichedStatus === 'served' || enrichedStatus === 'billing' || enrichedStatus === 'bill_requested') && (
+                      <button 
+                        className="btn btn-primary btn-sm" 
+                        style={{ padding: '6px 12px', fontSize: 12, borderRadius: 8 }}
+                        onClick={() => setBillModal(table)}
+                        title="View Bill"
+                      >
+                        🧾 Bill
+                      </button>
+                    )}
+                    <button 
+                      className="btn btn-secondary btn-sm" 
+                      style={{ padding: '6px 12px', fontSize: 12, borderRadius: 8, background: 'var(--bg-card2)', color: 'var(--text)' }}
+                      onClick={() => setQrModal(table)}
+                      title="View QR Code"
+                    >
+                      📱 QR
+                    </button>
+                    <button 
+                      className="btn btn-secondary btn-sm" 
+                      style={{ padding: '6px 12px', fontSize: 12, borderRadius: 8, background: 'var(--bg-card2)', color: 'var(--text)' }}
+                      onClick={() => setTableModal(table)}
+                      title="Edit Table"
+                    >
+                      ✏️ Edit
+                    </button>
+                    <button 
+                      className="btn btn-secondary btn-sm" 
+                      style={{ padding: '6px 10px', fontSize: 12, borderRadius: 8, background: 'var(--bg-card2)' }}
+                      onClick={() => handleDelete(table.id)}
+                      title="Delete Table"
+                    >
+                      <span style={{ color: 'var(--danger)' }}>🗑️</span>
+                    </button>
+                  </div>
+                </div>
               </div>
-              <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 4 }}>{table.name}</div>
-              <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 10 }}>
-                👥 {table.capacity} seats
-              </div>
-              <span className={`badge status-${table.status}`} style={{ marginBottom: 14, display: 'inline-flex' }}>
-                {table.status.charAt(0).toUpperCase() + table.status.slice(1)}
-              </span>
-              <div style={{ display: 'flex', gap: 6 }}>
-                <button className="btn btn-ghost btn-sm flex-1" onClick={() => setQrModal(table)}>
-                  📱 QR Code
-                </button>
-                <button className="btn btn-ghost btn-sm" onClick={() => setTableModal(table)}>✏️</button>
-                <button className="btn btn-ghost btn-sm" onClick={() => handleDelete(table.id)} style={{ color: 'var(--danger)' }}>🗑️</button>
-              </div>
-            </div>
-          ))}
+            );
+          })}
           {filtered.length === 0 && (
             <div style={{ gridColumn: '1/-1' }}>
               <div className="card">
@@ -309,6 +403,11 @@ export default function TableSetup() {
         />
       )}
       {qrModal && <QRModal table={qrModal} onClose={() => setQrModal(null)} />}
+      
+      {/* Bill Preview Modal */}
+      {billModal && (
+        <AdminBillModal table={billModal} onClose={() => setBillModal(null)} />
+      )}
     </div>
   );
 }

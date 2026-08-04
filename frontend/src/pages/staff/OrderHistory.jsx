@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import useStore from '../../store/useStore';
 import { orderApi } from '../../api';
 import toast from 'react-hot-toast';
 
@@ -35,6 +36,7 @@ function isThisWeek(dateStr) {
 }
 
 export default function OrderHistory() {
+  const { user } = useStore();
   const [orders, setOrders]     = useState([]);
   const [loading, setLoading]   = useState(true);
   const [expanded, setExpanded] = useState(null);
@@ -64,6 +66,9 @@ export default function OrderHistory() {
 
   /* ── Filter pipeline ── */
   const filtered = orders.filter(o => {
+    // Staff filter (if not admin, only show own orders)
+    if (user?.role !== 'admin' && o.created_by !== user?.id) return false;
+
     // Date filter
     if (dateFilter === 'today'  && !isToday(o.created_at))    return false;
     if (dateFilter === 'week'   && !isThisWeek(o.created_at)) return false;

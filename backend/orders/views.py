@@ -19,7 +19,10 @@ class OrderListCreateView(generics.ListCreateAPIView):
         table = self.request.query_params.get('table')
         order_type = self.request.query_params.get('order_type')
         if status_filter:
-            qs = qs.filter(status=status_filter)
+            if ',' in status_filter:
+                qs = qs.filter(status__in=[s.strip() for s in status_filter.split(',')])
+            else:
+                qs = qs.filter(status=status_filter)
         if table:
             qs = qs.filter(table_id=table)
         if order_type:

@@ -54,9 +54,13 @@ function KDSCard({ order, onItemUpdate, onOrderReady }) {
           <div
             key={item.id}
             className={`kds-item ${item.status === 'ready' ? 'done' : ''}`}
-            onClick={() => onItemUpdate(item.id, item.status === 'ready' ? 'preparing' : 'ready')}
+            onClick={() => {
+              if (item.status === 'pending' || item.status === 'placed') onItemUpdate(item.id, 'preparing');
+              else if (item.status === 'preparing') onItemUpdate(item.id, 'ready');
+              else if (item.status === 'ready') onItemUpdate(item.id, 'preparing');
+            }}
             style={{ cursor: 'pointer', padding: '12px 14px' }}
-            title="Click to mark item as ready"
+            title="Click to advance status"
           >
             <span className="kds-item-qty">{item.quantity}</span>
             <div style={{ flex: 1 }}>
@@ -84,10 +88,13 @@ function KDSCard({ order, onItemUpdate, onOrderReady }) {
             </div>
 
             <div style={{ marginLeft: 8 }}>
-              {item.status === 'ready'
-                ? <span style={{ color: 'var(--success)', fontSize: 20 }}>✅</span>
-                : <span style={{ color: 'var(--text-dim)', fontSize: 20 }}>⬜</span>
-              }
+              {item.status === 'ready' ? (
+                <span style={{ color: 'var(--success)', fontSize: 20 }}>✅</span>
+              ) : item.status === 'preparing' ? (
+                <span style={{ padding: '4px 10px', borderRadius: 99, background: '#f97316', color: '#fff', fontSize: 11, fontWeight: 800 }}>Cooking...</span>
+              ) : (
+                <span style={{ padding: '4px 10px', borderRadius: 99, background: '#fef3c7', color: '#d97706', fontSize: 11, fontWeight: 800 }}>Tap to Cook</span>
+              )}
             </div>
           </div>
         ))}

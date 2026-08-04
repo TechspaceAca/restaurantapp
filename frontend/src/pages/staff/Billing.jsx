@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { orderApi, billingApi } from '../../api';
+import { orderApi, billingApi, tableApi } from '../../api';
 import toast from 'react-hot-toast';
 
 /* ─── Constants ─────────────────────────────────────────────── */
@@ -29,7 +29,7 @@ const RESTAURANT_INFO = {
 /* ─── WhatsApp Send Modal ────────────────────────────────────── */
 /* ─── Send Customer Receipt Modal (WhatsApp / Email / SMS / Print) ────── */
 function CustomerReceiptModal({ bill, whatsappText, onClose }) {
-  const [phone, setPhone] = useState(bill.order_details?.customer_phone || bill.customer_phone || '8547189033');
+  const [phone, setPhone] = useState(bill.order_details?.customer_phone || bill.customer_phone || '');
   const [email, setEmail] = useState('');
   const [method, setMethod] = useState('wa'); // 'wa', 'email', 'sms', 'manual'
   const textRef = useRef(null);
@@ -341,7 +341,7 @@ function SettlePanel({ order, onBilled, onFormChange, currentForm }) {
     discount_amount: 0,
     discount_reason: '',
     payment_method: 'gpay',
-    customer_phone: order.customer_phone || '8547189033',
+    customer_phone: order.customer_phone || '',
     customer_name: order.customer_name || 'Guest',
     notes: '',
   });
@@ -371,8 +371,11 @@ function SettlePanel({ order, onBilled, onFormChange, currentForm }) {
         payment_method: form.payment_method,
         notes: form.notes,
       });
+      if (order.table) {
+        try { await tableApi.updateStatus(order.table, 'bill_requested'); } catch (e) {}
+      }
       setBillResult(res.data);
-      toast.success('🧾 Bill generated! Table is now free.');
+      toast.success(order.table ? '🧾 Bill generated! Table is now in BILLING status.' : '🧾 Bill generated!');
       onBilled();
       return res.data;
     } catch (e) {
@@ -400,7 +403,7 @@ function SettlePanel({ order, onBilled, onFormChange, currentForm }) {
     const generatedBill = await handleGenerateBill();
     if (generatedBill) {
       // 1. Immediately open WhatsApp Web/App with pre-filled bill text
-      let phone = form.customer_phone || order.customer_phone || '8547189033';
+      let phone = form.customer_phone || order.customer_phone || '';
       let num = phone.replace(/\D/g, '');
       if (num.startsWith('0')) num = '91' + num.slice(1);
       if (!num.startsWith('91') && num.length === 10) num = '91' + num;
@@ -497,6 +500,20 @@ function SettlePanel({ order, onBilled, onFormChange, currentForm }) {
             <button className="btn btn-secondary" style={{ justifyContent: 'center' }} onClick={handlePrint}>
               🖨️ Print Receipt
             </button>
+            {order.table && (
+              <button 
+                className="btn btn-secondary" 
+                style={{ justifyContent: 'center', borderColor: 'var(--danger)', color: 'var(--danger)', marginTop: 8 }} 
+                onClick={async () => {
+                  try {
+                    await tableApi.updateStatus(order.table, 'available');
+                    toast.success('Table cleared and is now available!');
+                  } catch (e) { toast.error('Failed to clear table'); }
+                }}
+              >
+                🧹 Clear Table (Mark Available)
+              </button>
+            )}
           </div>
         </div>
       ) : (
@@ -749,7 +766,6 @@ export default function BillingPage() {
   const [settleForm, setSettleForm] = useState({ include_gst: true, tax_percent: 5, discount_amount: 0 });
 
   const fetchOrders = useCallback(async () => {
-    setLoading(true);
     try {
       const res = await orderApi.getOrders();
       setAllOrders(res.data);
@@ -757,7 +773,10 @@ export default function BillingPage() {
     finally { setLoading(false); }
   }, []);
 
-  useEffect(() => { fetchOrders(); }, [fetchOrders]);
+  useEffect(() => { 
+    setLoading(true);
+    fetchOrders(); 
+  }, [fetchOrders]);
 
   /* Auto-refresh every 20s */
   useEffect(() => {

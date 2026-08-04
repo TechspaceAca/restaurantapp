@@ -1,7 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { analyticsApi, orderApi, tableApi, kitchenApi, menuApi } from '../../api';
 import toast from 'react-hot-toast';
-
+import AdminBillModal from '../../components/AdminBillModal';
+import { LayoutGrid, CheckSquare, Users, FileText, IndianRupee, TrendingUp } from 'lucide-react';
 // ─── Modals (reused from TableSetup / MenuManager) ──────────────────────────
 
 function TableModal({ table, onClose, onSave }) {
@@ -202,13 +204,23 @@ function ItemModal({ item, categories, onClose, onSave }) {
 
 // ─── Sub-components ──────────────────────────────────────────────────────────
 
-function StatCard({ icon, label, value, color, sub }) {
+function StatCard({ icon: Icon, label, value, color, sub }) {
   return (
-    <div className="stat-card">
-      <div className="stat-card-icon" style={{ background: color + '22' }}>{icon}</div>
-      <div className="stat-card-value">{value}</div>
-      <div className="stat-card-label">{label}</div>
-      {sub && <div className="stat-card-change up">{sub}</div>}
+    <div className="stat-card" style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <div style={{
+          background: color, color: '#fff',
+          width: '40px', height: '40px', borderRadius: '8px',
+          display: 'flex', alignItems: 'center', justifyContent: 'center'
+        }}>
+          <Icon size={20} />
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          <div style={{ fontSize: '18px', fontWeight: 800, color: 'var(--text)', lineHeight: 1.2 }}>{value}</div>
+          <div style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-muted)' }}>{label}</div>
+        </div>
+      </div>
+      {sub && <div style={{ fontSize: '10px', color: '#94a3b8', fontWeight: 500 }}>{sub}</div>}
     </div>
   );
 }
@@ -255,6 +267,7 @@ const TABLE_STATUS_COLOR = {
 // ─── Main Dashboard ──────────────────────────────────────────────────────────
 
 export default function AdminDashboard() {
+  const navigate = useNavigate();
   // Analytics
   const [stats,      setStats]      = useState(null);
   const [chart,      setChart]      = useState([]);
@@ -272,6 +285,7 @@ export default function AdminDashboard() {
   const [tableModal, setTableModal] = useState(null);
   const [qrModal,    setQrModal]    = useState(null);
   const [itemModal,  setItemModal]  = useState(null);
+  const [billModal,  setBillModal]  = useState(null);
   // UI
   const [loading, setLoading] = useState(true);
   const [kitchenActing, setKitchenActing] = useState({});
@@ -308,11 +322,22 @@ export default function AdminDashboard() {
     return () => clearInterval(interval);
   }, [fetchAll]);
 
-  const handleKitchenStart = async (orderId) => {
+  const handleKitchenAction = async (orderId, action) => {
     setKitchenActing(a => ({ ...a, [orderId]: true }));
-    try { await kitchenApi.markReady(orderId); toast.success('Marked as Ready!'); fetchAll(); }
-    catch { toast.error('Failed to update'); }
-    finally { setKitchenActing(a => ({ ...a, [orderId]: false })); }
+    try {
+      if (action === 'preparing') {
+        await kitchenApi.markPreparing(orderId);
+        toast.success('Started Preparing!');
+      } else {
+        await kitchenApi.markReady(orderId);
+        toast.success('Marked as Ready!');
+      }
+      fetchAll();
+    } catch {
+      toast.error('Failed to update');
+    } finally {
+      setKitchenActing(a => ({ ...a, [orderId]: false }));
+    }
   };
 
   const handleDeleteTable = async (id) => {
@@ -332,10 +357,20 @@ export default function AdminDashboard() {
     catch { toast.error('Failed to delete item'); }
   };
 
-  const activeTables  = tables.filter(t => t.status !== 'available').length;
+  const totalTables = tables.length;
+  const availableTables = tables.filter(t => t.status === 'available').length;
+  const billingTables = tables.filter(t => t.status === 'billing').length;
+  const occupiedTables = totalTables - availableTables - billingTables;
   const totalRevenue  = stats?.total_revenue || 0;
   const todayRevenue  = stats?.today_revenue || 0;
-  const displayTables = showAllTables ? tables : tables.slice(0, 6);
+  const statusPriority = { occupied: 1, billing: 2, cleaning: 3, available: 4 };
+  const sortedTables = [...tables].sort((a, b) => {
+    const pA = statusPriority[a.status] || 5;
+    const pB = statusPriority[b.status] || 5;
+    if (pA !== pB) return pA - pB;
+    return a.number.localeCompare(b.number, undefined, { numeric: true });
+  });
+  const displayTables = showAllTables ? sortedTables : sortedTables.slice(0, 5);
 
   // Revenue by channel
   const channelRevenue = (() => {
@@ -357,31 +392,20 @@ export default function AdminDashboard() {
 
   return (
     <div className="fade-in">
-      {/* ── Header ── */}
-      <div className="page-header">
-        <div>
-          <div className="page-title">Restaurant Executive Dashboard</div>
-          <div className="page-subtitle">Overview of Sales Revenue, Today's Sales, Real-Time Tables &amp; Menu Catalog</div>
-        </div>
-        <div style={{ display: 'flex', gap: 10 }}>
-          <button className="btn btn-secondary btn-sm" onClick={() => setTableModal('new')}>+ Add New Table</button>
-          <button className="btn btn-primary" onClick={() => setItemModal('new')}>+ Add New Dish</button>
-        </div>
-      </div>
-
       {/* ── KPI Row ── */}
-      <div className="grid-4 mb-4">
-        <StatCard icon="💰" label="Total Sales Revenue"  value={`₹${totalRevenue?.toFixed(1)}`}  color="#f97316" sub="Total Collections" />
-        <StatCard icon="📅" label="Today's Revenue"       value={`₹${todayRevenue?.toFixed(1)}`}  color="#22c55e" sub={`${stats?.today_orders || 0} Orders Today`} />
-        <StatCard icon="🪑" label="Occupied Tables"      value={`${activeTables} Seated`}        color="#3b82f6" sub={`${tables.length} Total Tables`} />
-        <StatCard icon="🍽️" label="Active Menu Items"    value={`${menuItems.length} Dishes`}    color="#8b5cf6" sub="Live on Menu" />
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '12px', marginBottom: '24px' }}>
+        <StatCard icon={LayoutGrid} label="Total Tables" value={totalTables} color="#8b5cf6" sub="All tables in the restaurant" />
+        <StatCard icon={CheckSquare} label="Available Tables" value={availableTables} color="#22c55e" sub="Ready for guests" />
+        <StatCard icon={Users} label="Occupied Tables" value={occupiedTables} color="#ef4444" sub="Currently in use" />
+        <StatCard icon={FileText} label="Billing Pending" value={billingTables} color="#f97316" sub="Waiting for payment" />
+        <StatCard icon={IndianRupee} label="Today's Sales" value={`₹${todayRevenue?.toFixed(0) || 0}`} color="#3b82f6" sub="Total sales today" />
+        <StatCard icon={TrendingUp} label="Today's Orders" value={stats?.today_orders || 0} color="#14b8a6" sub="Total orders today" />
       </div>
 
       {/* ── Table QR Grid ── */}
       <div className="card mb-4">
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
           <div style={{ fontWeight: 800, fontSize: 15 }}>Dining Table QR Codes &amp; Real-time Occupancy ({tables.length} Tables)</div>
-          <button className="btn btn-secondary btn-sm" onClick={() => setTableModal('new')}>+ Add New Table</button>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 12 }}>
           {displayTables.map(table => {
@@ -405,87 +429,95 @@ export default function AdminDashboard() {
                   {sc.label}
                 </span>
                 <br />
-                <button className="btn btn-primary btn-sm" style={{ width: '100%', fontSize: 12, padding: '6px' }} onClick={() => setQrModal(table)}>
+                {(table.status === 'served' || table.status === 'billing' || table.status === 'bill_requested') && (
+                  <button 
+                    className="btn btn-primary btn-sm" 
+                    style={{ width: '100%', fontSize: 12, padding: '6px', marginBottom: '6px' }} 
+                    onClick={() => setBillModal(table)}
+                  >
+                    🧾 Bill
+                  </button>
+                )}
+                <button className="btn btn-secondary btn-sm" style={{ width: '100%', fontSize: 12, padding: '6px' }} onClick={() => setQrModal(table)}>
                   📱 Real QR Sticker
                 </button>
               </div>
             );
           })}
         </div>
-        {tables.length > 6 && (
+        {tables.length > 5 && (
           <button
             className="btn btn-ghost btn-sm"
             style={{ marginTop: 14, width: '100%' }}
-            onClick={() => setShowAllTables(v => !v)}
+            onClick={() => navigate('/admin/tables')}
           >
-            {showAllTables ? '▲ Show Less' : `▼ Show More Tables (${tables.length - 6} More)`}
+            ▼ Show More Tables ({tables.length - 5} More)
           </button>
         )}
       </div>
 
-      {/* ── Admin Menu Management ── */}
+      {/* ── Kitchen Order Screen ── */}
       <div className="card mb-4">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-          <div style={{ fontWeight: 800, fontSize: 15 }}>Menu Catalog &amp; Pricing Management ({menuItems.length} Dishes)</div>
-          <button className="btn btn-primary btn-sm" onClick={() => setItemModal('new')}>+ Add Dish</button>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+          <div>
+            <div style={{ fontWeight: 800, fontSize: 15 }}>Order Queue</div>
+            <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>Dedicated cooking queue for kitchen chefs</div>
+          </div>
+          <div style={{ display: 'flex', gap: 10, fontSize: 12 }}>
+            <span style={{ padding: '3px 10px', borderRadius: 99, background: '#f97316', color: '#fff', fontWeight: 700 }}>
+              ACCEPTED: {kitchen.filter(k => k.status === 'pending' || k.status === 'confirmed').length}
+            </span>
+            <span style={{ padding: '3px 10px', borderRadius: 99, background: '#d97706', color: '#fff', fontWeight: 700 }}>
+              PREPARING: {kitchen.filter(k => k.status === 'preparing').length}
+            </span>
+            <span style={{ padding: '3px 10px', borderRadius: 99, background: '#059669', color: '#fff', fontWeight: 700 }}>
+              READY: {kitchen.filter(k => k.status === 'ready').length}
+            </span>
+          </div>
         </div>
-        {menuItems.length === 0 ? (
-          <div className="empty-state">
-            <div className="empty-state-icon">🍽️</div>
-            <div className="empty-state-text">No menu items yet. Add your first dish!</div>
+        {kitchen.length === 0 ? (
+          <div className="empty-state" style={{ padding: '24px 0' }}>
+            <div className="empty-state-icon">👨‍🍳</div>
+            <div className="empty-state-text">No active kitchen orders</div>
           </div>
         ) : (
-          <div style={{ overflowX: 'auto' }}>
-            <table className="data-table">
-              <thead>
-                <tr>
-                  <th>Dish</th>
-                  <th>Name</th>
-                  <th>Category</th>
-                  <th>Pricing</th>
-                  <th>Live Availability</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {menuItems.map(item => {
-                  const cat = categories.find(c => c.id === item.category);
-                  return (
-                    <tr key={item.id}>
-                      <td>
-                        {item.image
-                          ? <img src={item.image} alt={item.name} style={{ width: 40, height: 40, borderRadius: 8, objectFit: 'cover' }} />
-                          : <div style={{ width: 40, height: 40, borderRadius: 8, background: 'var(--bg-card2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }}>🍽️</div>
-                        }
-                      </td>
-                      <td style={{ fontWeight: 700 }}>{item.name}</td>
-                      <td><span className="badge badge-muted">{cat?.name || '—'}</span></td>
-                      <td style={{ fontSize: 13 }}>
-                        <span style={{ fontWeight: 700, color: 'var(--primary)' }}>Full: ₹{item.price}</span>
-                        {item.half_price && <span style={{ marginLeft: 6, color: 'var(--text-muted)' }}>Half: ₹{item.half_price}</span>}
-                        {item.quarter_price && <span style={{ marginLeft: 6, color: 'var(--text-muted)' }}>Quarter: ₹{item.quarter_price}</span>}
-                      </td>
-                      <td>
-                        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                          <button onClick={() => handleToggleItem(item.id)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
-                            <span className={`badge ${item.is_available ? 'badge-success' : 'badge-muted'}`}>
-                              {item.is_available ? 'In Stock' : 'Out of Stock'}
-                            </span>
-                          </button>
-                          <button className="btn btn-ghost btn-sm" onClick={() => setItemModal(item)} style={{ fontSize: 11 }}>📷 Upload Photo</button>
-                        </div>
-                      </td>
-                      <td>
-                        <div style={{ display: 'flex', gap: 6 }}>
-                          <button className="btn btn-ghost btn-sm" onClick={() => setItemModal(item)}>✏️ Edit</button>
-                          <button className="btn btn-ghost btn-sm" onClick={() => handleDeleteItem(item.id)} style={{ color: 'var(--danger)' }}>🗑️</button>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 14 }}>
+            {kitchen.map(order => {
+              const typeLabel = order.order_type === 'dine_in' ? 'Staff POS' : 'QR Self-Order';
+              const typeBg    = order.order_type === 'dine_in' ? '#3b82f6' : '#8b5cf6';
+              const isAccepted = order.status === 'pending' || order.status === 'confirmed';
+              return (
+                <div key={order.id} style={{ border: '1.5px solid var(--border)', borderRadius: 12, padding: 16, background: 'var(--bg-card)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+                    <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                      <span style={{ fontWeight: 800, fontSize: 13 }}>
+                        {order.table_number || `T-${order.table}`}
+                      </span>
+                      <span style={{ padding: '2px 8px', borderRadius: 99, fontSize: 11, fontWeight: 700, background: typeBg + '22', color: typeBg }}>
+                        {typeLabel}
+                      </span>
+                    </div>
+                    <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>#{order.id}</span>
+                  </div>
+                  <div style={{ marginBottom: 14 }}>
+                    {(order.items || []).map((item, idx) => (
+                      <div key={idx} style={{ display: 'flex', gap: 10, padding: '4px 0', borderBottom: '1px solid var(--border)', fontSize: 13 }}>
+                        <span style={{ fontWeight: 800, color: 'var(--primary)', minWidth: 20 }}>{item.quantity}×</span>
+                        <span style={{ fontWeight: 600 }}>{item.item_name || item.name} ({item.portion || 'Full'})</span>
+                      </div>
+                    ))}
+                  </div>
+                  <button
+                    className="btn btn-primary"
+                    style={{ width: '100%', background: '#d97706', borderColor: '#d97706' }}
+                    disabled={kitchenActing[order.id]}
+                    onClick={() => handleKitchenAction(order.id, isAccepted ? 'preparing' : 'ready')}
+                  >
+                    {kitchenActing[order.id] ? 'Updating...' : isAccepted ? '▶ Start Preparing' : '✅ Mark Ready'}
+                  </button>
+                </div>
+              );
+            })}
           </div>
         )}
       </div>
@@ -579,72 +611,6 @@ export default function AdminDashboard() {
           </div>
         </div>
       </div>
-
-      {/* ── Kitchen Order Screen ── */}
-      <div className="card mb-4">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
-          <div>
-            <div style={{ fontWeight: 800, fontSize: 15 }}>Kitchen Order Screen</div>
-            <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>Dedicated cooking queue for kitchen chefs</div>
-          </div>
-          <div style={{ display: 'flex', gap: 10, fontSize: 12 }}>
-            <span style={{ padding: '3px 10px', borderRadius: 99, background: '#f97316', color: '#fff', fontWeight: 700 }}>
-              PLACED: {kitchen.filter(k => k.status === 'placed').length}
-            </span>
-            <span style={{ padding: '3px 10px', borderRadius: 99, background: '#d97706', color: '#fff', fontWeight: 700 }}>
-              COOKING: {kitchen.filter(k => k.status === 'cooking').length}
-            </span>
-            <span style={{ padding: '3px 10px', borderRadius: 99, background: '#059669', color: '#fff', fontWeight: 700 }}>
-              READY: {kitchen.filter(k => k.status === 'ready').length}
-            </span>
-          </div>
-        </div>
-        {kitchen.length === 0 ? (
-          <div className="empty-state" style={{ padding: '24px 0' }}>
-            <div className="empty-state-icon">👨‍🍳</div>
-            <div className="empty-state-text">No active kitchen orders</div>
-          </div>
-        ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 14 }}>
-            {kitchen.map(order => {
-              const typeLabel = order.order_type === 'dine_in' ? 'Staff POS' : 'QR Self-Order';
-              const typeBg    = order.order_type === 'dine_in' ? '#3b82f6' : '#8b5cf6';
-              return (
-                <div key={order.id} style={{ border: '1.5px solid var(--border)', borderRadius: 12, padding: 16, background: 'var(--bg-card)' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-                    <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                      <span style={{ fontWeight: 800, fontSize: 13 }}>
-                        {order.table_number || `T-${order.table}`}
-                      </span>
-                      <span style={{ padding: '2px 8px', borderRadius: 99, fontSize: 11, fontWeight: 700, background: typeBg + '22', color: typeBg }}>
-                        {typeLabel}
-                      </span>
-                    </div>
-                    <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>#{order.id}</span>
-                  </div>
-                  <div style={{ marginBottom: 14 }}>
-                    {(order.items || []).map((item, idx) => (
-                      <div key={idx} style={{ display: 'flex', gap: 10, padding: '4px 0', borderBottom: '1px solid var(--border)', fontSize: 13 }}>
-                        <span style={{ fontWeight: 800, color: 'var(--primary)', minWidth: 20 }}>{item.quantity}×</span>
-                        <span style={{ fontWeight: 600 }}>{item.item_name || item.name} ({item.portion || 'Full'})</span>
-                      </div>
-                    ))}
-                  </div>
-                  <button
-                    className="btn btn-primary"
-                    style={{ width: '100%', background: '#d97706', borderColor: '#d97706' }}
-                    disabled={kitchenActing[order.id]}
-                    onClick={() => handleKitchenStart(order.id)}
-                  >
-                    {kitchenActing[order.id] ? 'Updating...' : order.status === 'placed' ? '▶ Start Cooking' : '✅ Mark Ready'}
-                  </button>
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
-
       {/* ── Revenue Chart + Top Items ── */}
       <div className="grid-2" style={{ gap: 16, marginBottom: 16 }}>
         <div className="card">
@@ -694,13 +660,7 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      {/* ── Today's Stats Row ── */}
-      <div className="grid-4">
-        <StatCard icon="🛒" label="Orders Today"    value={stats?.today_orders || 0}                           color="#22c55e" />
-        <StatCard icon="💵" label="Today's Revenue" value={`₹${stats?.today_revenue?.toFixed(0) || 0}`}        color="#f97316" sub="Today" />
-        <StatCard icon="🔥" label="Active Orders"   value={liveOrders.length}                                  color="#ef4444" />
-        <StatCard icon="⭐" label="Avg Order Value"  value={`₹${stats?.avg_order_value?.toFixed(0) || 0}`}     color="#8b5cf6" />
-      </div>
+
 
       {/* ── Modals ── */}
       {tableModal !== null && (
@@ -711,13 +671,10 @@ export default function AdminDashboard() {
         />
       )}
       {qrModal && <QRModal table={qrModal} onClose={() => setQrModal(null)} />}
-      {itemModal !== null && (
-        <ItemModal
-          item={itemModal === 'new' ? null : itemModal}
-          categories={categories}
-          onClose={() => setItemModal(null)}
-          onSave={() => { setItemModal(null); fetchAll(); }}
-        />
+
+      {/* Bill Preview Modal */}
+      {billModal && (
+        <AdminBillModal table={billModal} onClose={() => setBillModal(null)} />
       )}
     </div>
   );

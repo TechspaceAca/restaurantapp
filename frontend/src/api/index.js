@@ -53,6 +53,7 @@ export const billingApi = {
 export const kitchenApi = {
   getQueue: () => api.get('/kitchen/queue/'),
   updateItem: (itemId, status) => api.patch(`/kitchen/item/${itemId}/`, { status }),
+  markPreparing: (orderId) => api.patch(`/kitchen/order/${orderId}/preparing/`),
   markReady: (orderId) => api.patch(`/kitchen/order/${orderId}/ready/`),
 };
 

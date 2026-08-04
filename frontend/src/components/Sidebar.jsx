@@ -6,6 +6,7 @@ import { LogoFull } from './Logo';
 const adminNav = [
   { section: 'Overview' },
   { path: '/admin', label: 'Dashboard', icon: '📊', exact: true },
+  { path: '/admin/history', label: 'Order History', icon: '📋' },
   { section: 'Management' },
   { path: '/admin/menu', label: 'Menu Catalog', icon: '🍽️' },
   { path: '/admin/tables', label: 'Tables & QR', icon: '🪑' },

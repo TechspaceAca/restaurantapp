@@ -67,3 +67,22 @@ class MarkOrderReadyView(APIView):
         order.items.exclude(status='cancelled').update(status='ready')
         order.save()
         return Response(OrderSerializer(order).data)
+
+
+class MarkOrderPreparingView(APIView):
+    """PATCH /api/kitchen/order/<order_id>/preparing/ — mark whole order as preparing."""
+    permission_classes = [IsKitchenOrAdmin]
+
+    def patch(self, request, order_id):
+        try:
+            order = Order.objects.get(id=order_id)
+        except Order.DoesNotExist:
+            return Response({'error': 'Order not found'}, status=404)
+
+        if order.status not in ['pending', 'placed', 'confirmed']:
+            return Response({'error': f'Order is {order.status}, cannot start preparing'}, status=400)
+
+        order.status = 'preparing'
+        order.items.exclude(status='cancelled').update(status='preparing')
+        order.save()
+        return Response(OrderSerializer(order).data)
