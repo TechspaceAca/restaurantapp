@@ -470,9 +470,6 @@ export default function AdminDashboard() {
             <span style={{ padding: '3px 10px', borderRadius: 99, background: '#d97706', color: '#fff', fontWeight: 700 }}>
               PREPARING: {kitchen.filter(k => k.status === 'preparing' || ((k.status === 'pending' || k.status === 'confirmed') && (k.items || []).some(i => i.status === 'preparing' || i.status === 'ready'))).length}
             </span>
-            <span style={{ padding: '3px 10px', borderRadius: 99, background: '#059669', color: '#fff', fontWeight: 700 }}>
-              READY: {kitchen.filter(k => k.status === 'ready').length}
-            </span>
           </div>
         </div>
         {kitchen.length === 0 ? (

@@ -31,7 +31,7 @@ function KDSCard({ order, onItemUpdate, onOrderReady }) {
   const hasCookingNotes = activeItems.some(i => i.notes && i.notes.trim().length > 0);
 
   return (
-    <div className={`kds-card ${order.status}`} style={{ border: hasCookingNotes ? '2px solid #f59e0b' : undefined }}>
+    <div className={`kds-card ${order.status}`} style={{ border: hasCookingNotes ? '2px solid #f59e0b' : undefined, display: 'flex', flexDirection: 'column', height: '100%' }}>
       <div className={`kds-card-header ${order.status}-bg`}>
         <div>
           <div style={{ fontWeight: 900, fontSize: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -49,7 +49,7 @@ function KDSCard({ order, onItemUpdate, onOrderReady }) {
         <TimerBadge createdAt={order.created_at} />
       </div>
 
-      <div>
+      <div style={{ flex: 1, overflowY: 'auto', marginBottom: 12 }}>
         {activeItems.map(item => (
           <div
             key={item.id}
@@ -100,7 +100,7 @@ function KDSCard({ order, onItemUpdate, onOrderReady }) {
         ))}
       </div>
 
-      <div style={{ padding: '12px 16px', borderTop: '1px solid var(--surface-border)' }}>
+      <div style={{ padding: '12px 16px', borderTop: '1px solid var(--surface-border)', marginTop: 'auto' }}>
         {allDone ? (
           <button
             className="btn btn-success w-full"

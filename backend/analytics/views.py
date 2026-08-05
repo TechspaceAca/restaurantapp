@@ -129,5 +129,8 @@ class OrderTypeBreakdownView(APIView):
     def get(self, request):
         data = Order.objects.filter(
             status='billed'
-        ).values('order_type').annotate(count=Count('id')).order_by('-count')
+        ).values('order_type').annotate(
+            count=Count('id', distinct=True),
+            revenue=Sum(F('items__quantity') * F('items__unit_price'))
+        ).order_by('-count')
         return Response(list(data))
