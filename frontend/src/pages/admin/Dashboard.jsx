@@ -249,19 +249,19 @@ function RevenueBar({ data }) {
 }
 
 const STATUS_COLOR = {
-  placed:    { bg: '#fff7e6', color: '#f97316', label: 'PLACED' },
-  cooking:   { bg: '#fef3c7', color: '#d97706', label: 'COOKING' },
-  ready:     { bg: '#ecfdf5', color: '#059669', label: 'READY' },
-  served:    { bg: '#eff6ff', color: '#3b82f6', label: 'SERVED' },
-  paid:      { bg: '#f0fdf4', color: '#16a34a', label: 'PAID' },
-  cancelled: { bg: '#fef2f2', color: '#dc2626', label: 'CANCELLED' },
+  placed:    { bg: '#f9731615', color: '#f97316', label: 'PLACED' },
+  cooking:   { bg: '#d9770615', color: '#d97706', label: 'COOKING' },
+  ready:     { bg: '#05966915', color: '#059669', label: 'READY' },
+  served:    { bg: '#3b82f615', color: '#3b82f6', label: 'SERVED' },
+  paid:      { bg: '#16a34a15', color: '#16a34a', label: 'PAID' },
+  cancelled: { bg: '#dc262615', color: '#dc2626', label: 'CANCELLED' },
 };
 
 const TABLE_STATUS_COLOR = {
-  available:       { border: '#22c55e', bg: '#f0fdf4', badge: 'badge-success', label: 'AVAILABLE' },
-  occupied:        { border: '#f97316', bg: '#fff7ed', badge: 'badge-warning', label: 'OCCUPIED' },
-  bill_requested:  { border: '#8b5cf6', bg: '#f5f3ff', badge: 'badge-info',    label: 'BILL-REQUESTED' },
-  reserved:        { border: '#3b82f6', bg: '#eff6ff', badge: 'badge-info',    label: 'RESERVED' },
+  available:       { border: '#22c55e', bg: '#22c55e15', badge: 'badge-success', label: 'AVAILABLE' },
+  occupied:        { border: '#f97316', bg: '#f9731615', badge: 'badge-warning', label: 'OCCUPIED' },
+  bill_requested:  { border: '#8b5cf6', bg: '#8b5cf615', badge: 'badge-info',    label: 'BILL-REQUESTED' },
+  reserved:        { border: '#3b82f6', bg: '#3b82f615', badge: 'badge-info',    label: 'RESERVED' },
 };
 
 // ─── Main Dashboard ──────────────────────────────────────────────────────────
