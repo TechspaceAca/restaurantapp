@@ -116,7 +116,7 @@ function KDSCard({ order, onItemUpdate, onOrderReady }) {
               style={{ justifyContent: 'center', fontSize: 12 }}
               onClick={() => onOrderReady(order.id)}
             >
-              Skip → Ready
+              Mark Order Ready
             </button>
             <span style={{ fontSize: 11, color: 'var(--text-muted)', display: 'flex', alignItems: 'center' }}>
               {order.items.filter(i => i.status === 'ready').length}/{order.items.filter(i => i.status !== 'cancelled').length} done

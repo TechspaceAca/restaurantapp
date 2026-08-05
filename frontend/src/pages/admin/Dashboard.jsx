@@ -465,10 +465,10 @@ export default function AdminDashboard() {
           </div>
           <div style={{ display: 'flex', gap: 10, fontSize: 12 }}>
             <span style={{ padding: '3px 10px', borderRadius: 99, background: '#f97316', color: '#fff', fontWeight: 700 }}>
-              ACCEPTED: {kitchen.filter(k => k.status === 'pending' || k.status === 'confirmed').length}
+              ACCEPTED: {kitchen.filter(k => (k.status === 'pending' || k.status === 'confirmed') && !(k.items || []).some(i => i.status === 'preparing' || i.status === 'ready')).length}
             </span>
             <span style={{ padding: '3px 10px', borderRadius: 99, background: '#d97706', color: '#fff', fontWeight: 700 }}>
-              PREPARING: {kitchen.filter(k => k.status === 'preparing').length}
+              PREPARING: {kitchen.filter(k => k.status === 'preparing' || ((k.status === 'pending' || k.status === 'confirmed') && (k.items || []).some(i => i.status === 'preparing' || i.status === 'ready'))).length}
             </span>
             <span style={{ padding: '3px 10px', borderRadius: 99, background: '#059669', color: '#fff', fontWeight: 700 }}>
               READY: {kitchen.filter(k => k.status === 'ready').length}
@@ -485,7 +485,8 @@ export default function AdminDashboard() {
             {kitchen.map(order => {
               const typeLabel = order.order_type === 'dine_in' ? 'Staff POS' : 'QR Self-Order';
               const typeBg    = order.order_type === 'dine_in' ? '#3b82f6' : '#8b5cf6';
-              const isAccepted = order.status === 'pending' || order.status === 'confirmed';
+              const hasCookingItem = (order.items || []).some(i => i.status === 'preparing' || i.status === 'ready');
+              const isAccepted = (order.status === 'pending' || order.status === 'confirmed') && !hasCookingItem;
               return (
                 <div key={order.id} style={{ border: '1.5px solid var(--surface-border)', borderRadius: 12, padding: 16, background: 'var(--bg-card)', display: 'flex', flexDirection: 'column', height: '100%' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>

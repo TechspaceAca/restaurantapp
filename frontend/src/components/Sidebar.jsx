@@ -8,7 +8,7 @@ const adminNav = [
   { path: '/admin', label: 'Dashboard', icon: '📊', exact: true },
   { path: '/admin/history', label: 'Order History', icon: '📋' },
   { section: 'Management' },
-  { path: '/admin/menu', label: 'Menu Catalog', icon: '🍽️' },
+  { path: '/admin/menu', label: 'Menu Catalogue', icon: '🍽️' },
   { path: '/admin/tables', label: 'Tables & QR', icon: '🪑' },
   { path: '/admin/online', label: 'Swiggy & Zomato', icon: '🛵' },
   { path: '/admin/staff', label: 'Staff Users', icon: '👥' },
