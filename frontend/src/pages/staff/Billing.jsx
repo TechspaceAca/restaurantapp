@@ -928,7 +928,7 @@ export default function BillingPage() {
 
                 {/* Quick status action if not served yet */}
                 {selectedOrder.status === 'ready' ? (
-                  <div style={{ marginTop: 12 }}>
+                  <div style={{ marginTop: 16, maxWidth: 360, margin: '16px auto 0' }}>
                     <div className="card" style={{
                       background: 'rgba(34,197,94,0.12)', border: '1.5px solid #22c55e',
                       padding: '12px 14px', borderRadius: 12,
@@ -950,7 +950,7 @@ export default function BillingPage() {
                     </div>
                   </div>
                 ) : ['pending', 'confirmed', 'preparing'].includes(selectedOrder.status) ? (
-                  <div style={{ marginTop: 16 }}>
+                  <div style={{ marginTop: 16, maxWidth: 360, margin: '16px auto 0' }}>
                     <div style={{ background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.25)', borderRadius: 8, padding: '10px', textAlign: 'center' }}>
                       <div style={{ fontSize: 13, fontWeight: 800, color: '#f59e0b' }}>
                         👨‍🍳 Kitchen Preparing Order
@@ -961,7 +961,7 @@ export default function BillingPage() {
                     </div>
                   </div>
                 ) : selectedOrder.status === 'served' ? (
-                  <div style={{ marginTop: 16 }}>
+                  <div style={{ marginTop: 16, maxWidth: 360, margin: '16px auto 0' }}>
                     <div style={{ background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.25)', borderRadius: 8, padding: '10px', textAlign: 'center' }}>
                       <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--success)' }}>
                         🍽️ Food Served to Customer
