@@ -491,9 +491,6 @@ export default function AdminDashboard() {
                       <span style={{ fontWeight: 800, fontSize: 13 }}>
                         Table {order.table_number || order.table || 'Takeaway'}
                       </span>
-                      <span style={{ padding: '2px 8px', borderRadius: 99, fontSize: 11, fontWeight: 700, background: typeBg + '22', color: typeBg }}>
-                        {typeLabel}
-                      </span>
                     </div>
                     <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>Order #{order.id}</span>
                   </div>
@@ -549,9 +546,6 @@ export default function AdminDashboard() {
                           {order.items?.length || 0} items · ₹{order.subtotal || 0}
                         </div>
                       </div>
-                      <span style={{ padding: '2px 8px', borderRadius: 99, fontSize: 11, fontWeight: 700, background: typeBadgeColor + '22', color: typeBadgeColor }}>
-                        {typeLabel}
-                      </span>
                     </div>
                     <span style={{ padding: '4px 10px', borderRadius: 99, fontSize: 11, fontWeight: 800, background: sc.color + '22', color: sc.color, letterSpacing: '0.05em' }}>
                       {sc.label}
