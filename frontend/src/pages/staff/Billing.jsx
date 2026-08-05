@@ -949,25 +949,14 @@ export default function BillingPage() {
                     </div>
                   </div>
                 ) : ['pending', 'confirmed', 'preparing'].includes(selectedOrder.status) ? (
-                  <div style={{ marginTop: 12 }}>
-                    <div className="card" style={{
-                      background: 'rgba(245,158,11,0.12)', border: '1.5px solid #f59e0b',
-                      padding: '12px 14px', borderRadius: 12,
-                    }}>
-                      <div style={{ fontSize: 14, marginBottom: 8, fontWeight: 800, color: '#f59e0b', display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <span style={{ fontSize: 18 }}>👨‍🍳</span>
-                        <div>
-                          <div>KITCHEN APPROVAL REQUIRED</div>
-                          <div style={{ fontSize: 11, opacity: 0.85, fontWeight: 600 }}>Current Status: {STATUS_LABELS[selectedOrder.status]}</div>
-                        </div>
+                  <div style={{ marginTop: 16 }}>
+                    <div className="card" style={{ background: 'rgba(245,158,11,0.08)', borderColor: 'rgba(245,158,11,0.25)', textAlign: 'center' }}>
+                      <div style={{ fontSize: 13, fontWeight: 800, color: '#f59e0b' }}>
+                        👨‍🍳 Kitchen Preparing Order
                       </div>
-                      <button
-                        className="btn btn-warning"
-                        style={{ width: '100%', justifyContent: 'center', padding: '8px 12px', fontSize: 13, fontWeight: 700, borderRadius: 8, opacity: 0.8 }}
-                        disabled
-                      >
-                        Waiting for Kitchen...
-                      </button>
+                      <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 2 }}>
+                        Current Status: {STATUS_LABELS[selectedOrder.status]}
+                      </div>
                     </div>
                   </div>
                 ) : selectedOrder.status === 'served' ? (
