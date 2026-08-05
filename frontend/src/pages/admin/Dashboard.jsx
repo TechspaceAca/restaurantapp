@@ -507,14 +507,9 @@ export default function AdminDashboard() {
                       </div>
                     ))}
                   </div>
-                  <button
-                    className="btn btn-primary"
-                    style={{ width: '100%', background: '#d97706', borderColor: '#d97706' }}
-                    disabled={kitchenActing[order.id]}
-                    onClick={() => handleKitchenAction(order.id, isAccepted ? 'preparing' : 'ready')}
-                  >
-                    {kitchenActing[order.id] ? 'Updating...' : isAccepted ? '▶ Start Preparing' : '✅ Mark Ready'}
-                  </button>
+                  <div style={{ width: '100%', padding: '8px', background: isAccepted ? '#d9770615' : '#05966915', color: isAccepted ? '#d97706' : '#059669', textAlign: 'center', borderRadius: 8, fontWeight: 700, fontSize: 13 }}>
+                    {isAccepted ? 'Waiting to Prepare...' : 'Cooking in Kitchen...'}
+                  </div>
                 </div>
               );
             })}
@@ -550,7 +545,7 @@ export default function AdminDashboard() {
                     <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                       <div>
                         <div style={{ fontWeight: 800, fontSize: 14 }}>
-                          #{order.id} · {order.table_number || order.table_name || `T-${order.table}`}
+                          Order #{order.id} — Table {order.table_number || order.table_name || order.table}
                         </div>
                         <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 2 }}>
                           {order.items?.length || 0} items · ₹{order.total_amount || 0}
