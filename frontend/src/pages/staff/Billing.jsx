@@ -702,6 +702,7 @@ function OrderListItem({ order, isSelected, onSelect }) {
       onClick={() => onSelect(order)}
       style={{
         width: '100%', textAlign: 'left', padding: '12px 14px', cursor: 'pointer',
+        color: 'var(--text)',
         background: isSelected ? 'rgba(249,115,22,0.10)' : 'transparent',
         borderLeft: isSelected
           ? '4px solid var(--primary)'
@@ -950,7 +951,7 @@ export default function BillingPage() {
                   </div>
                 ) : ['pending', 'confirmed', 'preparing'].includes(selectedOrder.status) ? (
                   <div style={{ marginTop: 16 }}>
-                    <div className="card" style={{ background: 'rgba(245,158,11,0.08)', borderColor: 'rgba(245,158,11,0.25)', textAlign: 'center' }}>
+                    <div style={{ background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.25)', borderRadius: 8, padding: '10px', textAlign: 'center' }}>
                       <div style={{ fontSize: 13, fontWeight: 800, color: '#f59e0b' }}>
                         👨‍🍳 Kitchen Preparing Order
                       </div>
@@ -961,7 +962,7 @@ export default function BillingPage() {
                   </div>
                 ) : selectedOrder.status === 'served' ? (
                   <div style={{ marginTop: 16 }}>
-                    <div className="card" style={{ background: 'rgba(34,197,94,0.08)', borderColor: 'rgba(34,197,94,0.25)', textAlign: 'center' }}>
+                    <div style={{ background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.25)', borderRadius: 8, padding: '10px', textAlign: 'center' }}>
                       <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--success)' }}>
                         🍽️ Food Served to Customer
                       </div>
