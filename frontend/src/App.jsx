@@ -92,7 +92,6 @@ export default function App() {
           <Route index element={<TablesView />} />
           <Route path="order" element={<TakeOrder />} />
           <Route path="billing" element={<BillingPage />} />
-          <Route path="history" element={<OrderHistory />} />
         </Route>
 
         {/* Kitchen */}

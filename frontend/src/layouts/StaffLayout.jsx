@@ -8,7 +8,6 @@ const pageTitles = {
   '/pos':          '🪑 Dining Tables',
   '/pos/order':    '📝 Take Order',
   '/pos/billing':  '🧾 Billing',
-  '/pos/history':  '📋 Order History',
 };
 
 export default function StaffLayout() {
