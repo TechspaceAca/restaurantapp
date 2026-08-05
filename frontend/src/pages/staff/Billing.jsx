@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { orderApi, billingApi, tableApi } from '../../api';
 import toast from 'react-hot-toast';
+import useStore from '../../store/useStore';
 
 /* ─── Constants ─────────────────────────────────────────────── */
 const STATUS_LABELS = {
@@ -17,8 +18,6 @@ const PAYMENT_METHODS = [
   { key: 'complimentary', label: '🎁 Complimentary', icon: '🎁' },
 ];
 
-import { RESTAURANT_INFO } from '../../utils/config';
-
 /* ─── WhatsApp Send Modal ────────────────────────────────────── */
 /* ─── Send Customer Receipt Modal (WhatsApp / Email / SMS / Print) ────── */
 function CustomerReceiptModal({ bill, whatsappText, onClose }) {
@@ -26,6 +25,16 @@ function CustomerReceiptModal({ bill, whatsappText, onClose }) {
   const [email, setEmail] = useState('');
   const [method, setMethod] = useState('wa'); // 'wa', 'email', 'sms', 'manual'
   const textRef = useRef(null);
+  
+  const globalSettings = useStore(state => state.restaurantSettings) || {};
+  const RESTAURANT_INFO = {
+    name: globalSettings.name || 'T CLOCK RESTO CAFE',
+    tagline: globalSettings.tagline || 'Time for Tea, Time for Taste',
+    address: globalSettings.address || 'Main Road, Calicut, Kerala',
+    phone: globalSettings.phone || '+91 98765 43210',
+    gstin: globalSettings.gstin || '32ABCDE1234F1Z5',
+    footer: globalSettings.footer || 'Thank you for visiting T Clock Resto Cafe! 🌴',
+  };
 
   const getCleanPhone = () => {
     let num = phone.replace(/\D/g, '');
@@ -44,7 +53,7 @@ function CustomerReceiptModal({ bill, whatsappText, onClose }) {
 
   const sendViaEmail = () => {
     if (!email.trim()) { toast.error('Enter customer email ID'); return; }
-    const subject = encodeURIComponent(`Invoice ${bill.bill_number} — T Clock Resto Cafe`);
+    const subject = encodeURIComponent(`Invoice ${bill.bill_number} — ${RESTAURANT_INFO.name}`);
     const body = encodeURIComponent(whatsappText);
     window.location.href = `mailto:${email.trim()}?subject=${subject}&body=${body}`;
     toast.success('Opening Email Client! ✉️');
@@ -141,16 +150,13 @@ function CustomerReceiptModal({ bill, whatsappText, onClose }) {
               <button className="btn btn-secondary flex-1" onClick={handlePrint} style={{ justifyContent: 'center' }}>
                 🖨️ Print Receipt
               </button>
-              <a
-                href={waUrl}
-                target="_blank"
-                rel="noreferrer"
+              <button
                 className="btn btn-primary flex-1"
-                style={{ justifyContent: 'center', background: '#25D366', borderColor: '#25D366', color: '#fff', fontWeight: 800, textDecoration: 'none' }}
-                onClick={() => toast.success(`Opening WhatsApp for +${getCleanPhone()}! 📱`)}
+                style={{ justifyContent: 'center', background: '#25D366', borderColor: '#25D366', color: '#fff', fontWeight: 800 }}
+                onClick={sendViaWhatsApp}
               >
                 📲 Open WhatsApp & Send
-              </a>
+              </button>
             </div>
           </>
         )}
@@ -243,6 +249,15 @@ function CustomerReceiptModal({ bill, whatsappText, onClose }) {
 
 /* ─── Thermal Receipt Preview ────────────────────────────────── */
 function ReceiptPreview({ order, includeGst, taxPercent, discountAmount, discountReason }) {
+  const globalSettings = useStore(state => state.restaurantSettings) || {};
+  const RESTAURANT_INFO = {
+    name: globalSettings.name || 'T CLOCK RESTO CAFE',
+    tagline: globalSettings.tagline || 'Time for Tea, Time for Taste',
+    address: globalSettings.address || 'Main Road, Calicut, Kerala',
+    phone: globalSettings.phone || '+91 98765 43210',
+    gstin: globalSettings.gstin || '32ABCDE1234F1Z5',
+    footer: globalSettings.footer || 'Thank you for visiting T Clock Resto Cafe! 🌴',
+  };
   const subtotal = Number(order.subtotal);
   const tax = includeGst ? (subtotal * taxPercent) / 100 : 0;
   const discount = Number(discountAmount) || 0;
@@ -328,6 +343,15 @@ function ReceiptPreview({ order, includeGst, taxPercent, discountAmount, discoun
 
 /* ─── Settle Payment Panel ───────────────────────────────────── */
 function SettlePanel({ order, onBilled, onFormChange, currentForm }) {
+  const globalSettings = useStore(state => state.restaurantSettings) || {};
+  const RESTAURANT_INFO = {
+    name: globalSettings.name || 'T CLOCK RESTO CAFE',
+    tagline: globalSettings.tagline || 'Time for Tea, Time for Taste',
+    address: globalSettings.address || 'Main Road, Calicut, Kerala',
+    phone: globalSettings.phone || '+91 98765 43210',
+    gstin: globalSettings.gstin || '32ABCDE1234F1Z5',
+    footer: globalSettings.footer || 'Thank you for visiting T Clock Resto Cafe! 🌴',
+  };
   const [form, setForm] = useState({
     include_gst: true,
     tax_percent: 5,
@@ -395,22 +419,8 @@ function SettlePanel({ order, onBilled, onFormChange, currentForm }) {
   const handleGenerateAndPrintAndSend = async () => {
     const generatedBill = await handleGenerateBill();
     if (generatedBill) {
-      // 1. Immediately open WhatsApp Web/App with pre-filled bill text
-      let phone = form.customer_phone || order.customer_phone || '';
-      let num = phone.replace(/\D/g, '');
-      if (num.startsWith('0')) num = '91' + num.slice(1);
-      if (!num.startsWith('91') && num.length === 10) num = '91' + num;
-
-      const waText = generatedBill.whatsapp_text;
-      if (waText) {
-        const waUrl = `https://api.whatsapp.com/send?phone=${num}&text=${encodeURIComponent(waText)}`;
-        window.open(waUrl, '_blank');
-        toast.success(`Opening WhatsApp for +${num}! 📱`);
-      }
-
       setWaModal(true);
-
-      // 2. Launch thermal receipt print window after short delay so print dialog doesn't freeze browser JS
+      // Launch thermal receipt print window after short delay
       setTimeout(() => {
         handlePrint();
       }, 300);
@@ -753,6 +763,16 @@ const TABS = [
 
 export default function BillingPage() {
   const [allOrders, setAllOrders] = useState([]);
+  
+  const globalSettings = useStore(state => state.restaurantSettings) || {};
+  const RESTAURANT_INFO = {
+    name: globalSettings.name || 'T CLOCK RESTO CAFE',
+    tagline: globalSettings.tagline || 'Time for Tea, Time for Taste',
+    address: globalSettings.address || 'Main Road, Calicut, Kerala',
+    phone: globalSettings.phone || '+91 98765 43210',
+    gstin: globalSettings.gstin || '32ABCDE1234F1Z5',
+    footer: globalSettings.footer || 'Thank you for visiting T Clock Resto Cafe! 🌴',
+  };
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState('active');
   const [selectedOrder, setSelectedOrder] = useState(null);

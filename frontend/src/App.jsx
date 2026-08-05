@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import useStore from './store/useStore';
+import { authApi } from './api';
 
 // Layouts
 import AdminLayout from './layouts/AdminLayout';
@@ -41,10 +42,23 @@ function RoleRedirect() {
 
 export default function App() {
   const theme = useStore(state => state.theme);
+  const setRestaurantSettings = useStore(state => state.setRestaurantSettings);
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme || 'dark');
   }, [theme]);
+
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const res = await authApi.getSettings();
+        setRestaurantSettings(res.data);
+      } catch (e) {
+        console.error("Failed to load restaurant settings", e);
+      }
+    };
+    fetchSettings();
+  }, [setRestaurantSettings]);
 
   return (
     <HashRouter>

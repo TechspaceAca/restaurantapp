@@ -1,16 +1,18 @@
 import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
+import { authApi } from '../../api';
+import useStore from '../../store/useStore';
 
 const SETTINGS_KEY = 'tclock_restaurant_settings';
 
 const defaultSettings = {
-  restaurant_name: '',
-  tagline: '',
-  address: '',
-  phone: '',
-  gstin: '',
+  restaurant_name: 'T CLOCK RESTO CAFE',
+  tagline: 'Time for Tea, Time for Taste',
+  address: 'Main Road, Calicut, Kerala',
+  phone: '+91 98765 43210',
+  gstin: '32ABCDE1234F1Z5',
   logo_url: '',
-  footer_greeting: 'Thank you for dining with us! Please visit again.',
+  footer_greeting: 'Thank you for visiting T Clock Resto Cafe! 🌴',
   gst_percent: 5,
   service_charge: 0,
   currency: '₹',
@@ -51,12 +53,43 @@ export default function Settings() {
   const [saving, setSaving] = useState(false);
   const [activeTab, setActiveTab] = useState('restaurant');
 
+  const setRestaurantSettings = useStore(state => state.setRestaurantSettings);
+  const globalSettings = useStore(state => state.restaurantSettings);
+
   useEffect(() => {
+    // Load local UI settings (like dark mode default) from localStorage
     const saved = localStorage.getItem(SETTINGS_KEY);
     if (saved) {
       try { setForm(f => ({ ...f, ...JSON.parse(saved) })); } catch {}
     }
-  }, []);
+    
+    // Override with DB settings
+    if (globalSettings) {
+      setForm(f => ({
+        ...f,
+        restaurant_name: globalSettings.name || f.restaurant_name,
+        tagline: globalSettings.tagline || f.tagline,
+        address: globalSettings.address || f.address,
+        phone: globalSettings.phone || f.phone,
+        gstin: globalSettings.gstin || f.gstin,
+        footer_greeting: globalSettings.footer || f.footer_greeting,
+      }));
+    } else {
+      // Fetch if not available
+      authApi.getSettings().then(res => {
+        setRestaurantSettings(res.data);
+        setForm(f => ({
+          ...f,
+          restaurant_name: res.data.name || f.restaurant_name,
+          tagline: res.data.tagline || f.tagline,
+          address: res.data.address || f.address,
+          phone: res.data.phone || f.phone,
+          gstin: res.data.gstin || f.gstin,
+          footer_greeting: res.data.footer || f.footer_greeting,
+        }));
+      }).catch(console.error);
+    }
+  }, [globalSettings, setRestaurantSettings]);
 
   const set = (key, val) => setForm(f => ({ ...f, [key]: val }));
 
@@ -76,8 +109,21 @@ export default function Settings() {
       if (logoPreview) toSave.logo_url = logoPreview;
       localStorage.setItem(SETTINGS_KEY, JSON.stringify(toSave));
       setForm(toSave);
+      
+      // Save to database
+      const dbPayload = {
+        name: form.restaurant_name,
+        tagline: form.tagline,
+        address: form.address,
+        phone: form.phone,
+        gstin: form.gstin,
+        footer: form.footer_greeting,
+      };
+      const res = await authApi.updateSettings(dbPayload);
+      setRestaurantSettings(res.data);
+      
       toast.success('Settings saved successfully!');
-    } catch { toast.error('Failed to save settings'); }
+    } catch { toast.error('Failed to save settings to database'); }
     finally { setSaving(false); }
   };
 

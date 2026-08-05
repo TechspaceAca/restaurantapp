@@ -45,3 +45,28 @@ class StaffDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [IsAdmin]
+
+
+class RestaurantSettingsView(APIView):
+    """GET/PUT /api/auth/settings/ — get/update restaurant settings."""
+    permission_classes = [AllowAny] # GET is public (for staff POS)
+    
+    def get(self, request):
+        from .models import RestaurantSettings
+        from .serializers import RestaurantSettingsSerializer
+        settings = RestaurantSettings.load()
+        serializer = RestaurantSettingsSerializer(settings)
+        return Response(serializer.data)
+        
+    def put(self, request):
+        if not request.user.is_authenticated or request.user.role != 'admin':
+            return Response({'error': 'Admin only'}, status=status.HTTP_403_FORBIDDEN)
+            
+        from .models import RestaurantSettings
+        from .serializers import RestaurantSettingsSerializer
+        settings = RestaurantSettings.load()
+        serializer = RestaurantSettingsSerializer(settings, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

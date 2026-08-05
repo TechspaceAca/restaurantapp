@@ -2,11 +2,21 @@ import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { orderApi } from '../api';
 import toast from 'react-hot-toast';
-import { RESTAURANT_INFO } from '../utils/config';
+import useStore from '../store/useStore';
 
 export default function AdminBillModal({ table, onClose }) {
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
+  
+  const globalSettings = useStore(state => state.restaurantSettings) || {};
+  const RESTAURANT_INFO = {
+    name: globalSettings.name || 'T CLOCK RESTO CAFE',
+    tagline: globalSettings.tagline || 'Time for Tea, Time for Taste',
+    address: globalSettings.address || 'Main Road, Calicut, Kerala',
+    phone: globalSettings.phone || '+91 98765 43210',
+    gstin: globalSettings.gstin || '32ABCDE1234F1Z5',
+    footer: globalSettings.footer || 'Thank you for visiting T Clock Resto Cafe! 🌴',
+  };
 
   useEffect(() => {
     const fetchOrder = async () => {

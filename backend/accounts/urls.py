@@ -11,4 +11,5 @@ urlpatterns = [
     path('profile/', views.ProfileView.as_view(), name='profile'),
     path('staff/', views.StaffListView.as_view(), name='staff-list'),
     path('staff/<int:pk>/', views.StaffDetailView.as_view(), name='staff-detail'),
+    path('settings/', views.RestaurantSettingsView.as_view(), name='settings'),
 ]

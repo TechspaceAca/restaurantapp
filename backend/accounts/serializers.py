@@ -45,3 +45,9 @@ class CustomTokenSerializer(TokenObtainPairSerializer):
             'email': self.user.email,
         }
         return data
+
+
+class RestaurantSettingsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = __import__('accounts.models', fromlist=['RestaurantSettings']).RestaurantSettings
+        fields = ['name', 'tagline', 'address', 'phone', 'gstin', 'footer']

@@ -7,6 +7,8 @@ export const authApi = {
   createStaff: (data) => api.post('/auth/register/', data),
   updateStaff: (id, data) => api.patch(`/auth/staff/${id}/`, data),
   deleteStaff: (id) => api.delete(`/auth/staff/${id}/`),
+  getSettings: () => api.get('/auth/settings/'),
+  updateSettings: (data) => api.put('/auth/settings/', data),
 };
 
 export const menuApi = {

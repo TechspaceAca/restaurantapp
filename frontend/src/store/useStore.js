@@ -28,6 +28,10 @@ const useStore = create((set, get) => ({
     set({ theme: nextTheme });
   },
 
+  // ── Settings ─────────────────────────────────────────────────────
+  restaurantSettings: null,
+  setRestaurantSettings: (settings) => set({ restaurantSettings: settings }),
+
   // ── Cart ─────────────────────────────────────────────────────────
   cart: [],
   selectedTable: null,
