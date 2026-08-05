@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { X } from 'lucide-react';
 import { tableApi, orderApi } from '../../api';
 import toast from 'react-hot-toast';
 import { getEnrichedTableStatus, ENRICHED_STATUS_INFO } from '../../utils/tableUtils';
@@ -78,7 +79,7 @@ function TableModal({ table, existingSections = [], onClose, onSave }) {
       <div className="modal" style={{ maxWidth: 440 }} onClick={e => e.stopPropagation()}>
         <div className="modal-header">
           <div className="modal-title">{table?.id ? 'Edit Table' : 'Add New Table'}</div>
-          <button className="modal-close" onClick={onClose}>×</button>
+          <button className="modal-close" onClick={onClose}><X size={18} /></button>
         </div>
 
         <div className="grid-2" style={{ gap: 12 }}>
