@@ -526,8 +526,8 @@ export default function AdminDashboard() {
               <div className="empty-state-text">No active orders right now</div>
             </div>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              {liveOrders.slice(0, 6).map(order => {
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, maxHeight: 210, overflowY: 'auto', paddingRight: 4 }}>
+              {liveOrders.map(order => {
                 const sc = STATUS_COLOR[order.status] || STATUS_COLOR.placed;
                 const typeLabel = order.order_type === 'dine_in' ? 'Staff POS' : 'QR Self-Order';
                 const typeBadgeColor = order.order_type === 'dine_in' ? '#3b82f6' : '#8b5cf6';
