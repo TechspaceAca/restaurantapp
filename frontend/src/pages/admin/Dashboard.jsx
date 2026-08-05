@@ -546,7 +546,7 @@ export default function AdminDashboard() {
                           Order #{order.id} — Table {order.table_number || order.table_name || order.table}
                         </div>
                         <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 2 }}>
-                          {order.items?.length || 0} items · ₹{order.total_amount || 0}
+                          {order.items?.length || 0} items · ₹{order.subtotal || 0}
                         </div>
                       </div>
                       <span style={{ padding: '2px 8px', borderRadius: 99, fontSize: 11, fontWeight: 700, background: typeBadgeColor + '22', color: typeBadgeColor }}>
