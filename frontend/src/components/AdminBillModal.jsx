@@ -1,15 +1,8 @@
 import { useState, useEffect } from 'react';
+import { X } from 'lucide-react';
 import { orderApi } from '../api';
 import toast from 'react-hot-toast';
-
-const RESTAURANT_INFO = {
-  name: 'T CLOCK RESTO CAFE',
-  tagline: 'Time for Tea, Time for Taste',
-  address: 'Main Road, Calicut, Kerala',
-  phone: '+91 98765 43210',
-  gstin: '32ABCDE1234F1Z5',
-  footer: 'Thank you for visiting T Clock Resto Cafe! 🌴',
-};
+import { RESTAURANT_INFO } from '../utils/config';
 
 export default function AdminBillModal({ table, onClose }) {
   const [order, setOrder] = useState(null);
@@ -53,7 +46,7 @@ export default function AdminBillModal({ table, onClose }) {
       <div className="modal" style={{ maxWidth: 360, padding: 0 }} onClick={e => e.stopPropagation()}>
         <div className="modal-header" style={{ padding: '16px 20px', borderBottom: '1px solid var(--border)' }}>
           <div className="modal-title">Table {table.number} - Bill Preview</div>
-          <button className="modal-close" onClick={onClose}>×</button>
+          <button className="modal-close" onClick={onClose}><X size={18} /></button>
         </div>
         
         <div style={{ padding: '24px', background: '#fff', color: '#000', fontFamily: 'monospace', maxHeight: '70vh', overflowY: 'auto' }}>

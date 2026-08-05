@@ -17,14 +17,7 @@ const PAYMENT_METHODS = [
   { key: 'complimentary', label: '🎁 Complimentary', icon: '🎁' },
 ];
 
-const RESTAURANT_INFO = {
-  name: 'T CLOCK RESTO CAFE',
-  tagline: 'Time for Tea, Time for Taste',
-  address: 'Main Road, Calicut, Kerala',
-  phone: '+91 98765 43210',
-  gstin: '32ABCDE1234F1Z5',
-  footer: 'Thank you for visiting T Clock Resto Cafe! 🌴',
-};
+import { RESTAURANT_INFO } from '../../utils/config';
 
 /* ─── WhatsApp Send Modal ────────────────────────────────────── */
 /* ─── Send Customer Receipt Modal (WhatsApp / Email / SMS / Print) ────── */
