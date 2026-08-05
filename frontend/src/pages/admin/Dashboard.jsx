@@ -487,7 +487,7 @@ export default function AdminDashboard() {
               const typeBg    = order.order_type === 'dine_in' ? '#3b82f6' : '#8b5cf6';
               const isAccepted = order.status === 'pending' || order.status === 'confirmed';
               return (
-                <div key={order.id} style={{ border: '1.5px solid var(--border)', borderRadius: 12, padding: 16, background: 'var(--bg-card)' }}>
+                <div key={order.id} style={{ border: '1.5px solid var(--border)', borderRadius: 12, padding: 16, background: 'var(--bg-card)', display: 'flex', flexDirection: 'column', height: '100%' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
                     <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                       <span style={{ fontWeight: 800, fontSize: 13 }}>
@@ -499,7 +499,7 @@ export default function AdminDashboard() {
                     </div>
                     <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>#{order.id}</span>
                   </div>
-                  <div style={{ marginBottom: 14 }}>
+                  <div style={{ flex: 1, marginBottom: 14, maxHeight: 110, overflowY: 'auto', paddingRight: 4 }}>
                     {(order.items || []).map((item, idx) => (
                       <div key={idx} style={{ display: 'flex', gap: 10, padding: '4px 0', borderBottom: '1px solid var(--border)', fontSize: 13 }}>
                         <span style={{ fontWeight: 800, color: 'var(--primary)', minWidth: 20 }}>{item.quantity}×</span>
@@ -507,7 +507,7 @@ export default function AdminDashboard() {
                       </div>
                     ))}
                   </div>
-                  <div style={{ width: '100%', padding: '8px', background: isAccepted ? '#d9770615' : '#05966915', color: isAccepted ? '#d97706' : '#059669', textAlign: 'center', borderRadius: 8, fontWeight: 700, fontSize: 13 }}>
+                  <div style={{ width: '100%', padding: '8px', background: isAccepted ? '#d9770615' : '#05966915', color: isAccepted ? '#d97706' : '#059669', textAlign: 'center', borderRadius: 8, fontWeight: 700, fontSize: 13, marginTop: 'auto' }}>
                     {isAccepted ? 'Waiting to Prepare...' : 'Cooking in Kitchen...'}
                   </div>
                 </div>
