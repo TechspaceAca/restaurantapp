@@ -487,23 +487,23 @@ export default function AdminDashboard() {
               const typeBg    = order.order_type === 'dine_in' ? '#3b82f6' : '#8b5cf6';
               const isAccepted = order.status === 'pending' || order.status === 'confirmed';
               return (
-                <div key={order.id} style={{ border: '1.5px solid var(--border)', borderRadius: 12, padding: 16, background: 'var(--bg-card)', display: 'flex', flexDirection: 'column', height: '100%' }}>
+                <div key={order.id} style={{ border: '1.5px solid var(--surface-border)', borderRadius: 12, padding: 16, background: 'var(--bg-card)', display: 'flex', flexDirection: 'column', height: '100%' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
                     <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                       <span style={{ fontWeight: 800, fontSize: 13 }}>
-                        {order.table_number || `T-${order.table}`}
+                        Table {order.table_number || order.table || 'Takeaway'}
                       </span>
                       <span style={{ padding: '2px 8px', borderRadius: 99, fontSize: 11, fontWeight: 700, background: typeBg + '22', color: typeBg }}>
                         {typeLabel}
                       </span>
                     </div>
-                    <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>#{order.id}</span>
+                    <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>Order #{order.id}</span>
                   </div>
                   <div style={{ flex: 1, marginBottom: 14, maxHeight: 110, overflowY: 'auto', paddingRight: 4 }}>
                     {(order.items || []).map((item, idx) => (
-                      <div key={idx} style={{ display: 'flex', gap: 10, padding: '4px 0', borderBottom: '1px solid var(--border)', fontSize: 13 }}>
+                      <div key={idx} style={{ display: 'flex', gap: 10, padding: '4px 0', borderBottom: '1px solid var(--surface-border)', fontSize: 13 }}>
                         <span style={{ fontWeight: 800, color: 'var(--primary)', minWidth: 20 }}>{item.quantity}×</span>
-                        <span style={{ fontWeight: 600 }}>{item.item_name || item.name} ({item.portion || 'Full'})</span>
+                        <span style={{ fontWeight: 600 }}>{item.menu_item_name || item.item_name || item.name || 'Item'} ({item.portion || 'Full'})</span>
                       </div>
                     ))}
                   </div>
