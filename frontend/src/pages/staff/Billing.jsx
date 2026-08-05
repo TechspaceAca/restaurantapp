@@ -927,52 +927,46 @@ export default function BillingPage() {
 
                 {/* Quick status action if not served yet */}
                 {selectedOrder.status === 'ready' ? (
-                  <div style={{ marginTop: 16 }}>
+                  <div style={{ marginTop: 12 }}>
                     <div className="card" style={{
-                      background: 'rgba(34,197,94,0.18)', border: '3px solid #22c55e',
-                      padding: '20px 22px', borderRadius: 20, boxShadow: '0 8px 30px rgba(34,197,94,0.35)',
+                      background: 'rgba(34,197,94,0.12)', border: '1.5px solid #22c55e',
+                      padding: '12px 14px', borderRadius: 12,
                     }}>
-                      <div style={{ fontSize: 18, marginBottom: 8, fontWeight: 900, color: '#22c55e', display: 'flex', alignItems: 'center', gap: 10 }}>
-                        <span style={{ fontSize: 26 }}>🔔</span>
+                      <div style={{ fontSize: 14, marginBottom: 8, fontWeight: 800, color: '#22c55e', display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <span style={{ fontSize: 18 }}>🔔</span>
                         <div>
                           <div>FOOD IS READY TO SERVE!</div>
-                          <div style={{ fontSize: 12, opacity: 0.9, fontWeight: 700 }}>Kitchen Status: Ready 🛎️</div>
+                          <div style={{ fontSize: 11, opacity: 0.9, fontWeight: 600 }}>Kitchen Status: Ready</div>
                         </div>
-                      </div>
-                      <div style={{ fontSize: 14, color: '#ffffff', marginBottom: 16, fontWeight: 800, lineHeight: 1.5, background: 'rgba(0,0,0,0.3)', padding: '12px 14px', borderRadius: 12, borderLeft: '4px solid #22c55e' }}>
-                        ✨ Kitchen staff has prepared this order! Click below to mark as served & proceed to billing.
                       </div>
                       <button
                         className="btn btn-success"
-                        style={{ width: '100%', justifyContent: 'center', padding: '14px 18px', fontSize: 15, fontWeight: 900, borderRadius: 14, boxShadow: '0 4px 16px rgba(34,197,94,0.4)' }}
+                        style={{ width: '100%', justifyContent: 'center', padding: '8px 12px', fontSize: 13, fontWeight: 700, borderRadius: 8 }}
                         onClick={() => handleStatusUpdate(selectedOrder.id, 'served')}
                       >
-                        ✅ Mark as Served — then bill
+                        ✅ Mark as Served
                       </button>
                     </div>
                   </div>
                 ) : ['pending', 'confirmed', 'preparing'].includes(selectedOrder.status) ? (
-                  <div style={{ marginTop: 16 }}>
+                  <div style={{ marginTop: 12 }}>
                     <div className="card" style={{
-                      background: 'rgba(245,158,11,0.18)', border: '3px solid #f59e0b',
-                      padding: '20px 22px', borderRadius: 20, boxShadow: '0 8px 30px rgba(245,158,11,0.35)',
+                      background: 'rgba(245,158,11,0.12)', border: '1.5px solid #f59e0b',
+                      padding: '12px 14px', borderRadius: 12,
                     }}>
-                      <div style={{ fontSize: 18, marginBottom: 8, fontWeight: 900, color: '#f59e0b', display: 'flex', alignItems: 'center', gap: 10 }}>
-                        <span style={{ fontSize: 26 }}>👨‍🍳</span>
+                      <div style={{ fontSize: 14, marginBottom: 8, fontWeight: 800, color: '#f59e0b', display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <span style={{ fontSize: 18 }}>👨‍🍳</span>
                         <div>
                           <div>KITCHEN APPROVAL REQUIRED</div>
-                          <div style={{ fontSize: 12, opacity: 0.85, fontWeight: 700 }}>Current Status: {STATUS_LABELS[selectedOrder.status]}</div>
+                          <div style={{ fontSize: 11, opacity: 0.85, fontWeight: 600 }}>Current Status: {STATUS_LABELS[selectedOrder.status]}</div>
                         </div>
                       </div>
-                      <div style={{ fontSize: 14, color: '#ffffff', marginBottom: 16, fontWeight: 800, lineHeight: 1.5, background: 'rgba(0,0,0,0.3)', padding: '12px 14px', borderRadius: 12, borderLeft: '4px solid #f59e0b' }}>
-                        ⚠️ Order request must be accepted & prepared from the kitchen side first before serving!
-                      </div>
                       <button
-                        className="btn btn-success"
-                        style={{ width: '100%', justifyContent: 'center', padding: '14px 18px', fontSize: 15, fontWeight: 900, borderRadius: 14, boxShadow: '0 4px 16px rgba(34,197,94,0.4)' }}
-                        onClick={() => handleStatusUpdate(selectedOrder.id, 'served')}
+                        className="btn btn-warning"
+                        style={{ width: '100%', justifyContent: 'center', padding: '8px 12px', fontSize: 13, fontWeight: 700, borderRadius: 8, opacity: 0.8 }}
+                        disabled
                       >
-                        ✅ Mark as Served — then bill
+                        Waiting for Kitchen...
                       </button>
                     </div>
                   </div>
