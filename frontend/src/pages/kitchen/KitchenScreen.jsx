@@ -49,7 +49,7 @@ function KDSCard({ order, onItemUpdate, onOrderReady }) {
         <TimerBadge createdAt={order.created_at} />
       </div>
 
-      <div style={{ flex: 1, overflowY: 'auto', marginBottom: 12 }}>
+      <div style={{ flex: 1, overflowY: 'auto', marginBottom: 12, maxHeight: 180, paddingRight: 4 }}>
         {activeItems.map(item => (
           <div
             key={item.id}
