@@ -880,7 +880,7 @@ export default function BillingPage() {
         <div className="loading-screen"><div className="spinner" /><p>Loading orders…</p></div>
       ) : (
         /* ── Two-column billing layout ── */
-        <div style={{ display: 'grid', gridTemplateColumns: '320px 1fr', gap: 20, alignItems: 'start' }}>
+        <div className="billing-page-layout">
 
           {/* LEFT: Order queue */}
           <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
