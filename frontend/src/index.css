@@ -1119,3 +1119,23 @@ input, select, textarea { font-family: inherit; outline: none; }
   .kpi-grid { grid-template-columns: 1fr; }
 }
 
+
+/* Menu Layout Grid */
+.menu-layout {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 16px;
+}
+@media (max-width: 768px) {
+  .menu-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+

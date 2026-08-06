@@ -247,7 +247,7 @@ export default function MenuManager() {
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '220px 1fr', gap: 16 }}>
+      <div className="menu-layout">
         {/* Categories Panel */}
         <div className="card" style={{ padding: 12, alignSelf: 'start' }}>
           <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 8, padding: '0 6px' }}>
@@ -309,52 +309,54 @@ export default function MenuManager() {
             </div>
           ) : (
             <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
-              <table className="data-table">
-                <thead>
-                  <tr>
-                    <th>Item</th>
-                    <th>Price</th>
-                    <th>Type</th>
-                    <th>Prep</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredItems.map(item => (
-                    <tr key={item.id}>
-                      <td>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                          {item.is_veg ? <div className="veg-dot" /> : <div className="nonveg-dot" />}
-                          <div>
-                            <div style={{ fontWeight: 600, fontSize: 13 }}>
-                              {item.name}
-                              {item.is_featured && <span style={{ marginLeft: 6, fontSize: 11 }}>⭐</span>}
-                            </div>
-                            {item.description && <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>{item.description.slice(0, 50)}</div>}
-                          </div>
-                        </div>
-                      </td>
-                      <td style={{ fontWeight: 700, color: 'var(--primary)' }}>₹{item.price}</td>
-                      <td><span className={`badge ${item.is_veg ? 'badge-success' : 'badge-danger'}`}>{item.is_veg ? 'Veg' : 'Non-Veg'}</span></td>
-                      <td style={{ fontSize: 12, color: 'var(--text-muted)' }}>{item.prep_time}m</td>
-                      <td>
-                        <button onClick={() => handleToggleItem(item.id)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
-                          <span className={`badge ${item.is_available ? 'badge-success' : 'badge-muted'}`}>
-                            {item.is_available ? 'Available' : 'Unavailable'}
-                          </span>
-                        </button>
-                      </td>
-                      <td>
-                        <div style={{ display: 'flex', gap: 6 }}>
-                          <button className="btn btn-ghost btn-sm" onClick={() => setItemModal(item)}>✏️ Edit</button>
-                          <button className="btn btn-ghost btn-sm" onClick={() => handleDeleteItem(item.id)} style={{ color: 'var(--danger)' }}>🗑️</button>
-                        </div>
-                      </td>
+              <div className="table-responsive">
+                <table className="data-table">
+                  <thead>
+                    <tr>
+                      <th>Item</th>
+                      <th>Price</th>
+                      <th>Type</th>
+                      <th>Prep</th>
+                      <th>Status</th>
+                      <th>Actions</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {filteredItems.map(item => (
+                      <tr key={item.id}>
+                        <td>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                            {item.is_veg ? <div className="veg-dot" /> : <div className="nonveg-dot" />}
+                            <div>
+                              <div style={{ fontWeight: 600, fontSize: 13 }}>
+                                {item.name}
+                                {item.is_featured && <span style={{ marginLeft: 6, fontSize: 11 }}>⭐</span>}
+                              </div>
+                              {item.description && <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>{item.description.slice(0, 50)}</div>}
+                            </div>
+                          </div>
+                        </td>
+                        <td style={{ fontWeight: 700, color: 'var(--primary)' }}>₹{item.price}</td>
+                        <td><span className={`badge ${item.is_veg ? 'badge-success' : 'badge-danger'}`}>{item.is_veg ? 'Veg' : 'Non-Veg'}</span></td>
+                        <td style={{ fontSize: 12, color: 'var(--text-muted)' }}>{item.prep_time}m</td>
+                        <td>
+                          <button onClick={() => handleToggleItem(item.id)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
+                            <span className={`badge ${item.is_available ? 'badge-success' : 'badge-muted'}`}>
+                              {item.is_available ? 'Available' : 'Unavailable'}
+                            </span>
+                          </button>
+                        </td>
+                        <td>
+                          <div style={{ display: 'flex', gap: 6 }}>
+                            <button className="btn btn-ghost btn-sm" onClick={() => setItemModal(item)}>✏️ Edit</button>
+                            <button className="btn btn-ghost btn-sm" onClick={() => handleDeleteItem(item.id)} style={{ color: 'var(--danger)' }}>🗑️</button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           )}
         </div>
