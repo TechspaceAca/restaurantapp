@@ -176,22 +176,15 @@ export default function KitchenScreen() {
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg)' }}>
       {/* Kitchen Header */}
-      <header style={{
-        background: 'var(--bg-sidebar)',
-        borderBottom: '1px solid var(--surface-border)',
-        padding: '0 24px',
-        height: 'var(--header-h)',
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        position: 'sticky', top: 0, zIndex: 100,
-      }}>
+      <header className="kitchen-header">
         <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-          <LogoIcon size={40} />
+          <LogoIcon size={32} />
           <div>
             <div style={{ fontWeight: 800, fontSize: 16 }}>👨‍🍳 Kitchen Display System</div>
-            <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>T CLOCK RESTO CAFE · Auto-refreshes every 5s</div>
+            <div className="kitchen-subtitle" style={{ fontSize: 11, color: 'var(--text-muted)' }}>T CLOCK RESTO CAFE · Auto-refreshes every 5s</div>
           </div>
         </div>
-        <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+        <div className="kitchen-header-right" style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
           <div style={{
             padding: '5px 14px', borderRadius: 'var(--radius-full)',
             background: orders.length > 0 ? 'rgba(239,68,68,0.15)' : 'rgba(34,197,94,0.1)',
@@ -200,14 +193,14 @@ export default function KitchenScreen() {
             color: orders.length > 0 ? 'var(--danger)' : 'var(--success)',
             animation: orders.length > 0 ? 'pulse 2s infinite' : 'none',
           }}>
-            🔥 {orders.length} {orders.length === 1 ? 'Order' : 'Orders'} in Queue
+            🔥 {orders.length} {orders.length === 1 ? 'Order' : 'Orders'}
           </div>
           <button className="btn btn-secondary btn-sm" onClick={fetchQueue}>↻</button>
           <button className="btn btn-ghost btn-sm" onClick={() => { logout(); navigate('/login'); }}>⏻ Logout</button>
         </div>
       </header>
 
-      <div style={{ padding: 24 }}>
+      <div style={{ padding: '16px' }}>
         {loading ? (
           <div className="loading-screen" style={{ marginTop: 60 }}>
             <div className="spinner" />
