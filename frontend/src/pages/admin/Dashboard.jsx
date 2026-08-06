@@ -393,7 +393,7 @@ export default function AdminDashboard() {
   return (
     <div className="fade-in">
       {/* ── KPI Row ── */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '12px', marginBottom: '24px' }}>
+      <div className="kpi-grid">
         <StatCard icon={LayoutGrid} label="Total Tables" value={totalTables} color="#8b5cf6" sub="All tables in the restaurant" />
         <StatCard icon={CheckSquare} label="Available Tables" value={availableTables} color="#22c55e" sub="Ready for guests" />
         <StatCard icon={Users} label="Occupied Tables" value={occupiedTables} color="#ef4444" sub="Currently in use" />
@@ -404,7 +404,7 @@ export default function AdminDashboard() {
 
       {/* ── Table QR Grid ── */}
       <div className="card mb-4">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
           <div style={{ fontWeight: 800, fontSize: 15 }}>Dining Table QR Codes &amp; Real-time Occupancy ({tables.length} Tables)</div>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 12 }}>
@@ -458,12 +458,12 @@ export default function AdminDashboard() {
 
       {/* ── Kitchen Order Screen ── */}
       <div className="card mb-4">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
           <div>
             <div style={{ fontWeight: 800, fontSize: 15 }}>Order Queue</div>
             <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>Dedicated cooking queue for kitchen chefs</div>
           </div>
-          <div style={{ display: 'flex', gap: 10, fontSize: 12 }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, fontSize: 12 }}>
             <span style={{ padding: '3px 10px', borderRadius: 99, background: '#f97316', color: '#fff', fontWeight: 700 }}>
               ACCEPTED: {kitchen.filter(k => (k.status === 'pending' || k.status === 'confirmed') && !(k.items || []).some(i => i.status === 'preparing' || i.status === 'ready')).length}
             </span>
@@ -516,7 +516,7 @@ export default function AdminDashboard() {
       <div className="grid-2" style={{ gap: 16, marginBottom: 16 }}>
         {/* Live Orders */}
         <div className="card">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
             <div style={{ fontWeight: 800, fontSize: 15 }}>Live Orders Task Monitor</div>
             <button className="btn btn-ghost btn-sm" onClick={fetchAll}>↻ Refresh</button>
           </div>
