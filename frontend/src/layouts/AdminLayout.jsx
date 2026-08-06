@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import Sidebar, { adminNav } from '../components/Sidebar';
 
@@ -12,16 +13,27 @@ const pageTitles = {
 
 export default function AdminLayout() {
   const location = useLocation();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const title = pageTitles[location.pathname] || 'Admin';
 
   return (
     <div className="app-layout">
-      <Sidebar navItems={adminNav} />
+      <Sidebar navItems={adminNav} isOpen={mobileMenuOpen} onClose={() => setMobileMenuOpen(false)} />
       <div className="main-content">
         <header className="main-header">
-          <div>
-            <div style={{ fontSize: 16, fontWeight: 800, color: 'var(--text)' }}>{title}</div>
-            <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Admin Dashboard</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <button
+              className="btn btn-ghost btn-sm mobile-menu-btn"
+              onClick={() => setMobileMenuOpen(true)}
+              style={{ fontSize: 20, padding: '4px 8px' }}
+              title="Menu"
+            >
+              ☰
+            </button>
+            <div>
+              <div style={{ fontSize: 16, fontWeight: 800, color: 'var(--text)' }}>{title}</div>
+              <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Admin Dashboard</div>
+            </div>
           </div>
           <div style={{ marginLeft: 'auto', display: 'flex', gap: 8, alignItems: 'center' }}>
             <div style={{
