@@ -578,7 +578,7 @@ function SettlePanel({ order, onBilled, onFormChange, currentForm }) {
           {/* Payment method selection */}
           <div style={{ marginBottom: 16 }}>
             <label className="form-label" style={{ fontWeight: 700 }}>Select Payment Method</label>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8 }}>
+            <div className="grid-2" style={{ gap: 8 }}>
               {PAYMENT_METHODS.map(pm => (
                 <button
                   key={pm.key}
@@ -923,7 +923,7 @@ export default function BillingPage() {
               </div>
             </div>
           ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: 20, alignItems: 'start' }}>
+            <div className="billing-layout">
 
               {/* Receipt paper preview */}
               <div>

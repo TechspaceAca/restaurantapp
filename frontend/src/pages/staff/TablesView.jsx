@@ -235,7 +235,7 @@ export default function TablesView() {
       {loading ? (
         <div className="loading-screen"><div className="spinner" /><p>Loading tables...</p></div>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(185px, 1fr))', gap: 14 }}>
+        <div className="table-grid">
           {filtered.map(table => {
             const style   = STATUS_COLORS[table.status] || STATUS_COLORS.available;
             const isLoading = loadingTable === table.id;

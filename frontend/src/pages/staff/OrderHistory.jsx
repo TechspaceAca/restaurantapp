@@ -165,99 +165,101 @@ export default function OrderHistory() {
         </div>
       ) : (
         <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>Order #</th>
-                <th>Table</th>
-                <th>Type</th>
-                <th>Items</th>
-                <th>Total</th>
-                <th>Status</th>
-                <th>Time</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map(order => (
-                <>
-                  <tr
-                    key={order.id}
-                    style={{ cursor: 'pointer' }}
-                    onClick={() => setExpanded(expanded === order.id ? null : order.id)}
-                  >
-                    <td style={{ fontWeight: 800, color: 'var(--primary)' }}>#{order.id}</td>
-                    <td style={{ fontWeight: 600 }}>{order.table_name || '—'}</td>
-                    <td>
-                      <span className="badge badge-muted" style={{ textTransform: 'capitalize' }}>
-                        {order.order_type === 'dine_in' ? '🪑' : order.order_type === 'takeaway' ? '🥡' : '🛵'}{' '}
-                        {order.order_type.replace('_', ' ')}
-                      </span>
-                    </td>
-                    <td style={{ color: 'var(--text-muted)' }}>{order.items.length} items</td>
-                    <td style={{ fontWeight: 700 }}>₹{Number(order.subtotal).toFixed(0)}</td>
-                    <td><span className={`badge status-${order.status}`}>{STATUS_LABELS[order.status]}</span></td>
-                    <td style={{ fontSize: 12, color: 'var(--text-muted)' }}>
-                      {new Date(order.created_at).toLocaleString()}
-                    </td>
-                    <td>
-                      {!['billed', 'cancelled'].includes(order.status) && (
-                        <button
-                          className="btn btn-ghost btn-sm"
-                          onClick={e => { e.stopPropagation(); handleCancel(order.id); }}
-                          style={{ color: 'var(--danger)', fontSize: 12 }}
-                        >
-                          ❌
-                        </button>
-                      )}
-                    </td>
-                  </tr>
-
-                  {/* Expanded detail row */}
-                  {expanded === order.id && (
-                    <tr key={`${order.id}-detail`}>
-                      <td colSpan={8} style={{ background: 'var(--bg-card2)', padding: '12px 16px' }}>
-                        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: order.notes ? 8 : 0 }}>
-                          {order.items.map(item => (
-                            <span
-                              key={item.id}
-                              style={{
-                                padding: '4px 10px', borderRadius: 'var(--radius-full)',
-                                background: 'var(--bg-hover)', fontSize: 12,
-                              }}
-                            >
-                              {item.quantity}× {item.menu_item_name} — ₹{(item.quantity * item.unit_price).toFixed(0)}
-                              {item.notes && <em style={{ color: 'var(--text-muted)', marginLeft: 4 }}>({item.notes})</em>}
-                            </span>
-                          ))}
-                        </div>
-                        {order.notes && (
-                          <div style={{ marginTop: 6, fontSize: 12, color: 'var(--text-muted)' }}>
-                            📝 {order.notes}
-                          </div>
-                        )}
-                        {/* Bill info if billed */}
-                        {order.status === 'billed' && order.bill && (
-                          <div style={{ marginTop: 8, fontSize: 12, display: 'flex', gap: 16, color: 'var(--text-muted)' }}>
-                            <span>💵 {order.bill.payment_method}</span>
-                            <span style={{ color: 'var(--success)', fontWeight: 700 }}>
-                              ₹{Number(order.bill.total).toFixed(2)} total paid
-                            </span>
-                            {order.bill.discount_amount > 0 && (
-                              <span style={{ color: 'var(--warning)' }}>
-                                Discount: ₹{Number(order.bill.discount_amount).toFixed(2)}
-                                {order.bill.discount_reason ? ` (${order.bill.discount_reason})` : ''}
-                              </span>
-                            )}
-                          </div>
+          <div className="table-responsive">
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Order #</th>
+                  <th>Table</th>
+                  <th>Type</th>
+                  <th>Items</th>
+                  <th>Total</th>
+                  <th>Status</th>
+                  <th>Time</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {filtered.map(order => (
+                  <>
+                    <tr
+                      key={order.id}
+                      style={{ cursor: 'pointer' }}
+                      onClick={() => setExpanded(expanded === order.id ? null : order.id)}
+                    >
+                      <td style={{ fontWeight: 800, color: 'var(--primary)' }}>#{order.id}</td>
+                      <td style={{ fontWeight: 600 }}>{order.table_name || '—'}</td>
+                      <td>
+                        <span className="badge badge-muted" style={{ textTransform: 'capitalize' }}>
+                          {order.order_type === 'dine_in' ? '🪑' : order.order_type === 'takeaway' ? '🥡' : '🛵'}{' '}
+                          {order.order_type.replace('_', ' ')}
+                        </span>
+                      </td>
+                      <td style={{ color: 'var(--text-muted)' }}>{order.items.length} items</td>
+                      <td style={{ fontWeight: 700 }}>₹{Number(order.subtotal).toFixed(0)}</td>
+                      <td><span className={`badge status-${order.status}`}>{STATUS_LABELS[order.status]}</span></td>
+                      <td style={{ fontSize: 12, color: 'var(--text-muted)' }}>
+                        {new Date(order.created_at).toLocaleString()}
+                      </td>
+                      <td>
+                        {!['billed', 'cancelled'].includes(order.status) && (
+                          <button
+                            className="btn btn-ghost btn-sm"
+                            onClick={e => { e.stopPropagation(); handleCancel(order.id); }}
+                            style={{ color: 'var(--danger)', fontSize: 12 }}
+                          >
+                            ❌
+                          </button>
                         )}
                       </td>
                     </tr>
-                  )}
-                </>
-              ))}
-            </tbody>
-          </table>
+
+                    {/* Expanded detail row */}
+                    {expanded === order.id && (
+                      <tr key={`${order.id}-detail`}>
+                        <td colSpan={8} style={{ background: 'var(--bg-card2)', padding: '12px 16px' }}>
+                          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: order.notes ? 8 : 0 }}>
+                            {order.items.map(item => (
+                              <span
+                                key={item.id}
+                                style={{
+                                  padding: '4px 10px', borderRadius: 'var(--radius-full)',
+                                  background: 'var(--bg-hover)', fontSize: 12,
+                                }}
+                              >
+                                {item.quantity}× {item.menu_item_name} — ₹{(item.quantity * item.unit_price).toFixed(0)}
+                                {item.notes && <em style={{ color: 'var(--text-muted)', marginLeft: 4 }}>({item.notes})</em>}
+                              </span>
+                            ))}
+                          </div>
+                          {order.notes && (
+                            <div style={{ marginTop: 6, fontSize: 12, color: 'var(--text-muted)' }}>
+                              📝 {order.notes}
+                            </div>
+                          )}
+                          {/* Bill info if billed */}
+                          {order.status === 'billed' && order.bill && (
+                            <div style={{ marginTop: 8, fontSize: 12, display: 'flex', gap: 16, color: 'var(--text-muted)' }}>
+                              <span>💵 {order.bill.payment_method}</span>
+                              <span style={{ color: 'var(--success)', fontWeight: 700 }}>
+                                ₹{Number(order.bill.total).toFixed(2)} total paid
+                              </span>
+                              {order.bill.discount_amount > 0 && (
+                                <span style={{ color: 'var(--warning)' }}>
+                                  Discount: ₹{Number(order.bill.discount_amount).toFixed(2)}
+                                  {order.bill.discount_reason ? ` (${order.bill.discount_reason})` : ''}
+                                </span>
+                              )}
+                            </div>
+                          )}
+                        </td>
+                      </tr>
+                    )}
+                  </>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
     </div>

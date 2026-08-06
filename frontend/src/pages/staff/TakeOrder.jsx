@@ -643,7 +643,7 @@ export default function TakeOrder() {
         {loading ? (
           <div className="loading-screen"><div className="spinner" /><p>Loading menu...</p></div>
         ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 12 }}>
+          <div className="menu-item-grid">
             {displayItems.map(item => (
               <MenuItemCard
                 key={item.id}

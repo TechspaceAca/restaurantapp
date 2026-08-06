@@ -1140,3 +1140,29 @@ input, select, textarea { font-family: inherit; outline: none; }
   -webkit-overflow-scrolling: touch;
 }
 
+
+/* POS Staff Responsive Grids */
+.menu-item-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 12px;
+}
+@media (max-width: 768px) {
+  .menu-item-grid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  }
+}
+
+
+.billing-layout {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 20px;
+  align-items: start;
+}
+@media (max-width: 768px) {
+  .billing-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
