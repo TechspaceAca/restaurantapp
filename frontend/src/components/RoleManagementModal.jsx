@@ -129,10 +129,8 @@ export default function RoleManagementModal({ onClose, onRoleUpdated }) {
                 <tr><td colSpan="3" style={{ textAlign: 'center' }}>No custom roles created.</td></tr>
               ) : roles.map(role => (
                 <tr key={role.id}>
-                  <td data-label="Role Name">
-                    <span className="badge" style={{ background: 'var(--surface)', color: 'var(--text)' }}>
-                      {role.name}
-                    </span>
+                  <td data-label="Role Name" style={{ fontWeight: 600, textTransform: 'uppercase' }}>
+                    {role.name}
                   </td>
                   <td data-label="Base Access" style={{ textTransform: 'capitalize' }}>{role.base_access}</td>
                   <td className="item-actions-td" data-label="" style={{ borderBottom: 'none' }}>
