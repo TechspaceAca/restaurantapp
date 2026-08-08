@@ -236,12 +236,35 @@ export default function MenuManager() {
 
   return (
     <div className="fade-in">
+      <style>{`
+        @media (max-width: 768px) {
+          .page-header { flex-direction: column !important; align-items: flex-start !important; gap: 12px !important; }
+          .header-actions { width: 100%; display: flex; gap: 10px; }
+          .header-actions button { flex: 1; }
+          
+          /* Horizontal scroll categories on mobile */
+          .menu-categories-panel { 
+            display: flex !important; 
+            flex-direction: row !important; 
+            overflow-x: auto !important; 
+            padding: 12px !important; 
+            gap: 8px !important; 
+          }
+          .menu-categories-panel .nav-item { 
+            white-space: nowrap; 
+            padding: 8px 16px !important; 
+            border-radius: 99px !important; 
+            background: var(--bg-card2); 
+          }
+          .menu-categories-panel .category-title { display: none; }
+        }
+      `}</style>
       <div className="page-header">
         <div>
           <div className="page-title">🍽️ Menu Catalog</div>
           <div className="page-subtitle">{categories.length} categories · {items.length} items</div>
         </div>
-        <div style={{ display: 'flex', gap: 10 }}>
+        <div className="header-actions" style={{ display: 'flex', gap: 10 }}>
           <button className="btn btn-secondary btn-sm" onClick={() => setCatModal('new')}>+ Add Category</button>
           <button className="btn btn-primary" onClick={() => setItemModal('new')}>+ Add Item</button>
         </div>
@@ -249,8 +272,8 @@ export default function MenuManager() {
 
       <div className="menu-layout">
         {/* Categories Panel */}
-        <div className="card" style={{ padding: 12, alignSelf: 'start' }}>
-          <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 8, padding: '0 6px' }}>
+        <div className="card menu-categories-panel" style={{ padding: 12, alignSelf: 'start', display: 'flex', flexDirection: 'column', gap: 4 }}>
+          <div className="category-title" style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 8, padding: '0 6px' }}>
             Categories
           </div>
           {categories.map(cat => (
@@ -308,7 +331,7 @@ export default function MenuManager() {
               </div>
             </div>
           ) : (
-            <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
+            <div className="card mobile-table-card" style={{ padding: 0, overflow: 'hidden' }}>
               <div className="table-responsive">
                 <table className="data-table">
                   <thead>
@@ -324,10 +347,10 @@ export default function MenuManager() {
                   <tbody>
                     {filteredItems.map(item => (
                       <tr key={item.id}>
-                        <td>
+                        <td data-label="Item">
                           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                             {item.is_veg ? <div className="veg-dot" /> : <div className="nonveg-dot" />}
-                            <div>
+                            <div style={{ textAlign: 'left' }}>
                               <div style={{ fontWeight: 600, fontSize: 13 }}>
                                 {item.name}
                                 {item.is_featured && <span style={{ marginLeft: 6, fontSize: 11 }}>⭐</span>}
@@ -336,17 +359,17 @@ export default function MenuManager() {
                             </div>
                           </div>
                         </td>
-                        <td style={{ fontWeight: 700, color: 'var(--primary)' }}>₹{item.price}</td>
-                        <td><span className={`badge ${item.is_veg ? 'badge-success' : 'badge-danger'}`}>{item.is_veg ? 'Veg' : 'Non-Veg'}</span></td>
-                        <td style={{ fontSize: 12, color: 'var(--text-muted)' }}>{item.prep_time}m</td>
-                        <td>
+                        <td data-label="Price" style={{ fontWeight: 700, color: 'var(--primary)' }}>₹{item.price}</td>
+                        <td data-label="Type"><span className={`badge ${item.is_veg ? 'badge-success' : 'badge-danger'}`}>{item.is_veg ? 'Veg' : 'Non-Veg'}</span></td>
+                        <td data-label="Prep" style={{ fontSize: 12, color: 'var(--text-muted)' }}>{item.prep_time}m</td>
+                        <td data-label="Status">
                           <button onClick={() => handleToggleItem(item.id)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
                             <span className={`badge ${item.is_available ? 'badge-success' : 'badge-muted'}`}>
                               {item.is_available ? 'Available' : 'Unavailable'}
                             </span>
                           </button>
                         </td>
-                        <td>
+                        <td className="item-actions-td" data-label="">
                           <div style={{ display: 'flex', gap: 6 }}>
                             <button className="btn btn-ghost btn-sm" onClick={() => setItemModal(item)}>✏️ Edit</button>
                             <button className="btn btn-ghost btn-sm" onClick={() => handleDeleteItem(item.id)} style={{ color: 'var(--danger)' }}>🗑️</button>

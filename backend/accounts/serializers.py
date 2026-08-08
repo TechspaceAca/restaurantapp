@@ -2,13 +2,21 @@
 
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from .models import User
+from .models import User, CustomRole
+
+
+class CustomRoleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomRole
+        fields = '__all__'
 
 
 class UserSerializer(serializers.ModelSerializer):
+    custom_role_data = CustomRoleSerializer(source='custom_role', read_only=True)
+
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'role', 'phone']
+        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'role', 'phone', 'custom_role', 'custom_role_data']
         read_only_fields = ['id']
 
 
@@ -17,7 +25,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['username', 'email', 'password', 'first_name', 'last_name', 'role', 'phone']
+        fields = ['username', 'email', 'password', 'first_name', 'last_name', 'role', 'phone', 'custom_role']
 
     def create(self, validated_data):
         user = User.objects.create_user(
@@ -29,6 +37,11 @@ class RegisterSerializer(serializers.ModelSerializer):
             role=validated_data.get('role', 'staff'),
             phone=validated_data.get('phone', ''),
         )
+        custom_role = validated_data.get('custom_role')
+        if custom_role:
+            user.custom_role = custom_role
+            user.role = custom_role.base_access
+            user.save()
         return user
 
 

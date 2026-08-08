@@ -49,12 +49,16 @@ export default function OnlineOrders() {
 
   return (
     <div style={{ padding: '20px 24px', minHeight: '100vh', background: 'var(--bg)' }}>
+      <style>{`
+        @media (max-width: 1024px) {
+          .aggregator-header { flex-direction: column !important; align-items: flex-start !important; gap: 16px !important; }
+          .aggregator-stats-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 12px !important; }
+          .aggregator-tab-switcher { width: 100% !important; overflow-x: auto !important; justify-content: flex-start !important; }
+          .title-wrap { flex-direction: column !important; align-items: flex-start !important; gap: 6px !important; }
+        }
+      `}</style>
       {/* Brand Selector Header */}
-      <div style={{
-        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-        background: 'var(--bg-sidebar)', border: '1px solid var(--surface-border)',
-        borderRadius: 'var(--radius-lg)', padding: '16px 20px', marginBottom: 20,
-      }}>
+      <div className="aggregator-header">
         <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
           <div style={{
             width: 46, height: 46, borderRadius: 12,
@@ -65,7 +69,7 @@ export default function OnlineOrders() {
             {isSwiggy ? '🟠' : '🔴'}
           </div>
           <div>
-            <div style={{ fontSize: 18, fontWeight: 900, color: 'var(--text)', display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div className="title-wrap" style={{ fontSize: 18, fontWeight: 900, color: 'var(--text)', display: 'flex', alignItems: 'center', gap: 8 }}>
               {isSwiggy ? 'Swiggy Merchant Partner Hub' : 'Zomato Merchant Partner Hub'}
               <span style={{
                 fontSize: 11, padding: '2px 8px', borderRadius: 99,
@@ -82,7 +86,7 @@ export default function OnlineOrders() {
         </div>
 
         {/* Tab Switcher Pills */}
-        <div style={{ display: 'flex', gap: 8, background: 'var(--bg-card2)', padding: 4, borderRadius: 99, border: '1px solid var(--surface-border)' }}>
+        <div className="aggregator-tab-switcher" style={{ display: 'flex', gap: 8, background: 'var(--bg-card2)', padding: 4, borderRadius: 99, border: '1px solid var(--surface-border)' }}>
           <button
             onClick={() => setActiveTab('swiggy')}
             style={{
@@ -111,7 +115,7 @@ export default function OnlineOrders() {
       </div>
 
       {/* Channel Controls & Stats Bar */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 20 }}>
+      <div className="aggregator-stats-grid">
         <div style={{ background: 'var(--bg-card)', border: `1.5px solid ${brandBorder}`, borderRadius: 'var(--radius)', padding: 14 }}>
           <div style={{ fontSize: 11, color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase' }}>Active Channel</div>
           <div style={{ fontSize: 18, fontWeight: 900, color: brandColor, marginTop: 2 }}>
@@ -154,11 +158,11 @@ export default function OnlineOrders() {
 
       {/* Orders Layout Grid */}
       {loading ? (
-        <div className="loading-screen" style={{ marginTop: 40 }}>
+        <div className="loading-screen text-center mt-10">
           <div className="spinner" /><p>Loading {isSwiggy ? 'Swiggy' : 'Zomato'} live orders…</p>
         </div>
       ) : orders.length === 0 ? (
-        <div className="card" style={{ textAlign: 'center', padding: '60px 20px', marginTop: 20 }}>
+        <div className="card text-center p-16 mt-5">
           <div style={{ fontSize: 60, marginBottom: 14 }}>{isSwiggy ? '🟠' : '🔴'}</div>
           <div style={{ fontSize: 20, fontWeight: 800, color: 'var(--text)' }}>
             No Active {isSwiggy ? 'Swiggy' : 'Zomato'} Orders
@@ -168,7 +172,7 @@ export default function OnlineOrders() {
           </div>
         </div>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: 16 }}>
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {orders.map(o => (
             <div key={o.id} style={{
               background: 'var(--bg-card)',

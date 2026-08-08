@@ -150,13 +150,13 @@ export default function Login() {
           <button
             type="submit"
             className="btn btn-primary w-full"
-            style={{ justifyContent: 'center', padding: '10px', fontSize: 14, marginTop: 4 }}
+            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '10px', fontSize: 14, marginTop: 4, gap: 6 }}
             disabled={loading}
           >
             {loading ? (
               <><div className="spinner spinner-sm" /> Logging in...</>
             ) : (
-              `Open ${selectedRole.toUpperCase()} Dashboard →`
+              <>Open {selectedRole.toUpperCase()} Dashboard <span style={{ position: 'relative', top: '-1px' }}>&rarr;</span></>
             )}
           </button>
         </form>

@@ -351,6 +351,7 @@ export default function TakeOrder() {
   const [customerName, setCustomerName]   = useState('');
   const [loading, setLoading]       = useState(true);
   const [placing, setPlacing]       = useState(false);
+  const [isMobileCartOpen, setIsMobileCartOpen] = useState(false);
 
   const {
     cart, selectedTable, activeOrder, addItemsMode,
@@ -666,21 +667,34 @@ export default function TakeOrder() {
       </div>
 
       {/* ── Cart panel ── */}
-      <CartPanel
-        cart={cart}
-        total={getCartTotal()}
-        selectedTable={selectedTable}
-        activeOrder={activeOrder}
-        addItemsMode={addItemsMode}
-        orderType={orderType}
-        onPlaceOrder={handlePlaceOrder}
-        onUpdateExistingItem={handleUpdateExistingItem}
-        placing={placing}
-        customerPhone={customerPhone}
-        setCustomerPhone={setCustomerPhone}
-        customerName={customerName}
-        setCustomerName={setCustomerName}
-      />
+      <div className={`mobile-cart-wrapper ${isMobileCartOpen ? 'open' : ''}`}>
+        <button className="close-cart-btn" onClick={() => setIsMobileCartOpen(false)}>
+          ↓ Swipe down to close cart
+        </button>
+        <CartPanel
+          cart={cart}
+          total={getCartTotal()}
+          selectedTable={selectedTable}
+          activeOrder={activeOrder}
+          addItemsMode={addItemsMode}
+          orderType={orderType}
+          onPlaceOrder={handlePlaceOrder}
+          onUpdateExistingItem={handleUpdateExistingItem}
+          placing={placing}
+          customerPhone={customerPhone}
+          setCustomerPhone={setCustomerPhone}
+          customerName={customerName}
+          setCustomerName={setCustomerName}
+        />
+      </div>
+
+      {/* Floating View Cart Button (only visible on CSS mobile) */}
+      {(cart.length > 0 || (addItemsMode && activeOrder?.items?.length > 0)) && !isMobileCartOpen && (
+        <button className="floating-cart-btn" onClick={() => setIsMobileCartOpen(true)}>
+          <span>🛒 View Cart ({cart.reduce((sum, item) => sum + item.qty, 0)} items)</span>
+          <span>₹{getCartTotal().toFixed(2)}</span>
+        </button>
+      )}
     </div>
   );
 }

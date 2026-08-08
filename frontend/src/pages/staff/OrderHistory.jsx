@@ -105,7 +105,9 @@ export default function OrderHistory() {
             )}
           </div>
         </div>
-        <button className="btn btn-secondary btn-sm" onClick={fetchOrders}>↻ Refresh</button>
+        <button className="btn btn-secondary btn-sm" onClick={fetchOrders} style={{ gap: 6 }}>
+          <span style={{ position: 'relative', top: '-1px', fontSize: '14px' }}>&#x21bb;</span> Refresh
+        </button>
       </div>
 
       {/* ── Filters bar ── */}
@@ -164,7 +166,7 @@ export default function OrderHistory() {
           </div>
         </div>
       ) : (
-        <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
+        <div className="card mobile-table-card" style={{ padding: 0, overflow: 'hidden' }}>
           <div className="table-responsive">
             <table className="data-table">
               <thead>
@@ -187,28 +189,28 @@ export default function OrderHistory() {
                       style={{ cursor: 'pointer' }}
                       onClick={() => setExpanded(expanded === order.id ? null : order.id)}
                     >
-                      <td style={{ fontWeight: 800, color: 'var(--primary)' }}>#{order.id}</td>
-                      <td style={{ fontWeight: 600 }}>{order.table_name || '—'}</td>
-                      <td>
-                        <span className="badge badge-muted" style={{ textTransform: 'capitalize' }}>
+                      <td data-label="Order #" style={{ fontWeight: 800, color: 'var(--primary)' }}>#{order.id}</td>
+                      <td data-label="Table" style={{ fontWeight: 600 }}>{order.table_name || '—'}</td>
+                      <td data-label="Type">
+                        <span style={{ textTransform: 'capitalize' }}>
                           {order.order_type === 'dine_in' ? '🪑' : order.order_type === 'takeaway' ? '🥡' : '🛵'}{' '}
                           {order.order_type.replace('_', ' ')}
                         </span>
                       </td>
-                      <td style={{ color: 'var(--text-muted)' }}>{order.items.length} items</td>
-                      <td style={{ fontWeight: 700 }}>₹{Number(order.subtotal).toFixed(0)}</td>
-                      <td><span className={`badge status-${order.status}`}>{STATUS_LABELS[order.status]}</span></td>
-                      <td style={{ fontSize: 12, color: 'var(--text-muted)' }}>
+                      <td data-label="Items" style={{ color: 'var(--text-muted)' }}>{order.items.length} items</td>
+                      <td data-label="Total" style={{ fontWeight: 700 }}>₹{Number(order.subtotal).toFixed(0)}</td>
+                      <td data-label="Status"><span className={`badge status-${order.status}`}>{STATUS_LABELS[order.status]}</span></td>
+                      <td data-label="Time" style={{ fontSize: 12, color: 'var(--text-muted)' }}>
                         {new Date(order.created_at).toLocaleString()}
                       </td>
-                      <td>
+                      <td className="item-actions-td" data-label="">
                         {!['billed', 'cancelled'].includes(order.status) && (
                           <button
                             className="btn btn-ghost btn-sm"
                             onClick={e => { e.stopPropagation(); handleCancel(order.id); }}
                             style={{ color: 'var(--danger)', fontSize: 12 }}
                           >
-                            ❌
+                            ❌ Cancel
                           </button>
                         )}
                       </td>

@@ -1,24 +1,26 @@
 import { useState, useEffect } from 'react';
 import { authApi } from '../../api';
 import toast from 'react-hot-toast';
+import RoleManagementModal from '../../components/RoleManagementModal';
 
-const ROLES = [
-  { value: 'admin', label: '👑 Admin / Owner', color: 'var(--primary)' },
-  { value: 'staff', label: '🧾 Staff / Cashier', color: 'var(--success)' },
-  { value: 'kitchen', label: '👨‍🍳 Kitchen Cook', color: 'var(--accent)' },
-];
-
-function StaffModal({ staff, onClose, onSave }) {
+function StaffModal({ staff, roles, onClose, onSave }) {
   const [form, setForm] = useState({
     username: staff?.username || '', first_name: staff?.first_name || '',
     last_name: staff?.last_name || '', email: staff?.email || '',
-    role: staff?.role || 'staff', phone: staff?.phone || '',
+    custom_role: staff?.custom_role || '', phone: staff?.phone || '',
     password: '',
   });
   const [saving, setSaving] = useState(false);
 
+  useEffect(() => {
+    if (!form.custom_role && roles.length > 0 && !staff?.id) {
+      setForm(f => ({ ...f, custom_role: roles[0].id }));
+    }
+  }, [roles, form.custom_role, staff]);
+
   const handleSave = async () => {
     if (!form.username) { toast.error('Username is required'); return; }
+    if (!form.custom_role) { toast.error('Role is required'); return; }
     if (!staff?.id && !form.password) { toast.error('Password is required for new users'); return; }
     setSaving(true);
     try {
@@ -64,8 +66,9 @@ function StaffModal({ staff, onClose, onSave }) {
           </div>
           <div className="form-group">
             <label className="form-label">Role *</label>
-            <select className="form-select" value={form.role} onChange={e => setForm(f => ({ ...f, role: e.target.value }))}>
-              {ROLES.map(r => <option key={r.value} value={r.value}>{r.label}</option>)}
+            <select className="form-select" value={form.custom_role} onChange={e => setForm(f => ({ ...f, custom_role: e.target.value }))}>
+              {roles.length === 0 ? <option value="">No roles available (Create one first)</option> : null}
+              {roles.map(r => <option key={r.id} value={r.id}>{r.name} ({r.base_access})</option>)}
             </select>
           </div>
           <div className="form-group" style={{ gridColumn: '1/-1' }}>
@@ -75,7 +78,7 @@ function StaffModal({ staff, onClose, onSave }) {
         </div>
         <div style={{ display: 'flex', gap: 10, marginTop: 8 }}>
           <button className="btn btn-secondary flex-1" onClick={onClose}>Cancel</button>
-          <button className="btn btn-primary flex-1" onClick={handleSave} disabled={saving}>
+          <button className="btn btn-primary flex-1" onClick={handleSave} disabled={saving || roles.length === 0}>
             {saving ? 'Saving...' : 'Save Staff'}
           </button>
         </div>
@@ -86,41 +89,55 @@ function StaffModal({ staff, onClose, onSave }) {
 
 export default function StaffList() {
   const [staff, setStaff] = useState([]);
+  const [roles, setRoles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [modal, setModal] = useState(null);
+  const [roleModalOpen, setRoleModalOpen] = useState(false);
 
-  useEffect(() => { fetchStaff(); }, []);
+  useEffect(() => { 
+    fetchData();
+  }, []);
 
-  const fetchStaff = async () => {
+  const fetchData = async () => {
+    setLoading(true);
     try {
-      const res = await authApi.getStaff();
-      setStaff(res.data);
-    } catch { toast.error('Failed to load staff'); }
+      const [staffRes, rolesRes] = await Promise.all([
+        authApi.getStaff(),
+        authApi.getRoles()
+      ]);
+      setStaff(staffRes.data.filter(s => s.role !== 'admin'));
+      setRoles(rolesRes.data);
+    } catch { 
+      toast.error('Failed to load data'); 
+    }
     finally { setLoading(false); }
   };
 
   const handleDelete = async (id) => {
     if (!confirm('Remove this staff member?')) return;
-    try { await authApi.deleteStaff(id); toast.success('Staff removed'); fetchStaff(); }
+    try { await authApi.deleteStaff(id); toast.success('Staff removed'); fetchData(); }
     catch { toast.error('Failed to remove staff'); }
   };
-
-  const roleInfo = (role) => ROLES.find(r => r.value === role);
 
   return (
     <div className="fade-in">
       <div className="page-header">
         <div>
-          <div className="page-title">👥 Staff Management</div>
+          <div className="page-title" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{ transform: 'translateY(-2px)' }}>👥</span> Staff Management
+          </div>
           <div className="page-subtitle">{staff.length} users registered</div>
         </div>
-        <button className="btn btn-primary" onClick={() => setModal('new')}>+ Add Staff</button>
+        <div style={{ display: 'flex', gap: '10px' }}>
+          <button className="btn btn-secondary" onClick={() => setRoleModalOpen(true)}>Manage Roles</button>
+          <button className="btn btn-primary" onClick={() => setModal('new')}>+ Add Staff</button>
+        </div>
       </div>
 
       {loading ? (
         <div className="loading-screen"><div className="spinner" /><p>Loading staff...</p></div>
       ) : (
-        <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
+        <div className="card mobile-table-card" style={{ padding: 0, overflow: 'hidden' }}>
           <table className="data-table">
             <thead>
               <tr>
@@ -134,10 +151,12 @@ export default function StaffList() {
             </thead>
             <tbody>
               {staff.map(s => {
-                const ri = roleInfo(s.role);
+                const fallbackNames = { admin: 'Admin / Owner', staff: 'Staff / Cashier', kitchen: 'Kitchen Cook' };
+                const roleName = s.custom_role_data?.name || fallbackNames[s.role] || 'Unknown';
+                
                 return (
                   <tr key={s.id}>
-                    <td>
+                    <td data-label="Name">
                       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                         <div style={{
                           width: 34, height: 34, borderRadius: '50%',
@@ -147,18 +166,20 @@ export default function StaffList() {
                         }}>
                           {(s.first_name || s.username)[0].toUpperCase()}
                         </div>
-                        <span style={{ fontWeight: 600 }}>{s.first_name} {s.last_name}</span>
+                          <span style={{ fontWeight: 600 }}>
+                            {s.first_name || s.last_name ? `${s.first_name} ${s.last_name}`.trim() : s.username}
+                          </span>
                       </div>
                     </td>
-                    <td style={{ color: 'var(--text-muted)', fontFamily: 'monospace' }}>@{s.username}</td>
-                    <td>
-                      <span className="badge" style={{ background: ri?.color + '22', color: ri?.color }}>
-                        {ri?.label}
+                    <td data-label="Username" style={{ color: 'var(--text-muted)', fontFamily: 'monospace' }}>@{s.username}</td>
+                    <td data-label="Role">
+                      <span className="badge" style={{ background: 'var(--surface)', color: 'var(--text)' }}>
+                        {roleName}
                       </span>
                     </td>
-                    <td style={{ color: 'var(--text-muted)', fontSize: 13 }}>{s.email || '—'}</td>
-                    <td style={{ color: 'var(--text-muted)', fontSize: 13 }}>{s.phone || '—'}</td>
-                    <td>
+                    <td data-label="Email" style={{ color: 'var(--text-muted)', fontSize: 13 }}>{s.email || '—'}</td>
+                    <td data-label="Phone" style={{ color: 'var(--text-muted)', fontSize: 13 }}>{s.phone || '—'}</td>
+                    <td className="item-actions-td" data-label="">
                       <div style={{ display: 'flex', gap: 6 }}>
                         <button className="btn btn-ghost btn-sm" onClick={() => setModal(s)}>✏️ Edit</button>
                         <button className="btn btn-ghost btn-sm" onClick={() => handleDelete(s.id)} style={{ color: 'var(--danger)' }}>🗑️</button>
@@ -182,8 +203,18 @@ export default function StaffList() {
       {modal !== null && (
         <StaffModal
           staff={modal === 'new' ? null : modal}
+          roles={roles}
           onClose={() => setModal(null)}
-          onSave={() => { setModal(null); fetchStaff(); }}
+          onSave={() => { setModal(null); fetchData(); }}
+        />
+      )}
+
+      {roleModalOpen && (
+        <RoleManagementModal 
+          onClose={() => {
+            setRoleModalOpen(false);
+            fetchData();
+          }} 
         />
       )}
     </div>

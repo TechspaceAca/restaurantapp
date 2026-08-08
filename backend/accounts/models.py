@@ -4,6 +4,21 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 
 
+class CustomRole(models.Model):
+    name = models.CharField(max_length=50, unique=True)
+    base_access = models.CharField(
+        max_length=20, 
+        choices=[('staff', 'Staff / Cashier'), ('kitchen', 'Kitchen Cook')],
+        default='staff'
+    )
+
+    class Meta:
+        ordering = ['name']
+
+    def __str__(self):
+        return f"{self.name} ({self.get_base_access_display()})"
+
+
 class User(AbstractUser):
     ROLE_CHOICES = [
         ('admin', 'Admin / Owner'),
@@ -11,6 +26,7 @@ class User(AbstractUser):
         ('kitchen', 'Kitchen Cook'),
     ]
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='staff')
+    custom_role = models.ForeignKey(CustomRole, null=True, blank=True, on_delete=models.SET_NULL)
     phone = models.CharField(max_length=15, blank=True)
     avatar = models.ImageField(upload_to='avatars/', blank=True, null=True)
 

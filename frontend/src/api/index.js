@@ -9,6 +9,10 @@ export const authApi = {
   deleteStaff: (id) => api.delete(`/auth/staff/${id}/`),
   getSettings: () => api.get('/auth/settings/'),
   updateSettings: (data) => api.put('/auth/settings/', data),
+  getRoles: () => api.get('/auth/roles/'),
+  createRole: (data) => api.post('/auth/roles/', data),
+  updateRole: (id, data) => api.put(`/auth/roles/${id}/`, data),
+  deleteRole: (id) => api.delete(`/auth/roles/${id}/`),
 };
 
 export const menuApi = {

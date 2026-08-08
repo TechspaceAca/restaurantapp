@@ -6,9 +6,23 @@ from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
-from .models import User
-from .serializers import UserSerializer, RegisterSerializer, CustomTokenSerializer
+from .models import User, CustomRole
+from .serializers import UserSerializer, RegisterSerializer, CustomTokenSerializer, CustomRoleSerializer
 from .permissions import IsAdmin
+
+
+class RoleListView(generics.ListCreateAPIView):
+    """GET/POST /api/auth/roles/ (Admin only)."""
+    queryset = CustomRole.objects.all()
+    serializer_class = CustomRoleSerializer
+    permission_classes = [IsAdmin]
+
+
+class RoleDetailView(generics.RetrieveUpdateDestroyAPIView):
+    """GET/PUT/DELETE /api/auth/roles/<id>/ (Admin only)."""
+    queryset = CustomRole.objects.all()
+    serializer_class = CustomRoleSerializer
+    permission_classes = [IsAdmin]
 
 
 class LoginView(TokenObtainPairView):
