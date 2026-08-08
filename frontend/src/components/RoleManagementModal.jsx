@@ -7,7 +7,7 @@ const BASE_ACCESS_CHOICES = [
   { value: 'kitchen', label: 'Kitchen Dashboard (KDS)' },
 ];
 
-export default function RoleManagementModal({ onClose }) {
+export default function RoleManagementModal({ onClose, onRoleUpdated }) {
   const [roles, setRoles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [editingRole, setEditingRole] = useState(null);
@@ -56,6 +56,7 @@ export default function RoleManagementModal({ onClose }) {
       }
       handleCancelEdit();
       fetchRoles();
+      if (onRoleUpdated) onRoleUpdated();
     } catch (err) {
       toast.error(err.response?.data?.name?.[0] || 'Failed to save role');
     }
@@ -67,14 +68,15 @@ export default function RoleManagementModal({ onClose }) {
       await authApi.deleteRole(id);
       toast.success('Role deleted');
       fetchRoles();
+      if (onRoleUpdated) onRoleUpdated();
     } catch (err) {
       toast.error('Failed to delete role');
     }
   };
 
   return (
-    <div className="modal-backdrop fade-in" onClick={onClose}>
-      <div className="modal-content" style={{ maxWidth: '600px' }} onClick={e => e.stopPropagation()}>
+    <div className="modal-overlay fade-in" onClick={onClose}>
+      <div className="modal" style={{ maxWidth: '600px' }} onClick={e => e.stopPropagation()}>
         <div className="modal-header">
           <h2 className="modal-title">Manage Custom Roles</h2>
           <button className="modal-close" onClick={onClose}>&times;</button>
@@ -127,16 +129,16 @@ export default function RoleManagementModal({ onClose }) {
                 <tr><td colSpan="3" style={{ textAlign: 'center' }}>No custom roles created.</td></tr>
               ) : roles.map(role => (
                 <tr key={role.id}>
-                  <td>
+                  <td data-label="Role Name">
                     <span className="badge" style={{ background: 'var(--surface)', color: 'var(--text)' }}>
                       {role.name}
                     </span>
                   </td>
-                  <td style={{ textTransform: 'capitalize' }}>{role.base_access}</td>
-                  <td>
-                    <div style={{ display: 'flex', gap: '8px' }}>
-                      <button className="btn btn-secondary" style={{ padding: '6px 12px' }} onClick={() => handleEdit(role)}>Edit</button>
-                      <button className="btn btn-danger" style={{ padding: '6px 12px' }} onClick={() => handleDelete(role.id)}>Delete</button>
+                  <td data-label="Base Access" style={{ textTransform: 'capitalize' }}>{role.base_access}</td>
+                  <td className="item-actions-td" data-label="" style={{ borderBottom: 'none' }}>
+                    <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end', width: '100%' }}>
+                      <button className="btn btn-ghost btn-sm" onClick={() => handleEdit(role)}>✏️ Edit</button>
+                      <button className="btn btn-ghost btn-sm" onClick={() => handleDelete(role.id)} style={{ color: 'var(--danger)' }}>🗑️</button>
                     </div>
                   </td>
                 </tr>

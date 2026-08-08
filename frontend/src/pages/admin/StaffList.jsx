@@ -66,8 +66,9 @@ function StaffModal({ staff, roles, onClose, onSave }) {
           </div>
           <div className="form-group">
             <label className="form-label">Role *</label>
-            <select className="form-select" value={form.custom_role} onChange={e => setForm(f => ({ ...f, custom_role: e.target.value }))}>
-              {roles.length === 0 ? <option value="">No roles available (Create one first)</option> : null}
+            <select className="form-select" value={form.custom_role || ''} onChange={e => setForm(f => ({ ...f, custom_role: e.target.value }))}>
+              <option value="" disabled>-- Select a Role --</option>
+              {roles.length === 0 && <option value="" disabled>No roles available (Create one first)</option>}
               {roles.map(r => <option key={r.id} value={r.id}>{r.name} ({r.base_access})</option>)}
             </select>
           </div>
@@ -215,6 +216,7 @@ export default function StaffList() {
             setRoleModalOpen(false);
             fetchData();
           }} 
+          onRoleUpdated={fetchData}
         />
       )}
     </div>
